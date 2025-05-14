@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seu nome está na Deep Web?</title>
+    <style>
+        .main { 
+            display: flex; 
+            width: 100vw; 
+            height: 100vh;
+            flex-wrap: wrap; 
+            align-items: center; 
+            justify-content: space-between; 
+            margin: -8px; 
+            background-color: #091a3a; 
+            position: relative; /* Adicionado para contexto de z-index */
+            z-index: 1; /* Garante que main fique acima do fundo */
+            
+        }
+        h1 { 
+            font-family: var(--fontTitle); 
+            color: var(--cor05); 
+            font-size: 2.5rem; 
+        }
+        .gradient-text {  
+            z-index: 3; 
+            background-image: linear-gradient(45deg, #6a11cb, #2575fc,#ff6b6b, #6a11cb, #2575fc); 
+            background-size: 300% 300%; 
+            --webkit-background-clip: text; 
+            background-clip: text; 
+            color: transparent; 
+            font-size: 4rem; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            animation: gradient 5s ease infinite; 
+            font-family: Arial, Helvetica, sans-serif; 
+            margin-left: 20px;
+            position: relative;
+        }
+        @keyframes gradient { 
+            0% { background-position: 0% 50%; } 
+            50% { background-position: 100% 50%; } 
+            100% { background-position: 0% 50%; } 
+        }
+        #img { 
+            min-width: 40vw; 
+            margin-top: -10vh;
+            position: relative; /* Adicionado para z-index funcionar */
+            z-index: 3; /* Garante que o foguete fique acima das estrelas */
+        }
+
+        /* Corrigido: media query para orientação portrait */
+        @media (orientation: portrait) {
+            body { 
+                
+                overflow-x: hidden; 
+                scroll-behavior: smooth;
+            }
+            #img {
+                width: 80vw !important;
+                min-width: unset;
+            }
+            .transt {
+                width: 80vw;
+                height: 30vh;
+                align-items: center;
+            }
+            .login {
+                margin-left: 5vw;
+            }
+            input {
+                min-width: 60vw;
+            }
+            #submit {
+                min-width: 63vw;
+            }
+            #Conta {
+                position: absolute;
+                top: 73vh;
+                left: 17vw;
+                transition-duration: 2s;
+            }
+            #result-img{
+                min-width: 60vw;
+            }
+            #div{
+                transform: translateX(20px);
+            }
+        }
+                .transt 
+{
+
+display: inline-flex;
+
+flex-direction: column;
+
+justify-content: center;
+
+align-items: center;
+
+min-height: 70vh;
+
+border: 5px solid white;
+
+border-radius: 20px;
+
+min-width: 40vw;
+
+margin-bottom: 5vh;
+
+margin-left: 2vw;
+
+margin-top: 5vh;
+
+
+}
+article
+{
+
+display: flex;
+
+width: 100vw;
+
+height: 100vh;
+
+justify-content: center;
+
+align-items: center;
+
+margin: -8px;
+
+background-image: url('images/backgroundimg.jpg');
+
+
+}
+.login 
+{
+
+animation-name: slideLogin;
+
+animation-duration: 3.5s;
+
+
+}
+label 
+{
+
+display: block;
+
+font-family: Arial, Helvetica, sans-serif;
+
+color: white;
+
+font-weight: bold;
+
+margin-left: -15px;
+
+
+}
+input 
+{
+
+width: 30vw;
+
+height: 6vh;
+
+border-radius: 25px;
+
+margin: 5px -15px;
+
+padding: 5px;
+
+background-color: #00000000;
+
+border: 3px solid white;
+
+
+
+}
+input:focus 
+{
+    background-color: #00000000;
+}
+input::placeholder
+{
+
+color: white;
+
+font-family: Arial, Helvetica, sans-serif;
+
+font-weight: bold;
+
+
+}
+#submit 
+{
+
+color: white;
+
+font-weight: bold;
+
+border-color: #091a3a;
+
+border-width: 3px;
+
+background-color: #091a3a;
+
+border-radius: 50px;
+
+width: 31vw;
+
+
+}
+#Conta 
+{
+
+text-decoration: none;
+
+margin-left: 7vw;
+
+margin-top: 5vh;
+
+color: var(--cor05);
+
+font-family: var(--fontNormal);
+
+
+}
+@keyframes slideLogin
+{
+
+from 
+{
+
+opacity: 0;
+
+transform: translateX(60px);
+
+
+}
+to 
+{
+
+ opacity: 1;
+
+transform: translateX(0px);
+
+
+}
+
+}
+h1
+{
+
+font-family: var(--fontTitle);
+
+color: var(--cor05);
+
+font-size: 2.5rem;
+
+
+}
+h1{
+font-family: Arial, Helvetica, sans-serif;
+color: white;
+}
+
+#result{
+    background-color: #091a3a;
+    background-image: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.visible{
+    animation-name: aparing;
+    animation-duration: 1.5s;
+    
+}
+.a img{
+    width: 20vw;
+    margin-top: -10vh;
+    position: relative; /* Adicionado para z-index funcionar */
+    z-index: 3; /* Garante que o foguete fique acima das estrelas */
+    box-shadow: 5px 5px 10px #B82D33;
+    border-radius: 50%;
+    transition: all 0.5s ease-in-out;
+}
+@keyframes aparing { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+.data{
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1em;
+}
+.b img{
+     width: 20vw;
+    margin-top: -10vh;
+    position: relative; /* Adicionado para z-index funcionar */
+    z-index: 3; /* Garante que o foguete fique acima das estrelas */
+    box-shadow: 5px 5px 10px #39FF14;
+    border-radius: 50%;
+    transition: all 0.5s ease-in-out;
+}
+    </style>
+</head>
+<body>
+    <main class="main"> <h1 class="gradient-text">Veja se  seu <br>nome foi vazado  na <br>Deep Web.</h1> <img src="images/Foguete.png" alt="" id="img"> </main>
+    <article>
+         <section class="transt"> <h1> Nome Completo </h1> <form action="#result" method="POST" autocomplete="on" class="login"> <label for="name"> Nome Completo: </label> <input type="text" name="Name" id="name" required maxlength="100" size="50" placeholder="Nome Completo"> <br><input type="submit" id="submit" name="submit" value="Entrar"> </form> </section>
+    </article>
+    <article id="result">
+        <div class="a"><img src="images/Dislike.png" alt="" id="result-img"></div>
+        <p id="div"></p>
+        <p class="data"></p>
+    </article>
+    <script>
+        const a = document.querySelectorAll('#a'); const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); } } ); } , { threshold: 0.1 } ); a.forEach(a => observer.observe(a));
+        const val = document.querySelector('#name').value;
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(event) {
+            window.location.href = '#result';
+            event.preventDefault(); // Impede o envio padrão do formulário
+            const name = document.querySelector('#name').value;
+            const imgDiv = document.querySelector('.a');
+            const img = document.querySelector('#result-img');
+            // Troca a imagem e aplica a classe de sombra verde
+            img.src = 'images/Joinha.png';
+            imgDiv.classList.remove('a');
+            imgDiv.classList.add('b');
+            // Atualiza o texto do resultado
+            const resultDiv = document.querySelector('#div');
+            resultDiv.innerHTML = `<h1>${name}, seu nome está na Deep Web!</h1>`;
+            const dataDiv = document.querySelector('.data');
+            dataDiv.innerHTML = `<p class="data">Data: 20/05/24</p><p class="data">Hora: 14:30</p><p class="data">Local: São Paulo</p><p class="data">IP: 300.000.000.000</p><p class="data">Nome: ${name}</p><p class="data">Crimes cometidos: 0</p><p class="data">Status: Namorando</p><p class="data">Nome do namorado(a): Quem te mandou isso&#x1F60D;</p>`;
+            // Animação de aparição
+            const resultArticle = document.getElementById('result');
+            resultArticle.classList.add('visible');
+        });
+    </script>
+</body>
+</html>
