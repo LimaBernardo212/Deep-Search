@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="images/engrenagem.png" type="image/x-icon">
+    <link rel="stylesheet" href="style/portraitest.css" media="screen and (orientation: portrait)">
+    <title>Navigator</title>
+    <style>
+        @charset "UTF-8";
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+        @import url(https://fonts.googleapis.com/css2?family=Baloo+Bhai+2:wght@400&display=swap);
+@import url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.css);
+        :root{
+            --cor01: #373f47;
+            --cor02: #666D73;
+            --cor03: #9FA3A6;
+            --cor04: #D7D8D9;
+            --cor05: #F2F2F2;
+            --cor06: #1c202475;
+            --cor07: black;
+            --cor08: #252f38;
+            --cor09: #424e5a;
+            --cor010: #3f4954;
+            --fontNormal: 'Roboto';
+            --fontTitle: 'Roboto Mono';
+            --fontH1: 'Roboto Condensed';
+            --color:#4771b0;
+            --color1:#2b4a7d;
+            --cor011: rgb(10, 10, 10);
+        }
+        #herosection{
+            display: flex;
+            flex-direction: row;
+            background-color: #FFE5E5;
+            margin: -8px;
+            width: 100vw;
+            height: 100vh;
+            align-items: center;
+        }
+        
+        .typewriter { 
+            overflow: hidden; 
+            border-right: 4px solid white;
+            white-space: nowrap;
+            animation: typing 2s steps(var(--nchars)) 1 normal both, blink-caret 0.7s step-end infinite;
+        } 
+        @keyframes typing { 
+            from { width: 0; } 
+            to { width: 100%; } 
+        } 
+        @keyframes blink-caret { 
+            50% { border-color: transparent; }
+         } 
+        .galaxy-text { 
+            font-family: var(--fontTitle); 
+            background-color: transparent; 
+            
+            border-right: none; 
+            width: auto; 
+            margin-top: 50px; 
+            overflow: hidden; 
+            white-space: wrap; 
+            font-family: var(--fontTitle);
+            font-weight: bolder;
+            font-size: 3em;
+            color: #A04040;
+            max-width: 60vw;
+            padding: 20px;
+        } 
+          h1 {
+            margin: 0;
+            padding: 0; 
+            line-height: 1;
+            border-right: none; 
+        }
+        p{
+            color: #A04040;
+            max-width: 55vw;
+            font-family: var(--fontNormal);
+            font-weight: 550;
+            padding: 20px;
+        }
+        button{
+            margin-left: 22vw;
+            border-radius: 50px;
+            background-color: #800020;
+            color: #FFFFFF;
+            border: none;
+            border-collapse: separate;
+            padding: 15px;
+            width: 13vw;
+            box-shadow: 2px 2px 10px #a040409d;
+            animation-name: pulse;
+            animation-duration: 2s;
+            animation-direction: alternate;
+            animation-duration: 2s;
+            animation-iteration-count: infinite;
+            animation-fill-mode: forwards;
+        }
+        button:hover{
+            box-shadow: 3px 10px 20px #A04040;
+            transform: translate(10px ,-10px);
+            transition: 0.4s all ease-in-out;
+        }
+            #hearth {
+                margin-left: 10vw;
+      position: relative;
+      width: 20vw;
+      height: 60vh;
+      background: #A04040;
+      border-top-right-radius: 50%;
+      transform: rotate(43deg);
+      border-top-left-radius: 50%;
+    }
+    #hearth::before{
+        content: "";
+        margin-left: 10vw;
+        position: absolute;
+        width: 20vw;
+        height: 60vh;
+        top: 72px;
+        left: -235px;
+        background-color: #A04040;
+        border-top-right-radius: 50%;
+        border-top-left-radius: 50%;
+        transform: rotate(-92deg);
+    }
+    @keyframes pulse {
+        0%{
+            transform: scale(1);
+        }
+        100%{
+            transform: scale(1.05);
+        }
+
+    }
+    #inhearth{
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        z-index: 2;
+        color: var(--cor05);
+        opacity: 0;
+    }
+    #inhearth2{
+        display: none;
+        position: absolute;
+        top: 30%;
+        left: 45%;
+        transform: translate(-30%,-45%);
+        z-index: 2;
+        opacity: 0;
+        color: var(--cor05);
+    }
+    #inhearth3{
+        display: none;
+        z-index: 2;
+        position: absolute;
+        top: 60%;
+        left: 20%;
+        opacity: 0;
+        transform: translate(-60%,-20%);
+        opacity: 1;
+        color: #A04040 ;
+        background-color: #FFE5E5;
+        box-shadow: 2px 2px 10px #800020;
+        animation-name: pulse;
+        animation-duration: 2s;
+        animation-direction: alternate;
+        animation-duration: 2s;
+        animation-iteration-count: infinite;
+        animation-fill-mode: forwards;
+        text-align: center;
+        margin-left: 22vw;
+            border-radius: 50px;
+            border: none;
+            border-collapse: separate;
+            padding: 15px;
+            width: 13vw;
+    }
+    #inhearth3:hover{
+        box-shadow: 3px 10px 20px #800020;
+            transform: translate(10px ,-10px);
+            transition: 0.4s all ease-in-out;
+    }
+    
+    </style>
+    
+</head>
+<body>
+    <section id="herosection">
+        <div>
+            <h1 class="galaxy-text">Lorem ipsum, dolor sit amet consectetur adipisicing elit. </h1>
+            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Non expedita nostrum blanditiis veniam odio nulla cum ullam quam asperiores! Expedita placeat quasi, sint minus inventore excepturi suscipit debitis itaque odit.</p>
+            <button>Continuar</button>
+        </div>
+        <div id="hearth"></div>
+        <h1 id="inhearth2" class="galaxy-text">Feliz Dia Dos Namorados!</h1>
+        <p id="inhearth">Hoje é o dia de celebrar aquele olhar que acalenta, o abraço que aquece e o sorriso que ilumina qualquer dia. Seja com flores, presentes ou simplesmente um "eu te amo", faça desse Dia dos Namorados uma lembrança eterna. Aqui, cada detalhe foi pensado para tornar o seu amor ainda mais especial.</p>
+        <button id="inhearth3">Continuar</button>
+        
+    </section>
+</body>
+<script>
+    const galaxyText = document.querySelector('.galaxy-text'); 
+    function setTypewriter(el) {
+         if (!el.classList.contains('typewriter')) {
+             const text = el.textContent; el.style.setProperty('--nchars', text.length);
+              el.classList.add('typewriter'); } }
+               function observeTypewriter(selector) {
+                 document.querySelectorAll(selector).forEach(el => {
+                     el.classList.remove('typewriter'); el.style.removeProperty('--nchars');
+                      let alreadyAnimated = false;
+                     const observer = new IntersectionObserver(entries => {
+                         entries.forEach(entry => {
+                             if (entry.isIntersecting && !alreadyAnimated) {
+                                 setTypewriter(el); alreadyAnimated = true; observer.disconnect(); } } );
+                                  } , { 
+                                    threshold: 0.5 
+                                    } );
+        observer.observe(el); } ); }
+        observeTypewriter('.galaxy-text');
+        const button = document.querySelector('button');
+        const secondbutton = document.querySelector('#inhearth3');
+        const hearth = document.querySelector('#hearth');
+        const body = document.querySelector('body');
+        const inhearth = document.querySelector('#inhearth');
+        const inherthsegundo = document.querySelector('#inhearth2');
+        const minis = document.querySelectorAll('.mini')
+            button.addEventListener('click', () => { 
+                body.style.overflow = 'hidden';
+                hearth.style.transform = 'scale(7.5)';
+                hearth.style.transition = '2s all ease-in-out';
+                setTimeout(()=>{
+                    inhearth.style.display = 'block';
+                    inhearth.style.opacity = '1';
+                    secondbutton.style.display = 'block';
+                    secondbutton.style.opacity = '1';
+                    inhearth.style.transition = '3s all';
+                    inherthsegundo.style.display = 'block';
+                    inherthsegundo.style.opacity = '1';
+                    inhearthsegundo.style.transition = '3s all';
+                    
+                },1000)
+            });
+            secondbutton.addEventListener('click', () => {
+                window.alert('Clicou!');
+            })
+</script>
+</html>
