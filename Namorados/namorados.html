@@ -4,14 +4,13 @@
     <meta charset="UTF-8">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="images/engrenagem.png" type="image/x-icon">
-    <link rel="stylesheet" href="style/portraitest.css" media="screen and (orientation: portrait)">
     <title>Navigator</title>
     <style>
         @charset "UTF-8";
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
         @import url(https://fonts.googleapis.com/css2?family=Baloo+Bhai+2:wght@400&display=swap);
 @import url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.css);
+@import url('https://fonts.googleapis.com/css2?family=Italianno&display=swap');
         :root{
             --cor01: #373f47;
             --cor02: #666D73;
@@ -184,10 +183,89 @@
     }
     #inhearth3:hover{
         box-shadow: 3px 10px 20px #800020;
-            transform: translate(10px ,-10px);
+            transform: translate(-10px ,10px);
             transition: 0.4s all ease-in-out;
     }
-    
+    #carta, #carta img{
+        opacity: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        animation-name: tremedeira;
+        animation-duration: 2s;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
+        animation-fill-mode: forwards;
+        z-index: 200;
+    }
+    @keyframes tremedeira {
+        0%{
+            transform: translate(-50%, -50%) rotate(0deg);
+        }
+        50%{
+            transform: translate(-50%, -50%) rotate(15deg);
+        }
+        100%{
+            transform: translate(-50%, -50%) rotate(0deg);
+        }
+    }
+    @keyframes surger {
+        0%{
+            transform: translateY(-50vh);
+        }
+        100%{
+            transform: translateY(0);
+        }
+    }
+    @keyframes desaparing {
+        0%{
+            transform: translateY(0vh);
+        }
+        100%{
+            transform: translateY(100vh);
+        }
+    }
+    #love{
+        color: #800020;
+        font-family: var(--fontTitle);
+        padding: 50px 20px;
+        text-align: center;
+        font-family: "Italianno", cursive;
+    font-weight: 500;
+    font-style: normal;
+    font-size: 2em;
+    }
+    #cuttytext p{
+       
+    font-family: "Italianno", cursive;
+    font-weight: 500;
+    font-style: normal;
+    padding: 10px 30px;
+    font-size: 2em;
+
+    }
+    #cuttytext{
+        opacity: 0;
+        display: none;
+        position: absolute;
+        background-color: #FFE5E5;
+        width: 50vw;
+        height: 100vh;
+        left: 50%;
+        top: 10vh;
+        transform: translateX(-50%);
+        border-radius: 10px;
+        box-shadow: 2px 2px 20px #800020;
+    }
+    @keyframes subidadafolha {
+        0%{
+            top: 100vh;
+        }
+        100%{
+            top: 10vh;
+        }
+    }
     </style>
     
 </head>
@@ -201,8 +279,19 @@
         <div id="hearth"></div>
         <h1 id="inhearth2" class="galaxy-text">Feliz Dia Dos Namorados!</h1>
         <p id="inhearth">Hoje é o dia de celebrar aquele olhar que acalenta, o abraço que aquece e o sorriso que ilumina qualquer dia. Seja com flores, presentes ou simplesmente um "eu te amo", faça desse Dia dos Namorados uma lembrança eterna. Aqui, cada detalhe foi pensado para tornar o seu amor ainda mais especial.</p>
-        <button id="inhearth3">Continuar</button>
-        
+        <button id="inhearth3">Escrevendo...</button>
+        <div id="carta"><img src="images/Carta.png" alt="" id="imgcarta"></div>
+        <div id="cuttytext">
+            <h1 id="love">Amor em Cada Detalhe </h1>
+            <P>
+O amor é aquela risada que escapa sem querer, o aperto de mãos que fala mais que mil palavras e o café compartilhado em silêncio que parece perfeito. Não importa se seu romance é novo ou já dura anos: todo dia é uma chance de criar memórias que aquecem a alma. Hoje, celebramos esses minutinhos roubados que se transformam em eternidade.
+            </P>
+            <p>
+
+Um bilhetinho escondido na bolsa, uma playlist feita só para vocês dois ou aquele doce favorito comprado no caminho para casa. O amor verdadeiro não precisa de grandiosidade – ele brilha nos detalhes que só o coração conhece. Que tal transformar esse dia em uma coleção de surpresinhas que dizem "eu te amo" sem nem precisar falar?
+<br>
+Pois bem, essa e uma delas feita para você, Já te falei que te amo hoje?</p>
+        </div>        
     </section>
 </body>
 <script>
@@ -230,7 +319,10 @@
         const body = document.querySelector('body');
         const inhearth = document.querySelector('#inhearth');
         const inherthsegundo = document.querySelector('#inhearth2');
-        const minis = document.querySelectorAll('.mini')
+        const minis = document.querySelectorAll('.mini');
+        const carta = document.querySelector('#carta');
+        const cartaimg = document.querySelector('#imgcarta');
+        const cutty = document.querySelector('#cuttytext');
             button.addEventListener('click', () => { 
                 body.style.overflow = 'hidden';
                 hearth.style.transform = 'scale(7.5)';
@@ -243,12 +335,49 @@
                     inhearth.style.transition = '3s all';
                     inherthsegundo.style.display = 'block';
                     inherthsegundo.style.opacity = '1';
-                    inhearthsegundo.style.transition = '3s all';
-                    
-                },1000)
+                    inherthsegundo.style.transition = '3s all';
+                    setTimeout(() => {
+                        carta.style.display = 'block';
+                        cartaimg.style.display = 'block'
+                        carta.style.opacity = '1';
+                        cartaimg.style.opacity = '1';
+                        inhearth.style.display = 'none';
+                    inhearth.style.opacity = '0';
+                    secondbutton.style.display = 'none';
+                    secondbutton.style.opacity = '0';
+                    inhearth.style.transition = '3s all';
+                    inherthsegundo.style.display = 'none';
+                    inherthsegundo.style.opacity = '0';
+                    inherthsegundo.style.transition = '3s all';
+                        carta.style.animation = 'surger 2s ease-in-out';
+                        carta.style.animation = 'surger 2s ease-in-out';
+                        carta.style.transition = '2s all ease-in-out';
+                        cartaimg.style.transition = '2s all ease-in-out';
+                        setTimeout(() => {
+                            carta.style.animation = 'desaparing 2s ease-in-out forwards';
+                        carta.style.animation = 'desaparing 2s ease-in-out forwards';
+                        cutty.style.display = 'block'
+                        setTimeout(() => {
+                            carta.style.display = 'none';
+                        cartaimg.style.display = 'none';
+                        carta.style.opacity = '0';
+                        cartaimg.style.opacity = '0';
+                        setTimeout(() => {
+                            cutty.style.opacity = '1';
+                            cutty.style.transition = '2s all ease-in-out';
+                            cutty.style.animation = 'none';
+                            void cutty.offsetWidth;
+                            cutty.style.animation = 'subidadafolha 2s forwards';
+                        }, 500)
+                        }, 2000);
+
+                        }, 2900);
+
+                    }, 7000);
+
+
+                },1000);
+
             });
-            secondbutton.addEventListener('click', () => {
-                window.alert('Clicou!');
-            })
 </script>
 </html>
