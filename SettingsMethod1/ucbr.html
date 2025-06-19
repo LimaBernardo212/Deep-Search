@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.C.B.R</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barrio&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cor01: #404040;
+            --cor02: #737373;
+            --cor03: #BFBFBF;
+            --cor04: #0D0D0D;
+            --cor05: #F2F2F2;
+            --fontNormal: 'Roboto'; 
+            --fontTitle: 'Barrio';
+            --fontLegal: 'Roboto Mono';
+        }
+
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        /* Scrollerbar */
+        .scrollerbar {
+            width: 98vw;
+            height: 1vh;
+            background-color: var(--cor02);
+            border-radius: 100px;
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: 0.5s all ease-in-out;
+            z-index: 1000;
+        }
+
+        .active {
+            height: 15vh;
+            width: 98vw;
+            margin-top: 7px;
+            display: flex;
+            background-color: var(--cor02);
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 20px;
+            transition: 0.5s all ease-in-out;
+        }
+
+        .active img {
+            width: 5vw;
+            height: 5vw;
+            margin: 0vw 2vw;
+        }
+
+        nav div a {
+            text-decoration: none;
+            color: #F2F2F2;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1vw;
+            margin: 0 1vw;
+            font-weight: bold;
+            transition: all 0.3s ease-in-out;
+        }
+
+        nav div {
+            margin: 0 2vw;
+            transition: 0.5s all ease-in-out;
+        }
+
+        nav div a:hover {
+            color: #D7D8D9;
+            text-decoration: underline;
+            transform: translate(-10px, -10px);
+            border-radius: 10px;
+        }
+
+        .scrollerbar img, .scrollerbar nav {
+            display: none;
+        }
+
+        .scrollerbar.active #uc, .scrollerbar.active nav {
+            display: flex;
+        }
+
+        #burguer, #menu {
+    display: none !important;
+}
+        /* Presentation section */
+        section#presentation {
+            display: flex;
+            z-index: -2;
+            flex-wrap: wrap;
+            background-color: var(--cor01);
+            height: 110vh;
+            width: 110vw;
+            background-repeat: no-repeat;
+            background-size: cover;
+            align-items: center;
+            border-radius: 0%;
+            margin: -10px -20px;
+        }
+
+        section#presentation > img {
+            display: flex;
+            z-index: 0;
+            width: 33vw;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        section#presentation > h1 {
+            margin-top: 17vh;
+            font-size: 2.5em;
+            z-index: 2;
+            color: var(--cor05);
+            font-family: var(--fontTitle);
+            font-weight: bold;
+            width: 700px;
+            margin-left: 5vw;
+        }
+
+        /* Island main div */
+        .title::before {
+            content: '';
+            color: var(--cor05);
+            font-weight: lighter;
+            letter-spacing: 20px;
+        }
+
+        .title {
+            color: var(--cor05);
+            margin-left: 3vw;
+            font-size: 2.7em;
+            font-family: var(--fontTitle);
+            line-height: 1.5;
+            margin-top: 30px;
+            font-weight: bold;
+            max-width: 60vw;
+        }
+
+        /* Trans elements with scroll animation */
+        .trans {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            display: inline-flex;
+            height: 80vh;
+            margin-top: 250px;
+            padding: 10px;
+            flex-wrap: nowrap;
+            align-items: center;
+            background-color: var(--cor02);
+            width: 95vw;
+            border-radius: 20px;
+            margin-left: 0.7vw;
+        }
+
+        .trans.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .trans:target {
+            scroll-margin-top: 0.8em;
+        }
+
+        .trans div {
+            background-color: var(--cor02);
+            padding: 50px 30px;
+            border-radius: 25px;
+        }
+
+        h2 {
+            color: var(--cor05);
+            font-size: 1em;
+            font-family: var(--fontTitle);
+            margin-left: 1.5vw;
+        }
+
+        .trans p {
+            color: var(--cor05);
+            font-size: 1.2em;
+            font-family: var(--fontNormal);
+            max-width: 50vw;
+            font-weight: bold;
+            text-align: justify;
+            margin: 2vh 3vw;
+        }
+
+        .trans img {
+            width: 30vw;
+        }
+
+        #strong {
+            font-family: var(--fontTitle);
+            text-transform: uppercase;
+            font-size: 1.5em;
+        }
+
+        /* Button */
+        #button {
+            display: flex;
+            width: 20vw;
+            background-color: var(--cor05);
+            justify-content: center;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 70px;
+            font-family: var(--fontTitle);
+            color: var(--cor01);
+            text-decoration: none;
+        }
+
+        #button:hover {
+            cursor: url('images/babyreborn.png'), auto;
+            background-color: var(--cor03);
+            text-decoration: underline;
+            transition: 0.3s all;
+        }
+
+        /* Product catalog */
+        #product {
+            backdrop-filter: blur(15px);
+            width: 20vw;
+            height: 50vh;
+            border-radius: 20px;
+            border: 5px solid var(--cor02);
+            display: flex;
+            align-items: center;
+            box-shadow: 2px 2px 10px var(--cor02);
+            flex-direction: column;
+            margin-left: 50px;
+        }
+
+        #product:hover {
+            box-shadow: 2px 6px 20px var(--cor02);
+            transition: all 0.3s ease-in-out;
+            transform: translate(-10px, -10px);
+        }
+
+        #productimg {
+            width: 15vw;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        #productname {
+            font-family: var(--fontTitle);
+            font-size: 2rem;
+            color: var(--cor01);
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        #catalog {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            flex-wrap: wrap;
+        }
+        @media (orientation:portrait) { .scrollerbar { width:100vw;  position:fixed; top:0; left:50%; transform:translateX(-50%); margin-left:0 } .active { margin-top:1vw; width:98vw; height:10vh } .active img { width:6vh; height:6vh } nav div a { font-size:2.5vw } nav div { display:none }
+        .scrollerbar.active #burguer, 
+    .scrollerbar.active #menu {
+        display: flex !important;
+        width: 3vh;
+        height: 3vh;
+        transform: translateX(-5vw);
+    }
+    #burguer, #menu {
+        display: none !important;
+    }
+    section#presentation { width: 130vw; } section#presentation > img { width: 60vw; height: 60vw; position: absolute; top: 50%; right: 30%; transform: translate(-30%,-50%); } section#presentation > h1 { position: absolute; top: 50%; right: 30%; transform: translate(45%, -50%); font-size: 2em; padding: 0px 15px 0px 20px;   font-size: 1.95em; max-width: 90vw; }
+    .trans h1 { font-size: 2em; width: 85vw; } .trans p { max-width: 80vw; margin-left: 3.33vw; } h2 { font-size: 0.8em; } div { margin-left: -3.33vw; } .trans { display: inline-flex; height: 75vh; width: 115vw; padding: 10px;  flex-wrap: nowrap; justify-content: center; animation-name: slide; animation-duration: 3.5s; border-radius: none; flex-wrap: wrap; margin-bottom: 55vw; margin-left: -2.5px; } .trans img{ display: none;}
+#catalog { flex-direction:column; flex-wrap:wrap; justify-content: center; align-items: center; } #product { width:100vw; height:30vh; margin-left:33.3px; margin-bottom:20px } #productimg { width:30vw; margin-top:5vh }
+#button{
+    width: 80vw;
+    margin-left: -10px;
+}
+    }
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="scrollerbar">
+            <img src="images/ucbr.png" alt="UCBR Logo" id="uc">
+            <nav>
+                <div>
+                    <a href="#">Home</a>
+                    <a href="#">Sobre nós</a>
+                    <a href="#">Contato</a>
+                </div>
+            </nav>
+            <a href="#" id="burguer">
+                <img src="https://img.icons8.com/?size=100&id=36389&format=png&color=FFFFFF" alt="Menu" id="menu">
+            </a>
+        </div>
+    </header>
+
+    <section id="presentation">
+        <img src="images/ucbr.png" alt="UCBR Logo">
+        <h1>U.C.B.R: Seja bem-vindo à UNIÃO CHUTA BEBÊ REBORN!</h1>
+    </section>
+
+    <section class="trans">
+        <div>
+            <h2>U.C.B.R a maior</h2>
+            <h1 class="title" id="glass">CHUTANDO OS BEBÊS REBORN!</h1>
+            <p>
+                A <strong>U.C.B.R (União Chuta Bebê Reborn)</strong> surgiu como um fenômeno humorístico nas redes sociais em maio de 2025, com o objetivo satírico de "chutar" (zombar ou desafiar) pessoas que exibem <strong>bebês reborn</strong> — bonecos hiper-realistas que imitam bebês humanos.
+            </p>
+        </div>
+        <img src="images/Biba.png" alt="Bebê Reborn">
+    </section>
+
+    <section class="trans">
+        <div>
+            <h2>Como chegamos até aqui?</h2>
+            <h1 class="title" id="glass">NÓS SOMOS DA U.C.B.R CHUTANDO OS BEBÊS REBORN!</h1>
+            <p>
+                O termo viralizou através de vídeos, músicas e memes no <strong>TikTok, Instagram e X (antigo Twitter)</strong>, com edições rápidas e slogans como <strong>"proibido reborn no evento!"</strong>.
+                <br><br>
+                <strong id="strong">E foi assim que surgiu nossa música!</strong>
+                <br>
+                <a href="https://www.instagram.com/p/DKQjcVdKas9/" id="button" target="_blank">Clique aqui para Ver</a>
+            </p>
+        </div>
+        <img src="images/ucbr.png" alt="UCBR Logo">
+    </section>
+
+    <section class="trans">
+        <div>
+            <h2>Recrutamento</h2>
+            <h1 class="title" id="glass">VAMOS CHUTAR MAIS BEBÊS REBORN!</h1>
+            <p>
+                É um <strong>meme de internet</strong> que satiriza colecionadores de reborn de forma irreverente — sem violência real. As expressões como <strong>"chutar" ou "assassinar" bonecos</strong> são simbólicas e fazem parte da zoeira.
+            </p>
+        </div>
+        <img src="images/chutandobebereborn.png" alt="Chutando Bebê Reborn">
+    </section>
+
+    <section id="catalog">
+        <div id="product">
+            <img src="images/ucbr.png" alt="Mídia" id="productimg">
+            <h1 id="productname">Mídia</h1>
+        </div>
+        <div id="product">
+            <img src="images/ucbr.png" alt="Chutador" id="productimg">
+            <h1 id="productname">Chutador</h1>
+        </div>
+        <div id="product">
+            <img src="images/ucbr.png" alt="Analisador" id="productimg">
+            <h1 id="productname">Analisador</h1>
+        </div>
+    </section>
+
+    <script>
+        // SCROLL INTELIGENTE (Intersection Observer)
+        document.addEventListener("DOMContentLoaded", function() {
+            const transElements = document.querySelectorAll(".trans");
+
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("visible");
+                        }
+                    });
+                },
+                { threshold: 0.1 } // Ativa quando 10% do elemento estiver visível
+            );
+
+            transElements.forEach((element) => {
+                observer.observe(element);
+            });
+        });
+
+        // Header interativo
+        const indicator = document.querySelector('.scrollerbar');
+        const menu = document.querySelector('#burguer');
+        const burguer = document.querySelector('#menu')
+        indicator.addEventListener('mouseenter', () => {
+            indicator.classList.add('active');
+            menu.style.display = 'flex';
+            burguer.style.display = 'flex';
+        });
+        indicator.addEventListener('mouseleave', () => {
+            indicator.classList.remove('active');
+            menu.style.display = 'none';
+            burguer.style.display = 'none';
+        });
+    </script>
+</body>
+</html> 
