@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="images/engrenagem.png" type="image/x-icon">
+    <link rel="stylesheet" href="style/portraitest.css" media="screen and (orientation: portrait)">
+    <title>Dane-se</title>
+    <style>
+        @charset "UTF-8";
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Baloo+Bhai+2:wght@400&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.css');
+        
+        :root {
+            --cor01: #373f47;
+            --cor02: #666D73;
+            --cor03: #9FA3A6;
+            --cor04: #D7D8D9;
+            --cor05: #F2F2F2;
+            --cor06: #1c202475;
+            --cor07: black;
+            --cor08: #252f38;
+            --cor09: #424e5a;
+            --cor010: #3f4954;
+            --fontNormal: 'Roboto';
+            --fontTitle: 'Roboto Mono';
+            --fontH1: 'Roboto Condensed';
+            --color: #4771b0;
+            --color1: #2b4a7d;
+            --cor011: rgb(10, 10, 10);
+        }
+        body{
+            height: 100vh;
+            width: 100vw;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        #herosection{
+            background-image: url('images/fundo-de-respingo-de-agua-realista.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        #imglayer1 img{
+            height: 80vh;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) rotate(-10deg);
+            filter: drop-shadow(0px 0px 10px black);
+            animation-name: surger;
+            animation-duration: 2s;
+            z-index: 25;
+            animation-direction: normal;
+            animation-fill-mode: forwards; 
+            transition: 2s all;
+        }
+        #imglayer1{
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+        }
+       
+        #imglayer2 h1{
+            animation-name: surge;
+            animation-duration: 2s;
+            animation-delay: 500ms;
+            animation-direction: normal;
+            animation-fill-mode: forwards;
+            font-family: var(--fontNormal);
+            font-weight: bold;
+            font-size: 3em;
+            color: white;
+            opacity: 0;
+        }
+        #imglayer2 p{
+            opacity: 0;
+            animation-name: surge;
+            animation-duration: 2s;
+            animation-delay: 1s;
+            animation-direction: normal;
+            animation-fill-mode: forwards;
+            font-family: var(--fontNormal);
+            font-weight: bold;
+            font-size: 1em;
+            color: white;
+        }
+        #imglayer2 {
+            position: absolute;
+            top: 40vh;
+            left: 3vw;
+            z-index: 30;
+        }
+        #coler{
+            background: linear-gradient(to right,var(--cor01), var(--cor05));
+            background-size: cover;
+            background-position: left;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: rgba(128, 128, 128, 0.796);
+            font-weight: bold;
+        }
+        
+        @keyframes surger{
+            0%{
+                transform: translateX(-200vw) translateY(-50%);
+                left: 50%;
+                right: 50%;
+            }
+            100%{
+                transform: translateX(-8vw) translateY(-50%);
+                left: 50%;
+                right: 50%;
+            }
+        }
+        @keyframes surge {
+            0%{
+                transform: translateX(-200vw);
+                opacity: 0;
+            }
+            100%{
+                transform: translateX(0vw);
+                opacity: 1;
+            }
+        }
+        #maindiv1{
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: start;
+        }
+        #maindivchild{
+            width: 60vw;
+            padding: 20px;
+            height: 40vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-radius: 20px;
+            z-index: 45;
+        }
+        #maindivchild h1{
+            text-transform: uppercase;
+            font-family: var(--fontNormal);
+            font-size: 2em;
+            font-weight: bolder;
+            text-align: left;
+            background-image: linear-gradient(25deg,var(--cor01), var(--cor05));
+            background-size: cover;
+            background-position: left center;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        #maindivchild p{
+            text-transform: uppercase;
+            font-family: var(--fontNormal);
+            text-align: justify;
+            width: 55vw;
+            font-weight: bold;
+            color: rgb(35, 35, 35);
+        }
+        #buydiv{
+            display: flex;
+            justify-content: center;
+            background-image: url('images/fundo-de-respingo-de-agua-realista.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+            height: 90vh;
+            background-attachment: fixed;
+            position: relative; 
+        }
+        
+        #intext{
+            color: white;
+            font-family: var(--fontNormal);
+            text-transform: uppercase;
+            background: linear-gradient(to right,var(--cor01), var(--cor05));
+            background-size: cover;
+            background-position: left;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: rgba(128, 128, 128, 0.796);
+        }
+        #buydiv h1{
+            color: white;
+            font-family: var(--fontNormal);
+            text-transform: uppercase;
+            margin-top: 20px;
+            font-size: 2em;
+            padding: 20px;
+        }
+        #laranja{
+            position: absolute;
+            left: 48%;
+            height: 42vh;
+            top: 242vh;
+            opacity: 0;
+            transform: translateX(-50%) translateY(-50%) rotate(15deg);
+            z-index: 15;
+            transition: 1.5s all;
+        }
+        #rosa{
+            position: absolute;
+            left: 48%;
+            height: 42vh;
+            top: 242vh;
+            opacity: 0;
+            transform: translateX(-50%) translateY(-50%) rotate(-15deg);
+            z-index: 15;
+            transition: 1.5s all;
+        }
+        #head{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background-color: transparent;
+            border: 3px solid var(--cor01);
+            border-radius: 10px;
+            width: 95vw;
+            opacity: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 10px;
+            position: fixed;
+            z-index: 55;
+            transition: 0.5s all;
+        }
+        #logo{
+            width: 4vw;
+            border-radius: 10px;
+        }
+        #latinha{
+            height: 3vw;
+            animation-name: tremedeiraLeve;
+            animation-duration: 1s;
+            animation-iteration-count: infinite;
+            animation-fill-mode: forwards;
+            animation-direction: alternate;
+            margin-left: 40px;
+            width: 20px;
+            position: absolute;
+            right: 1.3vw;
+            transition: 1s all;
+        }
+        #latinhaBuy{
+            height: 3vw;
+            opacity: 0;
+            margin-left: 40px;
+            transition: 1.1s all;
+        }
+        #latinhaDistribuir{
+            height: 3vw;
+            opacity: 0;
+            margin-left: 40px;
+            transition: 1.1s all;
+        }
+        #latinha:hover{
+            transform: scale(1.1);
+        }
+        #latinhaBuy:hover{
+            transform: scale(1.1);
+        }
+        #latinhaDistribuir:hover{
+            transform: scale(1.1);
+        }
+        @keyframes tremedeiraLeve {
+            0%{
+                transform: rotate(0deg);
+            }
+            100%{
+                transform: rotate(15deg);
+            }
+        }
+        #head nav{
+            margin-left: 30px;
+            width: 10vw;
+        }
+        @media (orientation: portrait) {
+            #herosection button{
+                width: 60vw;
+                left: 23vw;
+            }
+            #herosection{
+                width: 110vw;
+            }
+            #imglayer2 {
+                left: 7vw;
+            }
+            #rosa{
+                height: 25vh;
+            }
+            #laranja{
+                height: 25vh;
+            }
+            #buydiv h1{
+               margin-left: 10vw; 
+            }
+            #buydiv{
+                width: 110vw;
+            }
+            #logo{
+                width: 10vw;
+            }
+            #head{
+                width: 85vw;
+                left: 10px;
+                transform: translateX(0);
+            }
+            #latinha{
+                height: 4.5vh;
+                width: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+   
+    <section id="herosection">
+        <div id="imglayer1">
+            <img src="images/Lata-2-593x1024.png" alt="A ultima gota d'agua!">
+        </div>
+        <div id="imglayer2">
+            <h1>Dane-Se, a melhor agua em <br><strong id="coler">lata do mundo</strong></h1>
+            <p>Clique aqui para participar da pré venda!</p>
+        </div>
+    </section>
+    <section id="maindiv1">
+        <div id="maindivchild">
+            <h1>
+                Dane-se, a gota que me faltava!
+            </h1>
+            <p>
+                Somos uma marca d'agua, e de energeticos em lata 100% natural! Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quos harum aliquam maxime saepe illo amet voluptas accusamus laboriosam facere doloremque placeat voluptatibus sed eligendi nesciunt distinctio, possimus a, voluptate sequi?
+            </p>
+        </div>
+    </section>
+    <section id="buydiv">
+        <h1>
+            Alguns de <strong id="intext">nossos produtos</strong>
+        </h1>
+    </section>
+    <img src="images/energeticodane-selaranja.png" alt="Energetico Dane-se Sabor Manga" id="laranja">
+    <img src="images/energeticodane-serosa.png" alt="Energetico Dane-se Sabor Melancia" id="rosa">
+    <script>
+        const img = document.querySelector('#imglayer1 img');
+        const div1 = document.querySelector('#maindivchild p');
+        const initial = document.querySelector('#herosection');
+        const buydiv = document.querySelector('#buydiv');
+        const laranja = document.querySelector('#laranja');
+        const rosa = document.querySelector('#rosa');
+        
+        let numberOfScrolls = 1; 
+        let clicked = false;
+        let scrollTo = 0;
+        const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+        
+        // Função para verificar se a imagem está dentro da buydiv
+        function isImageInsideBuydiv() {
+            const imgRect = img.getBoundingClientRect();
+            const buydivRect = buydiv.getBoundingClientRect();
+            
+            // Verifica se a imagem está dentro dos limites da buydiv
+            return imgRect.top >= buydivRect.top && 
+                   imgRect.bottom <= buydivRect.bottom &&
+                   imgRect.left >= buydivRect.left && 
+                   imgRect.right <= buydivRect.right;
+        }
+        
+        // Função para remover blur quando a imagem está fora da buydiv
+        function clearBlurIfOutside() {
+            if (isPortrait && !isImageInsideBuydiv()) {
+                img.style.filter = 'drop-shadow(0px 0px 10px black)';
+                buydiv.style.filter = 'blur(0px)';
+                laranja.style.filter = 'blur(0px)';
+                rosa.style.filter = 'blur(0px)';
+            }
+        }
+        
+        setTimeout(() => {
+            
+            window.addEventListener('scroll', (e) => {
+                // Chama a função para verificar e limpar blur se necessário
+                clearBlurIfOutside();
+                
+                if (numberOfScrolls == 1 && !isPortrait){
+                    img.style.top = '100vh';
+                    img.style.rotate = '35deg';
+                    img.style.height = '80vh';
+                    
+                    img.style.transition = '2s all';
+                    
+                    img.addEventListener('mouseenter', () => {
+                        buydiv.style.filter = 'blur(0px)';
+                        buydiv.style.transition = '0.5s all';
+                        
+                    });
+                    img.addEventListener('mouseout', () => {
+                        buydiv.style.filter = 'blur(0px)';
+                        buydiv.style.transition = '0.5s all';
+                        
+                    });
+                }
+                if (numberOfScrolls == 0 && !isPortrait){
+                    img.style.top = '50%';
+                    img.style.rotate = '-2deg';
+                    img.style.height = '80vh';
+                    img.style.transition = '2s all';
+                   
+                    
+                    img.addEventListener('mouseenter', () => {
+                        buydiv.style.filter = 'blur(0px)';
+                        buydiv.style.transition = '0.5s all';
+                    });
+                    img.addEventListener('mouseout', () => {
+                        buydiv.style.filter = 'blur(0px)';
+                        buydiv.style.transition = '0.5s all';
+                    });
+                }
+                if (numberOfScrolls == 2 && !isPortrait){
+                    img.style.top = '195vh';
+                    img.style.rotate = '2deg';
+                    img.style.height = '45vh';
+                    
+                    
+                    if (img.style.top == '195vh'){
+                        setTimeout(() => {
+                            laranja.style.opacity = '1';
+                            rosa.style.opacity = '1';
+                            laranja.style.left = '15vw';
+                            rosa.style.left = '85vw';
+                        }, 1800);
+                        
+                        img.addEventListener('mouseenter', () => {
+                            buydiv.style.filter = 'blur(5px)';
+                            buydiv.style.transition = '0.5s all';
+                            laranja.style.filter = 'blur(5px)';
+                            rosa.style.filter = 'blur(5px)';
+                            
+                        });
+                        img.addEventListener('mouseout', () => {
+                            buydiv.style.filter = 'blur(0px)';
+                            buydiv.style.transition = '0.5s all';
+                            laranja.style.filter = 'blur(0px)';
+                            laranja.style.transition = '0.5s all';
+                            rosa.style.filter = 'blur(0px)';
+                            
+                            rosa.style.transition = '0.5s all';
+                        });
+                        laranja.addEventListener('mouseenter', () => {
+                            buydiv.style.filter = 'blur(5px)';
+                            buydiv.style.transition = '0.5s all';
+                            img.style.filter = 'blur(5px)';
+                            rosa.style.filter = 'blur(5px)';
+                            
+                        });
+                        laranja.addEventListener('mouseout', () => {
+                            buydiv.style.filter = 'blur(0px)';
+                            buydiv.style.transition = '0.5s all';
+                            img.style.filter = 'blur(0px)';
+                            img.style.transition = '0.5s all';
+                            rosa.style.filter = 'blur(0px)';
+                            rosa.style.transition = '0.5s all';
+                            
+                        });
+                        rosa.addEventListener('mouseenter', () => {
+                            buydiv.style.filter = 'blur(5px)';
+                            buydiv.style.transition = '0.5s all';
+                            img.style.filter = 'blur(5px)';
+                            laranja.style.filter = 'blur(5px)';
+                           
+                        });
+                        rosa.addEventListener('mouseout', () => {
+                            buydiv.style.filter = 'blur(0px)';
+                            buydiv.style.transition = '0.5s all';
+                            img.style.filter = 'blur(0px)';
+                            img.style.transition = '0.5s all';
+                            laranja.style.filter = 'blur(0px)';
+                            laranja.style.transition = '0.5s all';
+                           
+                        });
+                    }
+                }
+                if (numberOfScrolls == 1 && isPortrait){
+                    img.style.top = '100vh';
+                    img.style.rotate = '-1deg';
+                    img.style.height = '80vh';
+                    img.style.transition = '2s all';
+                    
+                    // Limpa blur automaticamente no modo portrait
+                    setTimeout(() => {
+                        clearBlurIfOutside();
+                    }, 2100);
+                    
+                    img.addEventListener('mouseenter', () => {
+                        if (isImageInsideBuydiv()) {
+                            buydiv.style.filter = 'blur(5px)';
+                            buydiv.style.transition = '0.5s all';
+                            laranja.style.filter = 'blur(5px)';
+                            rosa.style.filter = 'blur(5px)';
+                        }
+                    });
+                    img.addEventListener('mouseout', () => {
+                        buydiv.style.filter = 'blur(0px)';
+                        buydiv.style.transition = '0.5s all';
+                        laranja.style.filter = 'blur(0px)';
+                        rosa.style.filter = 'blur(0px)';
+                    });
+                }
+                if (numberOfScrolls == 0 && isPortrait){
+                    img.style.top = '50%';
+                    img.style.rotate = '-2deg';
+                    img.style.height = '80vh';
+                    img.style.transition = '2s all';
+                    
+                    // Limpa blur automaticamente no modo portrait
+                    setTimeout(() => {
+                        clearBlurIfOutside();
+                    }, 2100);
+                   
+                    img.addEventListener('mouseenter', () => {
+                        if (isImageInsideBuydiv()) {
+                            buydiv.style.filter = 'blur(5px)';
+                            buydiv.style.transition = '0.5s all';
+                            laranja.style.filter = 'blur(5px)';
+                            rosa.style.filter = 'blur(5px)';
+                        }
+                    });
+                    img.addEventListener('mouseout', () => {
+                        buydiv.style.filter = 'blur(0px)';
+                        buydiv.style.transition = '0.5s all';
+                        laranja.style.filter = 'blur(0px)';
+                        rosa.style.filter = 'blur(0px)';
+                    });
+                }
+                if (numberOfScrolls == 2 && isPortrait){
+                    img.style.top = '206vh';
+                    img.style.rotate = '-10deg';
+                    img.style.height = '25vh';
+                    
+                    
+                    if (img.style.top == '206vh'){
+                        setTimeout(() => {
+                            laranja.style.opacity = '1';
+                            rosa.style.opacity = '1';
+                            laranja.style.left = '15vw';
+                            rosa.style.left = '85vw';
+                            
+                            // Após posicionar elementos, verifica e limpa blur se necessário
+                            setTimeout(clearBlurIfOutside, 100);
+                        }, 1800);
+                        
+                        img.addEventListener('mouseenter', () => {
+                            if (isImageInsideBuydiv()) {
+                                buydiv.style.filter = 'blur(5px)';
+                                buydiv.style.transition = '0.5s all';
+                                laranja.style.filter = 'blur(5px)';
+                                rosa.style.filter = 'blur(5px)';
+                            }
+                        });
+                        img.addEventListener('mouseout', () => {
+                            buydiv.style.filter = 'blur(0px)';
+                            buydiv.style.transition = '0.5s all';
+                            laranja.style.filter = 'blur(0px)';
+                            laranja.style.transition = '0.5s all';
+                            rosa.style.filter = 'blur(0px)';
+                            rosa.style.transition = '0.5s all';
+                        });
+                        laranja.addEventListener('mouseenter', () => {
+                            buydiv.style.filter = 'blur(5px)';
+                            buydiv.style.transition = '0.5s all';
+                            img.style.filter = 'blur(5px)';
+                            rosa.style.filter = 'blur(5px)';
+                            
+                        });
+                        laranja.addEventListener('mouseout', () => {
+                            buydiv.style.filter = 'blur(0px)';
+                            buydiv.style.transition = '0.5s all';
+                            img.style.filter = 'blur(0px)';
+                            img.style.transition = '0.5s all';
+                            rosa.style.filter = 'blur(0px)';
+                            rosa.style.transition = '0.5s all';
+                            
+                            // Após mouseout, verifica se deve manter blur limpo
+                            setTimeout(clearBlurIfOutside, 100);
+                        });
+                        rosa.addEventListener('mouseenter', () => {
+                            buydiv.style.filter = 'blur(5px)';
+                            buydiv.style.transition = '0.5s all';
+                            img.style.filter = 'blur(5px)';
+                            laranja.style.filter = 'blur(5px)';
+                           
+                        });
+                        rosa.addEventListener('mouseout', () => {
+                            buydiv.style.filter = 'blur(0px)';
+                            buydiv.style.transition = '0.5s all';
+                            img.style.filter = 'blur(0px)';
+                            img.style.transition = '0.5s all';
+                            laranja.style.filter = 'blur(0px)';
+                            laranja.style.transition = '0.5s all';
+                            
+                            // Após mouseout, verifica se deve manter blur limpo
+                            setTimeout(clearBlurIfOutside, 100);
+                        });
+                    }
+                }
+            });
+        }, 3000);
+        
+        const observerDiv1 = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    numberOfScrolls = 1;
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+        
+        const observerInitial = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    numberOfScrolls = 0;
+                }
+            });
+        }, {
+            threshold: 0.5
+        });
+        
+        const observerBuydiv = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    numberOfScrolls = 2;
+                }
+            });
+        }, {
+            threshold: 0.8
+        });
+        
+        observerInitial.observe(initial);
+        observerDiv1.observe(div1);
+        observerBuydiv.observe(buydiv);
+        
+        // Observer adicional para monitorar quando a imagem sai da buydiv
+        const observerImagePosition = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (isPortrait) {
+                    setTimeout(clearBlurIfOutside, 100);
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+        
+        observerImagePosition.observe(img);
+    </script>
+</body>
+</html>
