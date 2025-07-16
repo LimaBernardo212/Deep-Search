@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GerenciaLab</title>
+    <link rel="stylesheet" href="style/style.css">
+    <link rel="shortcut icon" href="images/Logo.png" type="image/x-icon">
+</head>
+<body>
+    <section id="LabHeroSection">
+        <h1 class="galaxy-text"></h1>
+        <p id="paragrafh"></p>
+        <div class="pixelCube" id="PixelCube1"></div>
+        <div class="pixelCube" id="PixelCube2"></div>
+        <div class="pixelCube" id="PixelCube3"></div>
+        <div class="pixelCube" id="PixelCube4"></div>
+        <div class="pixelCube" id="PixelCube5"></div>
+        <div class="pixelCube" id="PixelCube6"></div>
+        <div class="pixelCube" id="PixelCube7"></div>
+        <div class="pixelCube" id="PixelCube8"></div>
+    </section>
+    <section id="initialText">
+        <img src="images/Sobrecarregado.png" alt="" id="frontimg">
+        <div>
+            <h1 id="replacementH1">A solução se chama Gerência Lab.</h1>
+            <p id="replacementP">Só quem vivencia a rotina de um laboratório sabe o quanto ela pode ser ineficiente, confusa e estressante. Mas será que existe um jeito de descomplicar os processos e acabar com as dores de cabeça? A solução se chama Gerência Lab. Um sistema intuitivo, dinâmico e flexível para o seu laboratório.Tenha todas as informações de qualquer processo realizado no seu laboratório em uma única tela. Controle tudo pelo sistema. </p>
+        </div>
+        <img src="images/Tranquilo.png" alt="" id="backimg">
+    </section>
+    <img src="images/selo_iso.png" alt="" id="seloIso">
+    <section id="secondText">
+        
+    <div>
+        <h1 id="NormalH1">Sistema em Conformidade com <strong id="riser">ISO/IEC 17025:2017</strong></h1>
+        <p id="NormalP">Eleve o desempenho do seu laboratório com o Gerencialab, a solução ideal para garantir conformidade com a ISO/IEC 17025:2017.Nossa plataforma simplifica a gestão da qualidade, assegurandoimparcialidade, confidencialidade e retenção eficiente de registros.Simplifique processos e alcance a excelência.</p>
+    </div>
+    <img src="images/img_fundo_iso.jpg" alt="" id="IsoImg">
+    </section>
+</body>
+</html>
+<script>
+    const ExtressImg = document.querySelector('#backimg');
+    const donExtressImg = document.querySelector('#frontimg');
+    const replacementH1 = document.querySelector('#replacementH1');
+    const replacementP = document.querySelector('#replacementP');
+    const replacementDiv = document.querySelector('#initialText');
+    const LabHeroSection = document.querySelector('#LabHeroSection');
+    let colorChange = false;
+    const elH1 = document.querySelector('.galaxy-text');
+    const textH1 = "Transforme a Gestão do Seu Laboratório com Inovação e Eficiência";
+    let iH1 = 0;
+    const elP = document.querySelector('#paragrafh');
+    const textP = "Soluções avançadas que otimizam processos e garantem a conformidade regulatória em cada etapa.";
+    let iP = 0;
+    const normalH1 = document.querySelector('#NormalH1');
+    const normalP = document.querySelector('#NormalP');
+    const secondTextSection = document.querySelector('#secondText');
+    const iso = document.querySelector('#seloIso');
+    const isoimg = document.querySelector('#IsoImg');
+    let feitoReplacement = false;
+    let feitoSecond = false;
+
+    // Primeiro observer (corrigido)
+    const observerReplacement = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                if (!feitoReplacement) {
+                    feitoReplacement = true;
+                    setTimeout(() => {
+                        setTimeout(() => {
+                            donExtressImg.style.animation = 'fadeOut 1s forwards';
+                        }, 500);
+                        setTimeout(() => {
+                            ExtressImg.style.display = 'flex';
+                            
+                            setTimeout(() => {
+                                ExtressImg.style.animation = 'fadeIn 1s forwards';
+                                replacementH1.style.color = 'var(--cor05)';
+                                replacementP.style.color = 'var(--cor05)';
+                                replacementDiv.style.backgroundColor = 'var(--cor01)';
+                                replacementDiv.style.boxShadow = '0 10px 10px rgba(255, 255, 255, 0.5)';
+                                colorChange = true;
+                                elH1.style.color = 'var(--cor01)';
+                                elP.style.color = 'var(--cor01)';
+                                LabHeroSection.style.backgroundImage = 'linear-gradient(to right, var(--cor05), var(--cor05))';
+                                normalH1.style.color = 'var(--cor05)';
+                                normalP.style.color = 'var(--cor05)';
+                                secondTextSection.style.backgroundColor = 'var(--cor01)';
+                            }, 100);
+                        }, 1000);
+                    }, 5000);
+                }
+            }
+        });
+    }, {
+        threshold: 0.1 // Trigger when 10% of the section is visible
+    });
+
+    // Segundo observer (corrigido e com mesma lógica)
+    const observerSecond = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                if (!feitoSecond) {
+                    feitoSecond = true;
+                    setTimeout(() => {
+                        iso.style.animationName = 'isoFadeIn';
+                        iso.style.animationDuration = '2s';
+                        iso.style.transition = '2s all';
+                        iso.style.animationFillMode = 'forwards';
+                        
+                        setTimeout(() => {
+                            isoimg.style.animationName = 'teck';
+                            isoimg.style.animationDuration = '0.1s';
+                            
+                            replacementH1.style.color = 'var(--cor01)';
+                            replacementP.style.color = 'var(--cor01)';
+                            replacementDiv.style.backgroundColor = 'var(--cor05)';
+                            replacementDiv.style.boxShadow = '0 10px 10px rgba(0, 0, 0, 0.1)';
+                            colorChange = true;
+                            elH1.style.color = 'var(--cor05)';
+                            elP.style.color = 'var(--cor05)';
+                            LabHeroSection.style.backgroundImage = 'linear-gradient(to right, var(--cor01), var(--cor03))';
+                            normalH1.style.color = 'var(--cor01)';
+                            normalP.style.color = 'var(--cor01)';
+                            secondTextSection.style.backgroundColor = 'var(--cor05)';
+                        }, 1750);
+                    }, 1000);
+                }
+            }
+        });
+    }, {
+        threshold: 0.3 // Trigger when 30% of the section is visible
+    });
+    
+    observerReplacement.observe(donExtressImg);
+    observerSecond.observe(secondTextSection);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        elH1.textContent = '';
+        elH1.classList.add('typewriter-cursor');
+        
+        function typeH1() {
+            if (iH1 < textH1.length) {
+                elH1.textContent += textH1.charAt(iH1);
+                iH1++;
+                setTimeout(typeH1, 80); // velocidade da digitação
+            } else {
+                elH1.classList.remove('typewriter-cursor');
+            }
+        }
+        
+        function typeP() {
+            if (iP < textP.length) {
+                elP.innerHTML += textP.charAt(iP);
+                iP++;
+                setTimeout(typeP, 50); // velocidade da digitação
+            } else {
+                elP.classList.remove('typewriter-cursor');
+            }
+        }
+        
+        typeH1();
+        setTimeout(() => {
+            typeP();
+        }, 6000);
+    });
+</script>
