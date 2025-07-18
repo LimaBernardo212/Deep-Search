@@ -11,24 +11,30 @@
     --fontTitle: 'Pixelify Sans', sans-serif;
     --fontText: 'Roboto', sans-serif;
 }
+
+* {
+    box-sizing: border-box;
+}
+
 body{
     overflow-x: hidden;
     scroll-behavior: smooth;
+    margin: 0;
+    padding: 0;
 }
-#LabHeroSection{
 
-    position: sticky;
-    top: 0;
+#LabHeroSection{
     background-image: linear-gradient(to right, var(--cor01), var(--cor03));
     width: 100vw;
     height: 100vh;
     display: flex;
-   flex-direction: column;
-   justify-content: center;
-   z-index: 0;
-   margin: -8px 0 0 -10px;
-   transition: 1s all;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 0;
+    margin: -8px 0 0 -10px;
+    transition: 1s all;
 }
+
 #LabHeroSection h1{
     font-family: var(--fontTitle);
     font-size: 2.5rem;
@@ -38,6 +44,7 @@ body{
     z-index: 2;
     transition: 1s all;
 }
+
 #LabHeroSection p{
     font-family: var(--fontText);
     font-size: 1rem;
@@ -47,8 +54,8 @@ body{
     font-weight: bold;
     z-index: 2;
     transition: 1s all;
-    
 }
+
 .typewriter {
     overflow: hidden;
     border-right: 4px solid white;
@@ -71,7 +78,6 @@ body{
     background-color: transparent;
     color: white;
     font-size: 2em;
-    
     border-right: none;
     width: auto;
     margin-top: 50px;
@@ -86,26 +92,30 @@ body{
     line-height: 1;
     border-right: none;
 }
+
 .typewriter-cursor::after {
-            content: '|';
-            animation: blink 1s steps(1) infinite;
+    content: '|';
+    animation: blink 1s steps(1) infinite;
 }
+
 @keyframes blink {
-        0%, 50% { opacity: 1; }
-        51%, 100% { opacity: 0; }
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
 }
+
 .pixelCube {
     position: absolute;
     width: 32px;
     height: 32px;
     background-color: var(--cor04);
     animation-name: pixelCubeAnimation;
-    animation-duration: 200s;
+    animation-duration: 450s;
     animation-direction: alternate;
     animation-iteration-count: infinite;
     border-radius: 6px;
-    z-index: 1;
+    z-index: 0;
 }
+
 #PixelCube1 { top: 40px; left: 60px; }
 #PixelCube2 { top: 120px; right: 80px; }
 #PixelCube3 { bottom: 60px; left: 100px; }
@@ -114,38 +124,34 @@ body{
 #PixelCube6 { bottom: 200px; right: 30vw; }
 #PixelCube7 { top: 60vh; left: 10vw; }
 #PixelCube8 { bottom: 40vh; right: 10vw; }
+#PixelCube9 { top: 200vh; left: 60px; }
+#PixelCube10 { top: 220vh; right: 80px; }
+#PixelCube11 { top: 260vh; left: 100px; }
+#PixelCube12 { top: 240vh; right: 140px; }
+#PixelCube13 { top: 225vh; left: 40vw; }
+#PixelCube14 { top: 235vh; right: 30vw; }
+#PixelCube15 { top: 230vh; left: 10vw; }
+#PixelCube16 { top: 256vh; right: 10vw; }
+
 @keyframes pixelCubeAnimation {
     0% {
         transform: translateX(0);
     }
-   
     100% {
        transform: translateX(-100vw);
     }
 }
-#initialText{
-    position: relative;
-    width: 98vw;
-    transition: 2s all;
-    border-radius: 20px;
-    background-color: var(--cor05);
-    height: 90vh;
-    justify-self: center;
-    z-index: 5;
-    display: flex;
-    align-items: center;
-    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.129);
-}
- h1{
+
+h1{
     font-family: var(--fontTitle);
     font-size: 2rem;
-
     color: var(--cor04);
     margin-left: 60px;
     margin-right: 60px;
     transition: 2s all;
 }
- p{
+
+p{
     font-family: var(--fontText);
     font-size: 1rem;
     color: var(--cor04);
@@ -153,24 +159,7 @@ body{
     margin-right: 60px;
     transition: 2s all;
 }
-#initialText img{
-    transition: 2s all;
-}
-#backimg{
-    display: none;
-    opacity: 0;
-    transition: 0.5s all;
-    
-    width: 70%;
-    height: 70%;
-}
-#frontimg{
-    display: flex;
-    opacity: 1;
-    transition: 0.5s all;
-    width: 70%;
-    height: 70%;
-}
+
 @keyframes fadeOut {
     from{
         width: 70%;
@@ -183,8 +172,8 @@ body{
         height: 70%;
     }
 }
+
 @keyframes fadeIn {
-    
     from{
         width: 0;
         opacity: 0;
@@ -196,63 +185,164 @@ body{
         height: 70%;
     }
 }
+
 #secondText{
     opacity: 1;
     position: relative;
-    width: 98vw;
+    width: 100vw;
     margin-top: 20px;
     transition: 2s all;
-    border-radius: 20px;
     background-color: var(--cor05);
-    height: 90vh;
+    height: 100vh;
     justify-self: center;
     z-index: 5;
     display: flex;
     align-items: center;
     box-shadow: 0 10px 10px rgba(0, 0, 0, 0.129);
 }
+
 #IsoImg{
     margin-right: 50px;
     border-radius: 20px;
-   z-index: 10;
-   transition: none;
+    z-index: 10;
+    transition: none;
 }
+
 #riser{
     font-family: var(--fontText);
 }
+
 #seloIso{
     position: absolute;
     left: -30vw;
     z-index: 15;
 }
+
 @keyframes isoFadeIn {
     0% {
         opacity: 1;
-        left: -50vw;
-        transform: rotateY(0deg);
-        top: 232vh;
+        left: -30vw;
+        transform: rotateY(0deg) scale(10);
+        top: 162vh;
     }
     25%{
-        transform: rotateY(360deg);
+        transform: rotateY(360deg) scale(7.5);
     }
     50%{
-        transform: rotateY(0deg);
+        transform: rotateY(0deg) scale(5);
     }
     75%{
-        transform: rotateY(360deg);
+        transform: rotateY(360deg) scale(2.5);
     }
     100%{
         opacity: 1;
         left: 71vw;
-        transform: rotateY(0deg);
-        top: 232vh;
+        transform: rotateY(0deg) scale(1);
+        top: 142vh;
     }
 }
+
 @keyframes teck {
     from{
         transform: scale(1);
     }
     to{
         transform: scale(0.99);
+    }
+}
+
+#writher{
+    text-align: center;
+    color: var(--cor05);
+}
+
+#expoSection{
+    background-image: linear-gradient(to right, var(--cor01), var(--cor03));
+    width: 100vw;
+    min-height: 100vh; /* Mudança aqui para permitir expansão */
+    display: flex;
+    flex-direction: column;
+    
+    z-index: 0;
+    margin: -8px 0 0 -10px;
+    transition: 1s all;
+    padding: 20px 0; /* Adiciona padding para espaçamento */
+}
+
+/* Estilos para todos os inscreens */
+#inscreen1, #inscreen2, #inscreen3, #inscreen4, #inscreen5, 
+#inscreen6, #inscreen7, #inscreen8, #inscreen9, #inscreen10 {
+    border-radius: 20px;
+    position: absolute;
+    top: 235vh;
+    transition: 2s all;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 20px;
+   
+}
+
+/* Estilos para todos os h1 dos inscreens */
+#inscreen1 h1, #inscreen2 h1, #inscreen3 h1, #inscreen4 h1, #inscreen5 h1,
+#inscreen6 h1, #inscreen7 h1, #inscreen8 h1, #inscreen9 h1, #inscreen10 h1 {
+    display: none;
+    margin: 0;
+    opacity: 0;
+    white-space: no-wrap;
+    
+}
+
+/* Estilos para todos os p dos inscreens */
+#inscreen1 p, #inscreen2 p, #inscreen3 p, #inscreen4 p, #inscreen5 p,
+#inscreen6 p, #inscreen7 p, #inscreen8 p, #inscreen9 p, #inscreen10 p {
+    display: none;
+    margin: 0;
+    opacity: 0;
+}
+
+/* Estilos para todas as imagens dos inscreens */
+#inscreen1 img, #inscreen2 img, #inscreen3 img, #inscreen4 img, #inscreen5 img,
+#inscreen6 img, #inscreen7 img, #inscreen8 img, #inscreen9 img, #inscreen10 img {
+    width: 25vw;
+    max-width: 100%;
+    height: auto;
+}
+@keyframes FunctionsFadeIn {
+    0%{
+        top: 282vh;
+        opacity: 0;
+    }
+    100%{
+        opacity: 1;
+        top: 232vh;
+    }
+}
+@keyframes FunctionsFadeOut {
+    0%{
+        opacity: 1;
+        top: 232vh;
+    }
+    100%{
+        top: 282vh;
+        opacity: 0;
+    }
+    
+}
+
+@keyframes textH1FadeIn {
+    0%{
+        top: 80vh;
+        left: 33vw;
+        opacity: 0;
+    }
+    100%{
+        opacity: 1;
+        top: -10vh;
+        left: 33vw;
     }
 }
