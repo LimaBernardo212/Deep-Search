@@ -91,6 +91,9 @@
             <img src="images/9 - Revisão e Assinatura de Certificados.png" alt="">
         </div>
     </section>
+    <section id="finalText">
+
+    </section>
 </body>
 </html>
 <script>
@@ -146,6 +149,22 @@
   let iWrither = 0;
   let feitoWrither = false;
   let feitoSecond = false;
+  let animacaoExecutada = false; // Variável de controle para execução única
+
+  const textNormalH1 = "Sistema em Conformidade com ISO/IEC 17025:2017";
+  const textNormalP = "Eleve o desempenho do seu laboratório com o Gerencialab, a solução ideal para garantir conformidade com a ISO/IEC 17025:2017.Nossa plataforma simplifica a gestão da qualidade, assegurandoimparcialidade, confidencialidade e retenção eficiente de registros.Simplifique processos e alcance a excelência.";
+  let iNormalH1 = 0;
+  let iNormalP = 0;
+  let scrollPositionOld = 0;
+  let scrollPositionNow = 0;
+
+  function typeNormalH1() {
+    if (normalH1 && iNormalH1 < textNormalH1.length) {
+      normalH1.innerHTML += textNormalH1.charAt(iNormalH1);
+      iNormalH1++;
+      setTimeout(typeNormalH1, 80);
+    }
+  }
 
   const observerSecond = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -161,22 +180,52 @@
             setTimeout(() => {
               isoimg.style.animationName = 'teck';
               isoimg.style.animationDuration = '0.1s';
-
-              expo.style.backgroundImage = 'linear-gradient(to right, var(--cor05), var(--cor05))';
-              writher.style.color = 'var(--cor01)';
-              colorChange = true;
-              elH1.style.color = 'var(--cor01)';
-              elP.style.color = 'var(--cor01)';
-              LabHeroSection.style.backgroundImage = 'linear-gradient(to right, var(--cor05), var(--cor05))';
-              normalH1.style.color = 'var(--cor05)';
-              normalP.style.color = 'var(--cor05)';
-              secondTextSection.style.backgroundColor = 'var(--cor01)';
+              normalH1.style.opacity = '1';
+              normalH1.innerHTML = '';
+              typeNormalH1();
+              setTimeout(() => {
+                normalP.style.animationName = 'fadeInSecondText';
+                normalP.style.animationDuration = '1.5s';
+                normalP.style.transition = '2s all';
+                normalP.style.animationFillMode = 'forwards';
+                normalP.style.animationTimingFunction = 'ease';
+              }, 800);
             }, 1250);
           }, 1000);
         }
       }
     });
   }, { threshold: 0.3 });
+  
+  function aparing(inscreen, ocult) {    
+    inscreen.style.width = '100vw';
+    inscreen.style.left = '50%';
+    ocult.style.left = '50%';
+    ocult.style.opacity = '1';
+    inscreen.style.transform = 'translateX(-50%)';
+    ocult.style.display = 'flex';
+    
+    setTimeout(() => {
+      inscreen.style.animationName = 'FunctionsFadeIn';
+      inscreen.style.animationDuration = '1s';
+      inscreen.style.animationFillMode = 'forwards';
+    }, 50);
+    
+    setTimeout(() => {
+        ocult.style.animationName = 'TextH1FadeIn';
+        ocult.style.animationDuration = '2s';
+        ocult.style.animationFillMode = 'forwards';
+        
+        setTimeout(() => {
+            inscreen.style.animation = 'FunctionsFadeOut';
+            inscreen.style.animationDuration = '2s';
+          inscreen.style.animationFillMode = 'forwards';
+          setTimeout(() => {
+            inscreen.style.display = 'none'
+          }, 1250);
+        }, 1500);
+    }, 2000);
+  }
 
   const observerWrither = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -191,13 +240,16 @@
 
   const observerInscreens = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      if (entry.isIntersecting) {
+      if (entry.isIntersecting && !animacaoExecutada) {
+        animacaoExecutada = true; // Marca que a animação já foi executada
+        
         if (!feitoSecond) {
           ocult1.style.color = 'var(--cor05)';
         } else {
           ocult1.style.color = 'var(--cor01)';
         }
 
+        // Posicionamento inicial dos elementos
         inscreen1.style.transform = 'translateX(-50%)';
         inscreen1.style.zIndex = '10';
         inscreen2.style.transform = 'translateX(-38.75%)';
@@ -218,446 +270,77 @@
         inscreen9.style.zIndex = '2';
         inscreen10.style.transform = 'translateX(31.25%)';
         inscreen10.style.zIndex = '1';
-
-        setTimeout(() => {
-          inscreen9.style.top = '231vh';
-          inscreen9.style.transition = '0.5s all';
-          inscreen9.style.opacity = '0';
+        
+        // Array dos elementos para animação sequencial
+        const inscreensArray = [inscreen9, inscreen7, inscreen5, inscreen3, inscreen1, inscreen2, inscreen4, inscreen6, inscreen8, inscreen10];
+       
+        // Animação de saída sequencial
+        setTimeout(()=> {
+            inscreensArray.forEach((element, index) => {
           setTimeout(() => {
-            inscreen7.style.top = '231vh';
-            inscreen7.style.transition = '0.5s all';
-            inscreen7.style.opacity = '0';
-            setTimeout(() => {
-              inscreen5.style.top = '231vh';
-              inscreen5.style.transition = '0.5s all';
-              inscreen5.style.opacity = '0';
-              setTimeout(() => {
-                inscreen3.style.top = '231vh';
-                inscreen3.style.transition = '0.5s all';
-                inscreen3.style.opacity = '0';
-                setTimeout(() => {
-                  inscreen1.style.top = '231vh';
-                  inscreen1.style.transition = '0.5s all';
-                  inscreen1.style.opacity = '0';
-                  setTimeout(() => {
-                    inscreen2.style.top = '231vh';
-                    inscreen2.style.transition = '0.5s all';
-                    inscreen2.style.opacity = '0';
-                    setTimeout(() => {
-                      inscreen4.style.top = '231vh';
-                      inscreen4.style.transition = '0.5s all';
-                      inscreen4.style.opacity = '0';
-                      setTimeout(() => {
-                        inscreen6.style.top = '231vh';
-                        inscreen6.style.transition = '0.5s all';
-                        inscreen6.style.opacity = '0';
-                        setTimeout(() => {
-                          inscreen8.style.top = '231vh';
-                          inscreen8.style.transition = '0.5s all';
-                          inscreen8.style.opacity = '0';
-                          setTimeout(() => {
-                            inscreen10.style.top = '231vh';
-                            inscreen10.style.transition = '0.5s all';
-                            inscreen10.style.opacity = '0';
-                            setTimeout(() => {
-                              inscreen1.style.animationName = 'FunctionsFadeIn';
-                              inscreen1.style.animationDuration = '1s';
-                              inscreen1.style.animationFillMode = 'forwards';
-                              inscreen1.style.animationTimingFunction = 'ease-in-out';
-                              inscreen1.style.width = '100vw';
-                              setTimeout(() => {
-                                writher.style.opacity = '0';
-                                if (!feitoSecond) {
-                                  ocult1.style.color = 'var(--cor05)';
-                                } else {
-                                  ocult1.style.color = 'var(--cor01)';
-                                }
-                                ocult1.style.display = 'flex';
-                                ocult1.style.position = 'absolute';
-                                ocult1.style.animationName = 'textH1FadeIn';
-                                ocult1.style.animationDuration = '1s';
-                                ocult1.style.animationFillMode = 'forwards';
-                                ocult1.style.animationTimingFunction = 'ease-in-out';
-                                setTimeout(() => {
-                                  inscreen1.style.animationName = 'FunctionsFadeOut';
-                                  inscreen1.style.animationDuration = '1s';
-                                  inscreen1.style.animationFillMode = 'forwards';
-                                  inscreen1.style.animationTimingFunction = 'ease-in-out';
-                                  inscreen1.style.width = '100vw';
-                                  inscreen2.style.left = '50%';
-                                  inscreen2.style.transform = 'translateX(-50%)';
-                                  inscreen2.style.width = '100vw';
-                                  ocult2.style.left = '50%';
-                                  ocult2.style.transform = 'translateX(17%)';
-                                  setTimeout(() => {
-                                    inscreen1.style.display = 'none';
-                                    expo.style.backgroundImage = 'linear-gradient(to right, var(--cor01), var(--cor03))';
-                                    writher.style.color = 'var(--cor05)';
-                                    elH1.style.color = 'var(--cor05)';
-                                    elP.style.color = 'var(--cor05)';
-                                    LabHeroSection.style.backgroundImage = 'linear-gradient(to right, var(--cor01), var(--cor03))';
-                                    normalH1.style.color = 'var(--cor01)';
-                                    normalP.style.color = 'var(--cor01)';
-
-                                    secondTextSection.style.backgroundColor = 'var(--cor05)';
-                                    inscreen2.style.animationName = 'FunctionsFadeIn';
-                                    inscreen2.style.animationDuration = '1s';
-                                    inscreen2.style.animationFillMode = 'forwards';
-                                    inscreen2.style.animationTimingFunction = 'ease-in-out';
-                                    inscreen2.style.width = '100vw';
-                                    setTimeout(() => {
-                                      writher.style.opacity = '0';
-                                      ocult2.style.color = 'var(--cor05)';
-                                      ocult2.style.display = 'flex';
-                                      ocult2.style.opacity = '1';
-                                      ocult2.style.position = 'absolute';
-                                      ocult2.style.animationName = 'textH1FadeIn';
-                                      ocult2.style.animationDuration = '1s';
-                                      ocult2.style.animationFillMode = 'forwards';
-                                      ocult2.style.animationTimingFunction = 'ease-in-out';
-                                      setTimeout(() => {
-                                        inscreen2.style.animationName = 'FunctionsFadeOut';
-                                        inscreen2.style.animationDuration = '1s';
-                                        inscreen2.style.animationFillMode = 'forwards';
-                                        inscreen2.style.animationTimingFunction = 'ease-in-out';
-                                        inscreen2.style.width = '100vw';
-                                        inscreen3.style.left = '50%';
-                                        inscreen3.style.transform = 'translateX(-50%)';
-                                        inscreen3.style.width = '100vw';
-                                        ocult3.style.left = '50%';
-                                        ocult3.style.transform = 'translateX(35%)';
-                                        setTimeout(() => {
-                                          inscreen2.style.display = 'none';
-                                          expo.style.backgroundImage = 'linear-gradient(to right, var(--cor05), var(--cor05))';
-                                          writher.style.color = 'var(--cor01)';
-                                          elH1.style.color = 'var(--cor01)';
-                                          elP.style.color = 'var(--cor01)';
-                                          LabHeroSection.style.backgroundImage = 'linear-gradient(to right, var(--cor05), var(--cor05))';
-                                          normalH1.style.color = 'var(--cor05)';
-                                          normalP.style.color = 'var(--cor05)';
-
-                                          secondTextSection.style.backgroundColor = 'var(--cor01)';
-                                          inscreen3.style.animationName = 'FunctionsFadeIn';
-                                          inscreen3.style.animationDuration = '1s';
-                                          inscreen3.style.animationFillMode = 'forwards';
-                                          inscreen3.style.animationTimingFunction = 'ease-in-out';
-                                          inscreen3.style.width = '100vw';
-                                          setTimeout(() => {
-                                            writher.style.opacity = '0';
-                                            ocult3.style.color = 'var(--cor01)';
-                                            ocult3.style.display = 'flex';
-                                            ocult3.style.opacity = '1';
-                                            ocult3.style.position = 'absolute';
-                                            ocult3.style.animationName = 'textH1FadeIn';
-                                            ocult3.style.animationDuration = '1s';
-                                            ocult3.style.animationFillMode = 'forwards';
-                                            ocult3.style.animationTimingFunction = 'ease-in-out';
-                                            setTimeout(() => {
-                                                inscreen3.style.animationName = 'FunctionsFadeOut';
-                                                inscreen3.style.animationDuration = '1s';
-                                                inscreen3.style.animationFillMode = 'forwards';
-                                                inscreen3.style.animationTimingFunction = 'ease-in-out';
-                                                inscreen3.style.width = '100vw';
-                                                inscreen4.style.left = '50%';
-                                                inscreen4.style.transform = 'translateX(-50%)';
-                                                inscreen4.style.width = '100vw';
-                                                ocult4.style.left = '50%';
-                                                ocult4.style.transform = 'translateX(100%)';
-                                                setTimeout(() => {
-                                          inscreen3.style.display = 'none';
-                                          expo.style.backgroundImage = 'linear-gradient(to right, var(--cor01), var(--cor03))';
-                                          writher.style.color = 'var(--cor05)';
-                                          elH1.style.color = 'var(--cor05)';
-                                          elP.style.color = 'var(--cor05)';
-                                          LabHeroSection.style.backgroundImage = 'linear-gradient(to right, var(--cor01), var(--cor03))';
-                                          normalH1.style.color = 'var(--cor01)';
-                                          normalP.style.color = 'var(--cor01)';
-
-                                          secondTextSection.style.backgroundColor = 'var(--cor05)';
-                                          inscreen4.style.animationName = 'FunctionsFadeIn';
-                                          inscreen4.style.animationDuration = '1s';
-                                          inscreen4.style.animationFillMode = 'forwards';
-                                          inscreen4.style.animationTimingFunction = 'ease-in-out';
-                                          inscreen4.style.width = '100vw';
-                                          setTimeout(() => {
-                                            writher.style.opacity = '0';
-                                            ocult4.style.color = 'var(--cor05)';
-                                            ocult4.style.display = 'flex';
-                                            ocult4.style.opacity = '1';
-                                            ocult4.style.position = 'absolute';
-                                            ocult4.style.animationName = 'textH1FadeIn';
-                                            ocult4.style.animationDuration = '1s';
-                                            ocult4.style.animationFillMode = 'forwards';
-                                            ocult4.style.animationTimingFunction = 'ease-in-out';
-                                            setTimeout(() => {
-                                                inscreen4.style.animationName = 'FunctionsFadeOut';
-                                                inscreen4.style.animationDuration = '1s';
-                                                inscreen4.style.animationFillMode = 'forwards';
-                                                inscreen4.style.animationTimingFunction = 'ease-in-out';
-                                                inscreen4.style.width = '100vw';
-                                                inscreen5.style.left = '50%';
-                                                inscreen5.style.transform = 'translateX(-50%)';
-                                                inscreen5.style.width = '100vw';
-                                                ocult5.style.left = '50%';
-                                                ocult5.style.transform = 'translateX(25%)';
-                                                setTimeout(() => {
-                                          inscreen4.style.display = 'none';
-                                          expo.style.backgroundImage = 'linear-gradient(to right, var(--cor05), var(--cor05))';
-                                          writher.style.color = 'var(--cor01)';
-                                          elH1.style.color = 'var(--cor01)';
-                                          elP.style.color = 'var(--cor01)';
-                                          LabHeroSection.style.backgroundImage = 'linear-gradient(to right, var(--cor05), var(--cor05))';
-                                          normalH1.style.color = 'var(--cor05)';
-                                          normalP.style.color = 'var(--cor05)';
-
-                                          secondTextSection.style.backgroundColor = 'var(--cor01)';
-                                          inscreen5.style.animationName = 'FunctionsFadeIn';
-                                          inscreen5.style.animationDuration = '1s';
-                                          inscreen5.style.animationFillMode = 'forwards';
-                                          inscreen5.style.animationTimingFunction = 'ease-in-out';
-                                          inscreen5.style.width = '100vw';
-                                          setTimeout(() => {
-                                            writher.style.opacity = '0';
-                                            ocult5.style.color = 'var(--cor01)';
-                                            ocult5.style.display = 'flex';
-                                            ocult5.style.opacity = '1';
-                                            ocult5.style.position = 'absolute';
-                                            ocult5.style.animationName = 'textH1FadeIn';
-                                            ocult5.style.animationDuration = '1s';
-                                            ocult5.style.animationFillMode = 'forwards';
-                                            ocult5.style.animationTimingFunction = 'ease-in-out';
-                                            setTimeout(() => {
-                                                inscreen5.style.animationName = 'FunctionsFadeOut';
-                                                inscreen5.style.animationDuration = '1s';
-                                                inscreen5.style.animationFillMode = 'forwards';
-                                                inscreen5.style.animationTimingFunction = 'ease-in-out';
-                                                inscreen5.style.width = '100vw';
-                                                inscreen6.style.left = '50%';
-                                                inscreen6.style.transform = 'translateX(-50%)';
-                                                inscreen6.style.width = '100vw';
-                                                ocult6.style.left = '50%';
-                                                ocult6.style.transform = 'translateX(37%)';
-                                                setTimeout(() => {
-                                          inscreen5.style.display = 'none';
-                                          expo.style.backgroundImage = 'linear-gradient(to right, var(--cor01), var(--cor03))';
-                                          writher.style.color = 'var(--cor05)';
-                                          elH1.style.color = 'var(--cor05)';
-                                          elP.style.color = 'var(--cor05)';
-                                          LabHeroSection.style.backgroundImage = 'linear-gradient(to right, var(--cor01), var(--cor03))';
-                                          normalH1.style.color = 'var(--cor01)';
-                                          normalP.style.color = 'var(--cor01)';
-
-                                          secondTextSection.style.backgroundColor = 'var(--cor05)';
-                                          inscreen6.style.animationName = 'FunctionsFadeIn';
-                                          inscreen6.style.animationDuration = '1s';
-                                          inscreen6.style.animationFillMode = 'forwards';
-                                          inscreen6.style.animationTimingFunction = 'ease-in-out';
-                                          inscreen6.style.width = '100vw';
-                                          setTimeout(() => {
-                                            writher.style.opacity = '0';
-                                            ocult6.style.color = 'var(--cor05)';
-                                            ocult6.style.display = 'flex';
-                                            ocult6.style.opacity = '1';
-                                            ocult6.style.position = 'absolute';
-                                            ocult6.style.animationName = 'textH1FadeIn';
-                                            ocult6.style.animationDuration = '1s';
-                                            ocult6.style.animationFillMode = 'forwards';
-                                            ocult6.style.animationTimingFunction = 'ease-in-out';
-                                            setTimeout(() => {
-                                                inscreen6.style.animationName = 'FunctionsFadeOut';
-                                                inscreen6.style.animationDuration = '1s';
-                                                inscreen6.style.animationFillMode = 'forwards';
-                                                inscreen6.style.animationTimingFunction = 'ease-in-out';
-                                                inscreen6.style.width = '100vw';
-                                                inscreen7.style.left = '50%';
-                                                inscreen7.style.transform = 'translateX(-50%)';
-                                                inscreen7.style.width = '100vw';
-                                                ocult7.style.left = '50%';
-                                                ocult7.style.transform = 'translateX(175%)';
-                                                setTimeout(() => {
-                                          inscreen6.style.display = 'none';
-                                          expo.style.backgroundImage = 'linear-gradient(to right, var(--cor05), var(--cor05))';
-                                          writher.style.color = 'var(--cor01)';
-                                          elH1.style.color = 'var(--cor01)';
-                                          elP.style.color = 'var(--cor01)';
-                                          LabHeroSection.style.backgroundImage = 'linear-gradient(to right, var(--cor05), var(--cor05))';
-                                          normalH1.style.color = 'var(--cor05)';
-                                          normalP.style.color = 'var(--cor05)';
-
-                                          secondTextSection.style.backgroundColor = 'var(--cor01)';
-                                          inscreen7.style.animationName = 'FunctionsFadeIn';
-                                          inscreen7.style.animationDuration = '1s';
-                                          inscreen7.style.animationFillMode = 'forwards';
-                                          inscreen7.style.animationTimingFunction = 'ease-in-out';
-                                          inscreen7.style.width = '100vw';
-                                          setTimeout(() => {
-                                            writher.style.opacity = '0';
-                                            ocult7.style.color = 'var(--cor01)';
-                                            ocult7.style.display = 'flex';
-                                            ocult7.style.opacity = '1';
-                                            ocult7.style.position = 'absolute';
-                                            ocult7.style.animationName = 'textH1FadeIn';
-                                            ocult7.style.animationDuration = '1s';
-                                            ocult7.style.animationFillMode = 'forwards';
-                                            ocult7.style.animationTimingFunction = 'ease-in-out';
-                                            setTimeout(() => {
-                                                inscreen7.style.animationName = 'FunctionsFadeOut';
-                                                inscreen7.style.animationDuration = '1s';
-                                                inscreen7.style.animationFillMode = 'forwards';
-                                                inscreen7.style.animationTimingFunction = 'ease-in-out';
-                                                inscreen7.style.width = '100vw';
-                                                inscreen8.style.left = '50%';
-                                                inscreen8.style.transform = 'translateX(-50%)';
-                                                inscreen8.style.width = '100vw';
-                                                ocult8.style.left = '50%';
-                                                ocult8.style.transform = 'translateX(25%)';
-                                                setTimeout(() => {
-                                          inscreen7.style.display = 'none';
-                                          expo.style.backgroundImage = 'linear-gradient(to right, var(--cor01), var(--cor03))';
-                                          writher.style.color = 'var(--cor01)';
-                                          elH1.style.color = 'var(--cor01)';
-                                          elP.style.color = 'var(--cor01)';
-                                          LabHeroSection.style.backgroundImage = 'linear-gradient(to right, var(--cor01), var(--cor03))';
-                                          normalH1.style.color = 'var(--cor05)';
-                                          normalP.style.color = 'var(--cor05)';
-
-                                          secondTextSection.style.backgroundColor = 'var(--cor01)';
-                                          inscreen8.style.animationName = 'FunctionsFadeIn';
-                                          inscreen8.style.animationDuration = '1s';
-                                          inscreen8.style.animationFillMode = 'forwards';
-                                          inscreen8.style.animationTimingFunction = 'ease-in-out';
-                                          inscreen8.style.width = '100vw';
-                                          setTimeout(() => {
-                                            writher.style.opacity = '0';
-                                            ocult8.style.color = 'var(--cor05)';
-                                            ocult8.style.display = 'flex';
-                                            ocult8.style.opacity = '1';
-                                            ocult8.style.position = 'absolute';
-                                            ocult8.style.animationName = 'textH1FadeIn';
-                                            ocult8.style.animationDuration = '1s';
-                                            ocult8.style.animationFillMode = 'forwards';
-                                            ocult8.style.animationTimingFunction = 'ease-in-out';
-                                            setTimeout(() => {
-                                                inscreen8.style.animationName = 'FunctionsFadeOut';
-                                                inscreen8.style.animationDuration = '1s';
-                                                inscreen8.style.animationFillMode = 'forwards';
-                                                inscreen8.style.animationTimingFunction = 'ease-in-out';
-                                                inscreen8.style.width = '100vw';
-                                                inscreen9.style.left = '50%';
-                                                inscreen9.style.transform = 'translateX(-50%)';
-                                                inscreen9.style.width = '100vw';
-                                                ocult9.style.left = '50%';
-                                                ocult9.style.transform = 'translateX(65%)';
-                                                setTimeout(() => {
-                                          inscreen8.style.display = 'none';
-                                          expo.style.backgroundImage = 'linear-gradient(to right, var(--cor05), var(--cor05))';
-                                          writher.style.color = 'var(--cor05)';
-                                          elH1.style.color = 'var(--cor05)';
-                                          elP.style.color = 'var(--cor05)';
-                                          LabHeroSection.style.backgroundImage = 'linear-gradient(to right, var(--cor05), var(--cor05))';
-                                          normalH1.style.color = 'var(--cor05)';
-                                          normalP.style.color = 'var(--cor05)';
-
-                                          secondTextSection.style.backgroundColor = 'var(--cor01)';
-                                          inscreen9.style.animationName = 'FunctionsFadeIn';
-                                          inscreen9.style.animationDuration = '1s';
-                                          inscreen9.style.animationFillMode = 'forwards';
-                                          inscreen9.style.animationTimingFunction = 'ease-in-out';
-                                          inscreen9.style.width = '100vw';
-                                          setTimeout(() => {
-                                            writher.style.opacity = '0';
-                                            ocult9.style.color = 'var(--cor01)';
-                                            ocult9.style.display = 'flex';
-                                            ocult9.style.opacity = '1';
-                                            ocult9.style.position = 'absolute';
-                                            ocult9.style.animationName = 'textH1FadeIn';
-                                            ocult9.style.animationDuration = '1s';
-                                            ocult9.style.animationFillMode = 'forwards';
-                                            ocult9.style.animationTimingFunction = 'ease-in-out';
-                                            setTimeout(() => {
-                                                inscreen9.style.animationName = 'FunctionsFadeOut';
-                                                inscreen9.style.animationDuration = '1s';
-                                                inscreen9.style.animationFillMode = 'forwards';
-                                                inscreen9.style.animationTimingFunction = 'ease-in-out';
-                                                inscreen9.style.width = '100vw';
-                                                inscreen10.style.left = '50%';
-                                                inscreen10.style.transform = 'translateX(-50%)';
-                                                inscreen10.style.width = '100vw';
-                                                ocult10.style.left = '50%';
-                                                ocult10.style.transform = 'translateX(35%)';
-                                                setTimeout(() => {
-                                          inscreen9.style.display = 'none';
-                                          expo.style.backgroundImage = 'linear-gradient(to right, var(--cor01), var(--cor03))';
-                                          writher.style.color = 'var(--cor01)';
-                                          elH1.style.color = 'var(--cor01)';
-                                          elP.style.color = 'var(--cor01)';
-                                          LabHeroSection.style.backgroundImage = 'linear-gradient(to right, var(--cor01), var(--cor03))';
-                                          normalH1.style.color = 'var(--cor05)';
-                                          normalP.style.color = 'var(--cor05)';
-
-                                          secondTextSection.style.backgroundColor = 'var(--cor01)';
-                                          inscreen10.style.animationName = 'FunctionsFadeIn';
-                                          inscreen10.style.animationDuration = '1s';
-                                          inscreen10.style.animationFillMode = 'forwards';
-                                          inscreen10.style.animationTimingFunction = 'ease-in-out';
-                                          inscreen10.style.width = '100vw';
-                                          setTimeout(() => {
-                                            writher.style.opacity = '0';
-                                            ocult10.style.color = 'var(--cor05)';
-                                            ocult10.style.display = 'flex';
-                                            ocult10.style.opacity = '1';
-                                            ocult10.style.position = 'absolute';
-                                            ocult10.style.animationName = 'textH1FadeIn';
-                                            ocult10.style.animationDuration = '1s';
-                                            ocult10.style.animationFillMode = 'forwards';
-                                            ocult10.style.animationTimingFunction = 'ease-in-out';
-                                            setTimeout(() => {
-                                                inscreen10.style.animationName = 'FunctionsFadeOut';
-                                                inscreen10.style.animationDuration = '1s';
-                                                inscreen10.style.animationFillMode = 'forwards';
-                                                inscreen10.style.animationTimingFunction = 'ease-in-out';
-                                                inscreen10.style.width = '100vw';
-                                            }, 6000);
-                                          }, 1000);
-                                        }, 1000);
-                                                
-                                            }, 6000);
-                                          }, 1000);
-                                        }, 1000);
-                                            }, 6000);
-                                          }, 1000);
-                                        }, 1000);
-                                            }, 6000);
-                                          }, 1000);
-                                        }, 1000);
-                                            }, 6000);
-                                          }, 1000);
-                                        }, 1000);
-                                            }, 6000);
-                                          }, 1000);
-                                        }, 1000);
-                                            }, 6000);
-                                          }, 1000);
-                                        }, 1000);
-                                            }, 6000);
-                                          }, 1000);
-                                        }, 1000);
-                                      }, 6000);
-                                    }, 1000);
-                                  }, 1000);
-                                }, 6000);
-                              }, 1000);
-                            }, 1000);
-                          }, 250);
-                        }, 250);
-                      }, 250);
-                    }, 250);
-                  }, 250);
-                }, 250);
-              }, 250);
-            }, 250);
-          }, 2000);
+            element.style.top = '231vh';
+            element.style.transition = '0.5s all';
+            element.style.opacity = '0';
+          }, index === 0 ? 0 : (index < 5 ? 250 * index : 2000 + 250 * (index - 8)));
         });
+        
+        }, 2000)
+         setTimeout(() => {
+  inscreen1.style.left = '50%';
+  inscreen1.style.transform = 'translateX(-50%)';
+
+  inscreen2.style.left = '50%';
+  inscreen2.style.transform = 'translateX(-50%)';
+
+  inscreen3.style.left = '50%';
+  inscreen3.style.transform = 'translateX(-50%)';
+
+  inscreen4.style.left = '50%';
+  inscreen4.style.transform = 'translateX(-50%)';
+
+  inscreen5.style.left = '50%';
+  inscreen5.style.transform = 'translateX(-50%)';
+
+  inscreen6.style.left = '50%';
+  inscreen6.style.transform = 'translateX(-50%)';
+
+  inscreen7.style.left = '50%';
+  inscreen7.style.transform = 'translateX(-50%)';
+
+  inscreen8.style.left = '50%';
+  inscreen8.style.transform = 'translateX(-50%)';
+
+  inscreen9.style.left = '50%';
+  inscreen9.style.transform = 'translateX(-50%)';
+
+  inscreen10.style.left = '50%';
+  inscreen10.style.transform = 'translateX(-50%)';
+}, 5000);
+        // Animação de entrada das funcionalidades
+        setTimeout(() => {
+          const aparingElements = [
+            [inscreen1, ocult1],
+            [inscreen2, ocult2],
+            [inscreen3, ocult3],
+            [inscreen4, ocult4],
+            [inscreen5, ocult5],
+            [inscreen6, ocult6],
+            [inscreen7, ocult7],
+            [inscreen8, ocult8],
+            [inscreen9, ocult9],
+            [inscreen10, ocult10]
+          ];
+
+          // Executa sequencialmente com delay de 2500ms entre cada um
+          aparingElements.forEach(([inscreen, ocult], index) => {
+            setTimeout(() => {
+              aparing(inscreen, ocult);
+              console.log(index)
+            }, index * 5000);
+            
+          });
+
+        }, 6000); // Aguarda a animação de saída terminar
       }
     });
   }, { threshold: 0.5 });
@@ -676,7 +359,7 @@
       writher.textContent = '';
       writher.classList.add('typewriter-cursor');
     }
-
+    
     function typeH1() {
       if (elH1 && iH1 < textH1.length) {
         elH1.textContent += textH1.charAt(iH1);

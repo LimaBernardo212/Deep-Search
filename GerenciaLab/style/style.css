@@ -145,7 +145,7 @@ body{
 h1{
     font-family: var(--fontTitle);
     font-size: 2rem;
-    color: var(--cor04);
+    color: var(--cor05);
     margin-left: 60px;
     margin-right: 60px;
     transition: 2s all;
@@ -154,7 +154,7 @@ h1{
 p{
     font-family: var(--fontText);
     font-size: 1rem;
-    color: var(--cor04);
+    color: var(--cor05);
     margin-left: 60px;
     margin-right: 60px;
     transition: 2s all;
@@ -190,17 +190,20 @@ p{
     opacity: 1;
     position: relative;
     width: 100vw;
-    margin-top: 20px;
+    margin-top: 0;
+    margin-bottom: 0;
     transition: 2s all;
-    background-color: var(--cor05);
+    background-image: linear-gradient(to right, var(--cor01), var(--cor03));
     height: 100vh;
     justify-self: center;
     z-index: 5;
     display: flex;
     align-items: center;
-    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.129);
+    
 }
-
+#secondText h1, #secondText p{
+    opacity: 0;
+}
 #IsoImg{
     margin-right: 50px;
     border-radius: 20px;
@@ -217,7 +220,16 @@ p{
     left: -30vw;
     z-index: 15;
 }
-
+@keyframes fadeInSecondText {
+    0%{
+        opacity: 1;
+        transform: translateY(50vh);
+    }
+    100%{
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 @keyframes isoFadeIn {
     0% {
         opacity: 1;
@@ -262,7 +274,7 @@ p{
     min-height: 100vh; /* Mudança aqui para permitir expansão */
     display: flex;
     flex-direction: column;
-    
+    margin-top: 0;
     z-index: 0;
     margin: -8px 0 0 -10px;
     transition: 1s all;
@@ -291,10 +303,10 @@ p{
 #inscreen1 h1, #inscreen2 h1, #inscreen3 h1, #inscreen4 h1, #inscreen5 h1,
 #inscreen6 h1, #inscreen7 h1, #inscreen8 h1, #inscreen9 h1, #inscreen10 h1 {
     display: none;
-    margin: 0;
+    margin: 20px 0;
     opacity: 0;
     white-space: no-wrap;
-    
+    color: white;
 }
 
 /* Estilos para todos os p dos inscreens */
@@ -319,13 +331,13 @@ p{
     }
     100%{
         opacity: 1;
-        top: 232vh;
+        top: 222vh;
     }
 }
 @keyframes FunctionsFadeOut {
     0%{
         opacity: 1;
-        top: 232vh;
+        top: 222vh;
     }
     100%{
         top: 282vh;
