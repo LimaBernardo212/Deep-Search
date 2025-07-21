@@ -91,8 +91,9 @@
             <img src="images/9 - Revisão e Assinatura de Certificados.png" alt="">
         </div>
     </section>
-    <section id="finalText">
-
+    <section id="Persona">
+      <div id="certificar"><img src="" alt=""></div>
+      <div id="Nugap"></div>
     </section>
 </body>
 </html>
@@ -158,11 +159,11 @@
   let scrollPositionOld = 0;
   let scrollPositionNow = 0;
 
-  function typeNormalH1() {
-    if (normalH1 && iNormalH1 < textNormalH1.length) {
-      normalH1.innerHTML += textNormalH1.charAt(iNormalH1);
-      iNormalH1++;
-      setTimeout(typeNormalH1, 80);
+  function typeNormal(Normal, i, textNormal, velocity) {
+    if (Normal && i < textNormal.length) {
+      Normal.innerHTML += textNormal.charAt(i);
+      i++;
+      setTimeout(() => typeNormal(Normal, i, textNormal, velocity), velocity);
     }
   }
 
@@ -182,22 +183,23 @@
               isoimg.style.animationDuration = '0.1s';
               normalH1.style.opacity = '1';
               normalH1.innerHTML = '';
-              typeNormalH1();
+              // Corrigido: chamada correta da função de digitação
+              typeNormal(normalH1, 0, textNormalH1, 80);
               setTimeout(() => {
-                normalP.style.animationName = 'fadeInSecondText';
-                normalP.style.animationDuration = '1.5s';
-                normalP.style.transition = '2s all';
-                normalP.style.animationFillMode = 'forwards';
-                normalP.style.animationTimingFunction = 'ease';
-              }, 800);
+                normalP.style.opacity = '1';
+                normalP.innerHTML = '';
+                typeNormal(normalP, 0, textNormalP, 40);
+              }, 1500);
             }, 1250);
           }, 1000);
         }
       }
     });
   }, { threshold: 0.3 });
+
   
-  function aparing(inscreen, ocult) {    
+  function aparing(inscreen, ocult) {  
+    ocult.style.color = 'var(--cor05)';  
     inscreen.style.width = '100vw';
     inscreen.style.left = '50%';
     ocult.style.left = '50%';

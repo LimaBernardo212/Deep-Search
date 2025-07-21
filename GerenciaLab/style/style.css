@@ -1,5 +1,5 @@
 @charset "UTF-8";
-@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jersey+20&family=Pixelify+Sans:wght@400..700&display=swap');
 /* CSS Document */
 
 :root{
@@ -9,7 +9,7 @@
     --cor04: #0037ff;
     --cor05: white;
     --fontTitle: 'Pixelify Sans', sans-serif;
-    --fontText: 'Roboto', sans-serif;
+    --fontText: 'Jersey 20', sans-serif;
 }
 
 * {
@@ -22,9 +22,21 @@ body{
     margin: 0;
     padding: 0;
 }
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
 
 #LabHeroSection{
-    background-image: linear-gradient(to right, var(--cor01), var(--cor03));
+    background: linear-gradient(135deg, var(--cor01), var(--cor04), var(--cor03), var(--cor04), var(--cor03), var(--cor01));
+    background-size: 400% 400%;
     width: 100vw;
     height: 100vh;
     display: flex;
@@ -33,12 +45,15 @@ body{
     z-index: 0;
     margin: -8px 0 0 -10px;
     transition: 1s all;
+    animation: gradientMove 20s linear infinite;
+    
 }
 
 #LabHeroSection h1{
     font-family: var(--fontTitle);
     font-size: 2.5rem;
     margin-left: 20px;
+    
     color: var(--cor05);
     margin-bottom: 0.3rem;
     z-index: 2;
@@ -48,10 +63,11 @@ body{
 #LabHeroSection p{
     font-family: var(--fontText);
     font-size: 1rem;
+
     margin-left: 20px;
     color: var(--cor05);
     margin-bottom: 1rem;
-    font-weight: bold;
+   font-weight: normal;
     z-index: 2;
     transition: 1s all;
 }
@@ -203,11 +219,14 @@ p{
 }
 #secondText h1, #secondText p{
     opacity: 0;
+    max-width: 67vw;
 }
 #IsoImg{
     margin-right: 50px;
     border-radius: 20px;
     z-index: 10;
+    position: absolute;
+    right: 0.8vw;
     transition: none;
 }
 
@@ -308,7 +327,9 @@ p{
     white-space: no-wrap;
     color: white;
 }
-
+#ocult1{
+    color: var(--cor01);
+}
 /* Estilos para todos os p dos inscreens */
 #inscreen1 p, #inscreen2 p, #inscreen3 p, #inscreen4 p, #inscreen5 p,
 #inscreen6 p, #inscreen7 p, #inscreen8 p, #inscreen9 p, #inscreen10 p {
