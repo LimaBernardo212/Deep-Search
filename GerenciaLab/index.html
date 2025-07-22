@@ -92,8 +92,9 @@
         </div>
     </section>
     <section id="Persona">
-      <div id="certificar"><img src="" alt=""></div>
-      <div id="Nugap"></div>
+      <h1 id="clients"></h1>
+      <div id="certificar"><img src="images/Certificar.jpg" alt="" id="certificarImg"> <img src="https://img.icons8.com/?size=100&id=1PIFEHxaveVL&format=png&color=000000" alt="" class="play" id="certificarPlay"></div>
+      <div id="Nugap"><img src="images/NugaP.png" alt="" id="NugapImg"> <img src="https://img.icons8.com/?size=100&id=1PIFEHxaveVL&format=png&color=000000" alt="" class="play" id="nugaPlay"></div>
     </section>
 </body>
 </html>
@@ -133,32 +134,30 @@
   const ocult8 = document.querySelector('#ocult8');
   const ocult9 = document.querySelector('#ocult9');
   const ocult10 = document.querySelector('#ocult10');
-
-  const ocultP1 = document.querySelector('#ocultP1');
-  const ocultP2 = document.querySelector('#ocultP2');
-  const ocultP3 = document.querySelector('#ocultP3');
-  const ocultP4 = document.querySelector('#ocultP4');
-  const ocultP5 = document.querySelector('#ocultP5');
-  const ocultP6 = document.querySelector('#ocultP6');
-  const ocultP7 = document.querySelector('#ocultP7');
-  const ocultP8 = document.querySelector('#ocultP8');
-  const ocultP9 = document.querySelector('#ocultP9');
-  const ocultP10 = document.querySelector('#ocultP10');
-
+  const clientH1 = document.querySelector('#clients');
+  let textClient = "Oque Nossos Clientes Dizem";
+  let iClient = 0;
   const writher = document.querySelector('#writher');
   const textWrither = "Conheça as funcionalidades do Gerencialab";
   let iWrither = 0;
   let feitoWrither = false;
   let feitoSecond = false;
   let animacaoExecutada = false; // Variável de controle para execução única
-
+  const persona = document.querySelector('#Persona');
   const textNormalH1 = "Sistema em Conformidade com ISO/IEC 17025:2017";
   const textNormalP = "Eleve o desempenho do seu laboratório com o Gerencialab, a solução ideal para garantir conformidade com a ISO/IEC 17025:2017.Nossa plataforma simplifica a gestão da qualidade, assegurandoimparcialidade, confidencialidade e retenção eficiente de registros.Simplifique processos e alcance a excelência.";
   let iNormalH1 = 0;
   let iNormalP = 0;
   let scrollPositionOld = 0;
   let scrollPositionNow = 0;
-
+  const playCertificar = document.querySelector('#certificarPlay');
+  const playNugap = document.querySelector('#nugaPlay')
+  playCertificar.addEventListener('click', () => {
+   window.open('https://www.youtube.com/watch?v=GdO7QUdq_es', '_blank');
+  });
+  playNugap.addEventListener('click', () => {
+    window.open('https://www.youtube.com/watch?v=OvCA0JgzXhM', '_blank');
+  })
   function typeNormal(Normal, i, textNormal, velocity) {
     if (Normal && i < textNormal.length) {
       Normal.innerHTML += textNormal.charAt(i);
@@ -346,7 +345,18 @@
       }
     });
   }, { threshold: 0.5 });
-
+  let feitO = false;
+  const observerPersona = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        if (!feitO){
+          typeNormal(clientH1, 0, textClient, 80)
+          feitO = true;
+        }
+      }
+    });
+  }, { threshold: 0.3 });
+  observerPersona.observe(persona)
   observerInscreens.observe(inscreen1);
   observerSecond.observe(secondTextSection);
   observerWrither.observe(writher);

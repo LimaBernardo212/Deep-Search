@@ -282,6 +282,7 @@ p{
     }
 }
 
+
 #writher{
     text-align: center;
     color: var(--cor05);
@@ -347,7 +348,7 @@ p{
 }
 @keyframes FunctionsFadeIn {
     0%{
-        top: 282vh;
+        top: 252vh;
         opacity: 0;
     }
     100%{
@@ -361,7 +362,7 @@ p{
         top: 222vh;
     }
     100%{
-        top: 282vh;
+        top: 252vh;
         opacity: 0;
     }
     
@@ -378,4 +379,92 @@ p{
         top: -10vh;
         left: 33vw;
     }
+}
+#Persona{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-top: 150px;
+    background-image: linear-gradient(to right, var(--cor01), var(--cor03));
+}
+
+#Persona h1{
+    margin-top: 0;
+    align-self: center;
+}
+
+#Nugap{
+    position: absolute;
+    transition: 1s all;
+    left: 10vw; /* Alterado de 35vw para 10vw - mais à esquerda */
+    top: 340vh; /* Volta para a mesma altura */
+    background-color: var(--cor05);
+    border-radius: 20px;
+    height: 25vh;
+    width: 30vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#certificar{
+    position: absolute;
+    transition: 1s all;
+    right: 10vw; /* Alterado de 35vw para 10vw - mais à direita */
+    top: 340vh; /* Volta para a mesma altura */
+    background-color: var(--cor05);
+    border-radius: 20px;
+    height: 25vh;
+    width: 30vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#certificar:hover .play, #Nugap:hover .play{
+    display: flex;
+    opacity: 1;
+}
+#certificar:hover #certificarImg, #Nugap:hover #NugapImg{
+    opacity: 0;
+}
+#certificar:hover{
+    right: 23vw;
+    top: 345vh;
+    border-radius: 50%;
+    width: 7vw;
+    height: 7vw;
+    animation-name: PixelPulser;
+    animation-duration: 2s;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+}
+#Nugap:hover{
+    left: 20vw;
+    top: 345vh;
+    border-radius: 50%;
+    width: 7vw;
+    height: 7vw;
+    animation-name: PixelPulser;
+    animation-duration: 2s;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+}
+
+#certificarImg,#NugapImg{
+    transition: 1s all;
+}
+@keyframes PixelPulser {
+    0%{
+        transform: translateY(0px) scale(1);
+    }
+    100%{
+        transform: translateY(-15px) scale(1.05);
+    }
+}
+.play{
+    
+   transition: 1s all;
+    opacity: 0;
+    position: absolute;
 }
