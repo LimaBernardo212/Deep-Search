@@ -93,8 +93,18 @@
     </section>
     <section id="Persona">
       <h1 id="clients"></h1>
-      <div id="certificar"><img src="images/Certificar.jpg" alt="" id="certificarImg"> <img src="https://img.icons8.com/?size=100&id=1PIFEHxaveVL&format=png&color=000000" alt="" class="play" id="certificarPlay"></div>
-      <div id="Nugap"><img src="images/NugaP.png" alt="" id="NugapImg"> <img src="https://img.icons8.com/?size=100&id=1PIFEHxaveVL&format=png&color=000000" alt="" class="play" id="nugaPlay"></div>
+      <div id="certificar"><img src="images/Certificar.jpg" alt="" id="certificarImg"> <img src="https://img.icons8.com/?size=100&id=CPI2rFrRu5XK&format=png&color=000000" alt="" class="play" id="certificarPlay"></div>
+      <div id="Nugap"><img src="images/NugaP.png" alt="" id="NugapImg"> <img src="https://img.icons8.com/?size=100&id=CPI2rFrRu5XK&format=png&color=000000" alt="" class="play" id="nugaPlay"></div>
+    </section>
+    <section id="contactSection">
+      <h1 id="agend"></h1>
+      <form action="#" method="post">
+        <input type="text" name="Name" id="Name" placeholder="Nome:" required>
+        <input type="email" name="email" id="email" placeholder="Email:" required>
+        <input type="text" name="Labo" id="Labo" placeholder="Laboratório:" required>
+        <input type="tel" name="Tel" id="tel" placeholder="Telefone de Contanto:">
+        <button type="submit">Agendar Demontração</button>
+      </form>
     </section>
 </body>
 </html>
@@ -145,13 +155,17 @@
   let animacaoExecutada = false; // Variável de controle para execução única
   const persona = document.querySelector('#Persona');
   const textNormalH1 = "Sistema em Conformidade com ISO/IEC 17025:2017";
-  const textNormalP = "Eleve o desempenho do seu laboratório com o Gerencialab, a solução ideal para garantir conformidade com a ISO/IEC 17025:2017.Nossa plataforma simplifica a gestão da qualidade, assegurandoimparcialidade, confidencialidade e retenção eficiente de registros.Simplifique processos e alcance a excelência.";
+  const textNormalP = "Eleve o desempenho do seu laboratório com o Gerencialab, a solução ideal para garantir conformidade com a ISO/IEC 17025:2017.Nossa plataforma simplifica a gestão da qualidade, assegurando imparcialidade, confidencialidade e retenção eficiente de registros.Simplifique processos e alcance a excelência.";
   let iNormalH1 = 0;
   let iNormalP = 0;
   let scrollPositionOld = 0;
   let scrollPositionNow = 0;
   const playCertificar = document.querySelector('#certificarPlay');
   const playNugap = document.querySelector('#nugaPlay')
+  const agenda = document.querySelector('#agend');
+  const contactSection = document.querySelector('#contactSection');
+  const form = document.querySelector('#contactSection form');
+  const agendaText = "Agende uma demonstração GRATUITA agora!"
   playCertificar.addEventListener('click', () => {
    window.open('https://www.youtube.com/watch?v=GdO7QUdq_es', '_blank');
   });
@@ -356,7 +370,24 @@
       }
     });
   }, { threshold: 0.3 });
+  const observerForm = new IntersectionObserver((entries) => {
+    
+    entries.forEach(entry => {
+      let feitoAgenda = false
+      if (entry.isIntersecting){
+        if (!feitoAgenda){
+          typeNormal(agenda, 0, agendaText, 80);
+          form.style.animationName = 'apareca';
+          form.style.animationDuration = '2s';
+          form.style.animationFillMode = 'forwards';
+        }
+      }
+    })
+  },{
+    threshold: 0.3
+  });
   observerPersona.observe(persona)
+  observerForm.observe(contactSection)
   observerInscreens.observe(inscreen1);
   observerSecond.observe(secondTextSection);
   observerWrither.observe(writher);
