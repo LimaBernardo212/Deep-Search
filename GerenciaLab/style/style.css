@@ -348,7 +348,7 @@ p{
 }
 @keyframes FunctionsFadeIn {
     0%{
-        top: 252vh;
+        top: 258vh;
         opacity: 0;
     }
     100%{
@@ -362,7 +362,7 @@ p{
         top: 222vh;
     }
     100%{
-        top: 252vh;
+        top: 258vh;
         opacity: 0;
     }
     
