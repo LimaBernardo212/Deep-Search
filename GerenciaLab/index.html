@@ -12,6 +12,7 @@
     <img src="images/BrandTop.svg" alt="">
     <nav>
       <a href="#LabHeroSection">Inicio</a>
+      <a href="#videoSection">Sobre</a>
       <a href="#expoSection">Funcionalidades</a>
       <a href="#Persona">Depoimentos</a>
     </nav>
@@ -32,6 +33,10 @@
       </section>
       
       <img src="images/selo_iso.png" alt="" id="seloIso">
+      <section id="videoSection">
+        <h1 id="sbn"></h1>
+        <video src="Video/Gerencialab-video.mp4" controls id="video" playsinline></video>
+      </section>
       <section id="secondText">
       
       <div>
@@ -191,7 +196,12 @@
   const clicker = document.querySelector('#Clicker')
   const riserText = "Transforme Seu Laboratório Hoje!";
   const riserPtext = "Descubra Como o Gerencialab Pode Levar Sua Gestão Laboratorial ao Próximo Nível";
-  const especialImg = document.querySelector('#especialImg')
+  const videoSection = document.querySelector('#videoSection');
+  const sbn = document.querySelector('#sbn');
+  const video = document.querySelector('#video')
+  const especialImg = document.querySelector('#especialImg');
+  const sbnText = "Um pouco sobre-nós"
+  
   clicker.addEventListener('click', () => {
     window.location.href = '#contactSection';
   })
@@ -201,6 +211,7 @@
   playNugap.addEventListener('click', () => {
     window.open('https://www.youtube.com/watch?v=OvCA0JgzXhM', '_blank');
   })
+  
   function typeNormal(Normal, i, textNormal, velocity) {
     if (Normal && i < textNormal.length) {
       Normal.innerHTML += textNormal.charAt(i);
@@ -214,6 +225,14 @@
       if (entry.isIntersecting) {
         if (!feitoSecond) {
           feitoSecond = true;
+          
+          // Para o vídeo quando secondSection é vista
+          if (video && !video.paused) {
+            video.pause();
+            video.currentTime = 0; // Opcional: volta ao início
+            console.log('Vídeo parado ao visualizar secondSection');
+          }
+          
           isoimg.style.animationName = 'apareca';
           isoimg.style.animationDuration = '1.5s'
           isoimg.style.transition = '2s all';
@@ -327,7 +346,7 @@
         setTimeout(()=> {
             inscreensArray.forEach((element, index) => {
           setTimeout(() => {
-            element.style.top = '231vh';
+            element.style.top = '343vh';
             element.style.transition = '0.5s all';
             element.style.opacity = '0';
           }, index === 0 ? 0 : (index < 5 ? 250 * index : 2000 + 250 * (index - 8)));
@@ -393,6 +412,7 @@
       }
     });
   }, { threshold: 0.5 });
+  
   let feitO = false;
   const observerPersona = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -404,6 +424,7 @@
       }
     });
   }, { threshold: 0.3 });
+  
   let feitoAgenda = false
   const observerForm = new IntersectionObserver((entries) => {
     
@@ -422,6 +443,7 @@
   },{
     threshold: 0.3
   });
+  
   let feitoRiser = false;
   const observerRiser = new IntersectionObserver((entries) => {
     entries.forEach (entry => {
@@ -451,6 +473,45 @@
   }, {
     threshold: 0.3
   })
+  
+  // Observer do vídeo corrigido
+  let foiFeitoVideo = false;
+  const observerVideo = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting){
+        if (!foiFeitoVideo){
+          typeNormal(sbn, 0, sbnText, 80);
+          foiFeitoVideo = true;
+          
+          // Correção para autoplay do vídeo
+          if (video) {
+            video.muted = true; // Necessário para autoplay funcionar na maioria dos navegadores
+            video.autoplay = true;
+            
+            // Tentativa de reprodução com tratamento de erro
+            const playPromise = video.play();
+            
+            if (playPromise !== undefined) {
+              playPromise
+                .then(() => {
+                  console.log('Vídeo iniciado automaticamente');
+                })
+                .catch(error => {
+                  console.log('Autoplay foi bloqueado:', error);
+                  // Fallback: mostrar controles para o usuário
+                  video.controls = true;
+                });
+            }
+          }
+        }
+      }
+    })
+  }, {
+    threshold: 0.3
+  })
+  
+  // Observando as seções
+  observerVideo.observe(videoSection)
   observerRiser.observe(ultText)
   observerPersona.observe(persona)
   observerForm.observe(contactSection)
