@@ -1,0 +1,245 @@
+@charset "UTF-8";
+@import url('https://fonts.googleapis.com/css2?family=Jersey+20&family=Pixelify+Sans:wght@400..700&display=swap');
+/* CSS Document */
+
+:root{
+    --cor01: #2B57FC;
+    --cor02: #607BD2;
+    --cor03: #2b58fce1;
+    --cor04: #0037ff;
+    --cor05: white;
+    --nav : #ffffffcc;
+    --hovernav: #0037ff7f;
+    --fontTitle: 'Pixelify Sans', sans-serif;
+    --fontText: 'Jersey 20', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    cursor: url('../images/icons8-select-cursor-32.png'), auto !important;
+    scroll-behavior: smooth;
+    margin-right: 0;
+}
+body{
+    overflow-x: hidden;
+}
+section{
+    height: 80vh;
+}
+#mobileNav{
+    opacity: 0;
+    display: block;
+    position: fixed;
+    top: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 95vw;
+    height: 20vh;
+    background-color: var(--nav);
+    margin-left: -2px;
+    border-radius: 20px;
+    transition: 1s all;
+}
+#mobileNav a{
+    font-family: var(--fontTitle);
+    text-decoration: none;
+    color: var(--cor01);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    text-align: justify;
+    width: 90vw;
+    height: 4vh;
+    border-radius: 10px;
+    transition: 1s all;
+}
+#mobileNav a:hover{
+    background-color: var(--cor01);
+    color: white;
+
+}
+#Especial{
+    display: none;
+}
+#navigator{
+    opacity: 1;
+    position: fixed;
+    left: 10px;
+    top: 10px;
+    transform: translateX(0);
+    width: 95vw;
+    
+
+}
+#buguinho{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    margin-right: 32px;
+}
+#buguinho img{
+    width: 44px;
+}
+h1{
+    font-size: 1.7em;
+}
+#videoSection{
+    margin-top: -10px;
+    width: 105vw;
+}
+#video{
+    width: 95vw;
+}
+#navigator nav{
+    display: none;
+}
+#LabHeroSection{
+    width: 105vw;
+}
+#LabHeroSection h1{
+    max-width: 110vw;
+    margin-left: 30px;
+    white-space: wrap;
+    font-size: 1.7em;
+}
+#LabHeroSection p{
+   
+    margin-left: 30px;
+    
+}
+#IsoImg{
+    top: -10vw;
+}
+#secondText{
+    width: 105vw;
+    
+}
+@keyframes isoFadeIn {
+    0% {
+        opacity: 1;
+        left: -30vw;
+        transform: rotateY(0deg) scale(10);
+        top:  188vh;
+    }
+    25%{
+        transform: rotateY(360deg) scale(7.5);
+    }
+    50%{
+        transform: rotateY(0deg) scale(5);
+    }
+    75%{
+        transform: rotateY(360deg) scale(2.5);
+    }
+    100%{
+        opacity: 1;
+        left: 44vw;
+        transform: rotateY(0deg) scale(1);
+        top: 188vh;
+    }
+}
+#expoSection{
+    width: 105vw;
+}
+#inscreen1 , #inscreen2 , #inscreen3 , #inscreen4 , #inscreen5 , 
+#inscreen6 , #inscreen7 , #inscreen8 , #inscreen9 , #inscreen10 {
+    margin-left: 0px;
+}
+#inscreen1 h1{
+    margin-left: 20px;
+}
+#inscreen1 img, #inscreen2 img, #inscreen3 img, #inscreen4 img, #inscreen5 img, 
+#inscreen6 img, #inscreen7 img, #inscreen8 img, #inscreen9 img, #inscreen10 img{
+    width: 90vw;
+    max-width: 100%;
+    height: auto;
+}
+#Persona{
+    width: 102.6vw;
+}
+#Nugap{
+    border-radius: 15px;
+   left: 50%;
+   transform: translate(-50%);
+   width: 90vw;
+   top: 450vh;
+   height: 13vh;
+}
+#Nugap img{
+    width: 80vw;
+}
+#Nugap:hover{
+    top: 455vh;
+    left: 50%;
+    transform: translateX(-50%);
+}
+#certificar:hover .play, #Nugap:hover .play{
+    width: 15vw;
+}
+#ultimateText{
+    width: 105vw;
+    padding-top: 10px;
+    margin-top: -10px;
+}
+#certificar{
+    border-radius: 15px;
+    left: 50%;
+   transform: translateX(-50%);
+   width: 90vw;
+   top: 470vh;
+   height: 13vh;
+}
+#especialImg{
+    top: 70vh;
+    align-self: center;
+    width: 90vw;
+    right: 7vw;
+}
+#Clicker{
+    width: 75vw;
+    margin-left: 15vw;
+    margin-top: 20px;
+}
+@keyframes apareca {
+    0%{
+        opacity: 0;
+        transform: translateY(15vh);
+    }
+    100%{
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+#contactSection{
+    width: 102.5vw;
+}
+#agend{
+    margin-left: 35px;
+}
+#contactSection form{
+    width: 90vw;
+}
+#contactSection input{
+    width: 75vw;
+}
+#contactSection button{
+    width: 75vw;
+}
+.footer-main {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-contact {
+    align-items: center;
+  }
+
+  .footer-bottom-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
