@@ -28,6 +28,7 @@ section{
 }
 #mobileNav{
     opacity: 0;
+    display: none;
     display: block;
     position: fixed;
     top: 100px;
@@ -112,7 +113,10 @@ h1{
     
 }
 #IsoImg{
-    top: -10vw;
+    align-self: center;
+    
+    
+    top: -20vw;
 }
 #secondText{
     width: 105vw;
@@ -123,7 +127,7 @@ h1{
         opacity: 1;
         left: -30vw;
         transform: rotateY(0deg) scale(10);
-        top:  188vh;
+        top:  184vh;
     }
     25%{
         transform: rotateY(360deg) scale(7.5);
@@ -136,9 +140,9 @@ h1{
     }
     100%{
         opacity: 1;
-        left: 44vw;
+        left: 41vw;
         transform: rotateY(0deg) scale(1);
-        top: 188vh;
+        top: 184vh;
     }
 }
 #expoSection{

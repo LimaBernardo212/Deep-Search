@@ -96,13 +96,19 @@ const LabHeroSection = document.querySelector('#LabHeroSection');
         let clicked = false;
 burguer.addEventListener('click', () => {
     if (!clicked){
-        menuMobile.style.opacity = '1'
+        menuMobile.style.display = 'flex';
+        setTimeout(() => {
+            menuMobile.style.opacity = '1'
         clicked = true;
         burguerimg.src = "https://img.icons8.com/?size=100&id=FGBtcylNgqtz&format=png&color=000000";
+        }, 50);
     }else{
-        menuMobile.style.opacity = '0'
-        clicked = false
+        menuMobile.style.opacity = '0';
+        setTimeout(() => {
+            menuMobile.style.display = 'none'
+            clicked = false
         burguerimg.src = "https://img.icons8.com/?size=100&id=qWk6VwJDFH47&format=png&color=000000";
+        }, 50);
     }
 });
   clicker.addEventListener('click', () => {
