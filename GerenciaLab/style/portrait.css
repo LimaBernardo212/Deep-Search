@@ -29,7 +29,7 @@ section{
 #mobileNav{
     opacity: 0;
     display: none;
-    display: block;
+   
     position: fixed;
     top: 100px;
     display: flex;
