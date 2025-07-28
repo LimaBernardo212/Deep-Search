@@ -32,7 +32,7 @@ section{
    
     position: fixed;
     top: 100px;
-    display: flex;
+   
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -69,9 +69,9 @@ section{
 #navigator{
     opacity: 1;
     position: fixed;
-    left: 10px;
+    left: 2.5vw;
     top: 10px;
-    transform: translateX(0);
+    transform: translateX(0%);
     width: 95vw;
     
 
@@ -91,7 +91,7 @@ h1{
 }
 #videoSection{
     margin-top: -10px;
-    width: 105vw;
+    width: 105.5vw;
 }
 #video{
     width: 95vw;
@@ -114,19 +114,37 @@ h1{
     
 }
 #IsoImg{
+    position: absolute;
     align-self: center;
-    
-    
     top: -20vw;
+   
+}
+@keyframes teck {
+    from{
+        transform: scale(1);
+    }
+    to{
+        transform: scale(0.99);
+    }
+}
+@keyframes apareca {
+    0%{
+        opacity: 0;
+        transform: translateY(15vh);
+    }
+    100%{
+        opacity: 1;
+        transform: translateY(0vh);
+    }
 }
 #secondText{
-    width: 105vw;
-    
+    width: 105.5vw;
+    margin-top: -10px;
 }
 @keyframes isoFadeIn {
     0% {
         opacity: 1;
-        left: -30vw;
+        left:  -30vw;
         transform: rotateY(0deg) scale(10);
         top:  184vh;
     }
@@ -143,7 +161,7 @@ h1{
         opacity: 1;
         left: 41vw;
         transform: rotateY(0deg) scale(1);
-        top: 184vh;
+        top: 182vh;
     }
 }
 #expoSection{
@@ -174,7 +192,7 @@ h1{
    height: 13vh;
 }
 #Nugap img{
-    width: 80vw;
+    width: 60vw;
 }
 #Nugap:hover{
     top: 455vh;
@@ -185,7 +203,7 @@ h1{
     width: 15vw;
 }
 #ultimateText{
-    width: 105vw;
+    width: 105.5vw;
     padding-top: 10px;
     margin-top: -10px;
 }
@@ -196,6 +214,9 @@ h1{
    width: 90vw;
    top: 470vh;
    height: 13vh;
+}
+#certificar img{
+    width: 80vw;
 }
 #especialImg{
     top: 70vh;
@@ -219,7 +240,9 @@ h1{
     }
 }
 #contactSection{
-    width: 102.5vw;
+    width: 103vw;
+    margin-top: -10px;
+    padding-top: 50px;
 }
 #agend{
     margin-left: 35px;
@@ -247,4 +270,52 @@ h1{
     flex-direction: column;
     text-align: center;
     gap: 10px;
+  }
+  @media (min-width: 1024px) {
+    #IsoImg{
+        top: 30vh;
+    }
+    #NormalH1, #NormalP{
+        width: 47vw;
+    }
+    @keyframes isoFadeIn {
+    0% {
+        opacity: 1;
+        left:  -30vw;
+        transform: rotateY(0deg) scale(10);
+        top:  184vh;
+    }
+    25%{
+        transform: rotateY(360deg) scale(7.5);
+    }
+    50%{
+        transform: rotateY(0deg) scale(5);
+    }
+    75%{
+        transform: rotateY(360deg) scale(2.5);
+    }
+    100%{
+        opacity: 1;
+        left: 86vw;
+        transform: rotateY(0deg) scale(1);
+        top: 241vh;
+    }
+}
+    #Nugap img{
+        width:  45vw;
+    }
+    #especialImg{
+        width: 40vw;
+        top: 43vh;
+    }
+    #riserH1, #riserP{
+        width: 50vw;
+    }
+    #Clicker{
+        width: 40vw;
+        margin-left: 10vw;
+    }
+    #Persona{
+        margin-top: -10px;
+    }
   }

@@ -69,6 +69,7 @@ const LabHeroSection = document.querySelector('#LabHeroSection');
   const burguer = document.querySelector('#buguinho');
   const burguerimg = document.querySelector('#buguinho img')
   const menuMobile = document.querySelector('#mobileNav');
+  const navigator = document.querySelector('#navigator')
   function enviarMensagemPersonalizada() {
             const nome = document.getElementById('Name').value;
             const lab = document.getElementById('Labo').value;
@@ -226,6 +227,7 @@ function verificarOrientacao() {
         inscreen8.style.width = '70vw'
         inscreen9.style.width = '70vw'
         inscreen10.style.width = '70vw'
+       
   } else {
     return "landscape";
   }
@@ -240,8 +242,9 @@ function verificarOrientacao() {
         } else {
           ocult1.style.color = 'var(--cor01)';
         }
-
+       
         verificarOrientacao()
+        
         inscreen1.style.transform = 'translateX(-50%)';
         inscreen1.style.zIndex = '10';
         inscreen2.style.transform = 'translateX(-38.75%)';
