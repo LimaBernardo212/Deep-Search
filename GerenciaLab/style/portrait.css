@@ -109,14 +109,16 @@ h1{
     font-size: 1.7em;
 }
 #LabHeroSection p{
-   
+   margin-top: 20px;
     margin-left: 30px;
     
 }
 #IsoImg{
     position: absolute;
     align-self: center;
-    top: -20vw;
+    top: -42.3vw;
+    left: 7.5vw;
+    width: 90vw;
    
 }
 @keyframes teck {
@@ -159,9 +161,9 @@ h1{
     }
     100%{
         opacity: 1;
-        left: 41vw;
+        left: 38vw;
         transform: rotateY(0deg) scale(1);
-        top: 182vh;
+        top: 172vh;
     }
 }
 #expoSection{
@@ -271,9 +273,13 @@ h1{
     text-align: center;
     gap: 10px;
   }
-  @media (min-width: 1024px) {
+  
+  @media (max-width: 1024px) and (min-width: 628px) {
     #IsoImg{
-        top: 30vh;
+        top: 38vh;
+        right: 5vw;
+        left: 65vw;
+        width: 30vw;
     }
     #NormalH1, #NormalP{
         width: 47vw;
@@ -283,7 +289,7 @@ h1{
         opacity: 1;
         left:  -30vw;
         transform: rotateY(0deg) scale(10);
-        top:  184vh;
+        top:  240vh;
     }
     25%{
         transform: rotateY(360deg) scale(7.5);
@@ -298,10 +304,10 @@ h1{
         opacity: 1;
         left: 86vw;
         transform: rotateY(0deg) scale(1);
-        top: 241vh;
+        top: 243vh;
     }
 }
-    #Nugap img{
+    #Nugap img, #certificar img{
         width:  45vw;
     }
     #especialImg{
@@ -317,5 +323,8 @@ h1{
     }
     #Persona{
         margin-top: -10px;
+    }
+    #contactSection form{
+        margin-left: -4.5vw;
     }
   }
