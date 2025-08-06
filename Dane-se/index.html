@@ -19,7 +19,7 @@
             --cor03: #9FA3A6;
             --cor04: #D7D8D9;
             --cor05: #F2F2F2;
-            --cor06: #1c202475;
+            --cor06: #1c2024;
             --cor07: black;
             --cor08: #252f38;
             --cor09: #424e5a;
@@ -30,6 +30,8 @@
             --color: #4771b0;
             --color1: #2b4a7d;
             --cor011: rgb(10, 10, 10);
+            --nav: #F2F2F2; /* Corrigido: adicionada variável para o background do navigator */
+            --hovernav: #4771b0; /* Corrigido: adicionada variável para hover dos links */
         }
         body{
             height: 100vh;
@@ -37,6 +39,77 @@
             overflow-x: hidden;
             margin: 0;
             padding: 0;
+        }
+        #mobileNav{
+            display: none;
+        }
+        #buguinho{
+            display: none;
+        }
+        #navigator{
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            width: 98vw;
+            display: flex;
+            height: 10vh;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 20px;
+            transform: translateX(-50%);
+            background-color: var(--cor06);
+            
+            
+            z-index: 999999;
+            opacity: 1; /* Corrigido: sempre visível */
+            transition: 2s all;
+        }
+        #navigator img{
+            margin-left: 20px;
+            width: 64px;
+        }
+        #navigator:hover{
+            opacity: 1;
+        }
+        #navigator nav{
+            color: var(--cor05);
+            font-family: var(--fontNormal);
+        }
+        #navigator nav a{
+            text-decoration: none;
+            color: var(--cor05);
+            font-size: 1.1em;
+            margin: 0 20px;
+            font-weight: bold;
+            transition: 0.5s all;
+        }
+        #navigator nav a:hover{
+            cursor: pointer, auto !important;
+            color: var(--cor03);
+            text-decoration: underline;
+        }
+        #Especial{
+            width: 10vw;
+            border: 2px solid var(--cor05);
+            border-radius: 10px;
+            height: 6vh;
+            display: flex;
+            text-decoration: none;
+            color: var(--cor05);
+            font-weight: bold;
+            background-color: transparent;
+            font-family: var(--fontTitle);
+            font-size: 1em;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            transition: 1s all;
+        }
+        #Especial:hover{
+            cursor: pointer, auto !important;
+            background-color: var(--cor05);
+            color: var(--cor06);
+            transform: scale(1.05);
         }
         #herosection{
             background-image: url('images/fundo-de-respingo-de-agua-realista.jpg');
@@ -323,11 +396,85 @@
                 height: 4.5vh;
                 width: 15px;
             }
+            #mobileNav{
+                opacity: 0;
+                display: none;
+                position: fixed;
+                top: 100px;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 95vw;
+                height: 23vh;
+                background-color: var(--nav);
+                margin-left: -2px;
+                border-radius: 20px;
+                transition: 1s all;
+            }
+            #mobileNav a{
+                font-family: var(--fontNormal);
+                text-decoration: none;
+                color: var(--cor01);
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                padding-left: 10px;
+                text-align: justify;
+                width: 90vw;
+                height: 4vh;
+                border-radius: 10px;
+                transition: 1s all;
+            }
+            #mobileNav a:hover{
+                background-color: var(--cor01);
+                color: white;
+            }
+            #Especial{
+                display: none;
+            }
+            #navigator{
+                opacity: 1;
+                position: fixed;
+                left: 2.5vw;
+                top: 10px;
+                transform: translateX(0%);
+                width: 95vw;
+            }
+            #navigator nav{
+                display: none;
+            }
+            #buguinho{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 64px;
+                margin-right: 32px;
+            }
+            #buguinho img{
+                width: 34px;
+            }
         }
     </style>
 </head>
 <body>
-   
+   <header id="navigator">
+    <img src="https://daneseoficial.com.br/wp-content/uploads/2025/03/Sem-nome-299-x-445-px-276-x-442-px-484-x-264-px-1-1.png" alt="">
+    <nav>
+      <a href="">Inicio</a>
+      <a href="">Sobre</a>
+      <a href="">Compre</a>
+    </nav>
+    <a href="https://wa.me/5531984540601?text=Olá!%20Gostaria%20de%20mais%20informações.%20Vim%20pelo%20site%20e%20me%20interessei!" target="_blank" id="Especial">Fornecedores</a>
+    <div id="buguinho"><img src="https://img.icons8.com/?size=100&id=s1My9x8dhHDj&format=png&color=FFFFFF" alt="">  </div>
+    <div id="mobileNav">
+      <a href="">Inicio</a>
+      <a href="">Sobre</a>
+      <a href="">Compre</a>
+      <a href="https://wa.me/5531984540601?text=Olá!%20Gostaria%20de%20mais%20informações.%20Vim%20pelo%20site%20e%20me%20interessei!" target="_blank">Fornecedores</a>
+    </div>
+  </header>
+    <main>
+      
     <section id="herosection">
         <div id="imglayer1">
             <img src="images/Lata-2-593x1024.png" alt="A ultima gota d'agua!">
@@ -361,12 +508,33 @@
         const buydiv = document.querySelector('#buydiv');
         const laranja = document.querySelector('#laranja');
         const rosa = document.querySelector('#rosa');
-        
+        const burguer = document.querySelector('#buguinho');
+  const burguerimg = document.querySelector('#buguinho img')
+  const menuMobile = document.querySelector('#mobileNav');
+  const navigator = document.querySelector('#navigator')
         let numberOfScrolls = 1; 
         let clicked = false;
         let scrollTo = 0;
         const isPortrait = window.matchMedia("(orientation: portrait)").matches;
         
+        let clickedI = false;
+burguer.addEventListener('click', () => {
+    if (!clickedI){
+        menuMobile.style.display = 'flex';
+        setTimeout(() => {
+            menuMobile.style.opacity = '1'
+        clickedI = true;
+        burguerimg.src = "https://img.icons8.com/?size=100&id=84994&format=png&color=FFFFFF";
+        }, 50);
+    }else{
+        menuMobile.style.opacity = '0';
+        setTimeout(() => {
+            menuMobile.style.display = 'none'
+            clickedI = false
+        burguerimg.src = "https://img.icons8.com/?size=100&id=s1My9x8dhHDj&format=png&color=FFFFFF";
+        }, 50);
+    }
+});
         // Função para verificar se a imagem está dentro da buydiv
         function isImageInsideBuydiv() {
             const imgRect = img.getBoundingClientRect();
@@ -388,6 +556,16 @@
                 rosa.style.filter = 'blur(0px)';
             }
         }
+
+        // Função auxiliar para aplicar rotate corretamente
+        function setRotate(element, deg) {
+            // Pega o transform atual (se houver)
+            let current = element.style.transform || '';
+            // Remove qualquer rotate anterior
+            current = current.replace(/rotate\([^)]+\)/, '');
+            // Adiciona o novo rotate
+            element.style.transform = (current + ` rotate(${deg})`).trim();
+        }
         
         setTimeout(() => {
             
@@ -397,29 +575,24 @@
                 
                 if (numberOfScrolls == 1 && !isPortrait){
                     img.style.top = '100vh';
-                    img.style.rotate = '35deg';
+                    setRotate(img, '35deg');
                     img.style.height = '80vh';
-                    
                     img.style.transition = '2s all';
                     
                     img.addEventListener('mouseenter', () => {
                         buydiv.style.filter = 'blur(0px)';
                         buydiv.style.transition = '0.5s all';
-                        
                     });
                     img.addEventListener('mouseout', () => {
                         buydiv.style.filter = 'blur(0px)';
                         buydiv.style.transition = '0.5s all';
-                        
                     });
                 }
                 if (numberOfScrolls == 0 && !isPortrait){
                     img.style.top = '50%';
-                    img.style.rotate = '-2deg';
+                    setRotate(img, '-2deg');
                     img.style.height = '80vh';
                     img.style.transition = '2s all';
-                   
-                    
                     img.addEventListener('mouseenter', () => {
                         buydiv.style.filter = 'blur(0px)';
                         buydiv.style.transition = '0.5s all';
@@ -431,9 +604,8 @@
                 }
                 if (numberOfScrolls == 2 && !isPortrait){
                     img.style.top = '195vh';
-                    img.style.rotate = '2deg';
+                    setRotate(img, '2deg');
                     img.style.height = '45vh';
-                    
                     
                     if (img.style.top == '195vh'){
                         setTimeout(() => {
@@ -448,7 +620,6 @@
                             buydiv.style.transition = '0.5s all';
                             laranja.style.filter = 'blur(5px)';
                             rosa.style.filter = 'blur(5px)';
-                            
                         });
                         img.addEventListener('mouseout', () => {
                             buydiv.style.filter = 'blur(0px)';
@@ -456,7 +627,6 @@
                             laranja.style.filter = 'blur(0px)';
                             laranja.style.transition = '0.5s all';
                             rosa.style.filter = 'blur(0px)';
-                            
                             rosa.style.transition = '0.5s all';
                         });
                         laranja.addEventListener('mouseenter', () => {
@@ -464,7 +634,6 @@
                             buydiv.style.transition = '0.5s all';
                             img.style.filter = 'blur(5px)';
                             rosa.style.filter = 'blur(5px)';
-                            
                         });
                         laranja.addEventListener('mouseout', () => {
                             buydiv.style.filter = 'blur(0px)';
@@ -473,14 +642,12 @@
                             img.style.transition = '0.5s all';
                             rosa.style.filter = 'blur(0px)';
                             rosa.style.transition = '0.5s all';
-                            
                         });
                         rosa.addEventListener('mouseenter', () => {
                             buydiv.style.filter = 'blur(5px)';
                             buydiv.style.transition = '0.5s all';
                             img.style.filter = 'blur(5px)';
                             laranja.style.filter = 'blur(5px)';
-                           
                         });
                         rosa.addEventListener('mouseout', () => {
                             buydiv.style.filter = 'blur(0px)';
@@ -489,17 +656,15 @@
                             img.style.transition = '0.5s all';
                             laranja.style.filter = 'blur(0px)';
                             laranja.style.transition = '0.5s all';
-                           
                         });
                     }
                 }
                 if (numberOfScrolls == 1 && isPortrait){
                     img.style.top = '100vh';
-                    img.style.rotate = '-1deg';
+                    setRotate(img, '-1deg');
                     img.style.height = '80vh';
                     img.style.transition = '2s all';
                     
-                    // Limpa blur automaticamente no modo portrait
                     setTimeout(() => {
                         clearBlurIfOutside();
                     }, 2100);
@@ -521,11 +686,10 @@
                 }
                 if (numberOfScrolls == 0 && isPortrait){
                     img.style.top = '50%';
-                    img.style.rotate = '-2deg';
+                    setRotate(img, '-2deg');
                     img.style.height = '80vh';
                     img.style.transition = '2s all';
                     
-                    // Limpa blur automaticamente no modo portrait
                     setTimeout(() => {
                         clearBlurIfOutside();
                     }, 2100);
@@ -547,9 +711,8 @@
                 }
                 if (numberOfScrolls == 2 && isPortrait){
                     img.style.top = '206vh';
-                    img.style.rotate = '-10deg';
+                    setRotate(img, '-10deg');
                     img.style.height = '25vh';
-                    
                     
                     if (img.style.top == '206vh'){
                         setTimeout(() => {
@@ -557,8 +720,6 @@
                             rosa.style.opacity = '1';
                             laranja.style.left = '15vw';
                             rosa.style.left = '85vw';
-                            
-                            // Após posicionar elementos, verifica e limpa blur se necessário
                             setTimeout(clearBlurIfOutside, 100);
                         }, 1800);
                         
@@ -583,7 +744,6 @@
                             buydiv.style.transition = '0.5s all';
                             img.style.filter = 'blur(5px)';
                             rosa.style.filter = 'blur(5px)';
-                            
                         });
                         laranja.addEventListener('mouseout', () => {
                             buydiv.style.filter = 'blur(0px)';
@@ -592,8 +752,6 @@
                             img.style.transition = '0.5s all';
                             rosa.style.filter = 'blur(0px)';
                             rosa.style.transition = '0.5s all';
-                            
-                            // Após mouseout, verifica se deve manter blur limpo
                             setTimeout(clearBlurIfOutside, 100);
                         });
                         rosa.addEventListener('mouseenter', () => {
@@ -601,7 +759,6 @@
                             buydiv.style.transition = '0.5s all';
                             img.style.filter = 'blur(5px)';
                             laranja.style.filter = 'blur(5px)';
-                           
                         });
                         rosa.addEventListener('mouseout', () => {
                             buydiv.style.filter = 'blur(0px)';
@@ -610,8 +767,6 @@
                             img.style.transition = '0.5s all';
                             laranja.style.filter = 'blur(0px)';
                             laranja.style.transition = '0.5s all';
-                            
-                            // Após mouseout, verifica se deve manter blur limpo
                             setTimeout(clearBlurIfOutside, 100);
                         });
                     }
