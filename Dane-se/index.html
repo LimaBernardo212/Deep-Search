@@ -239,7 +239,7 @@
             text-transform: uppercase;
             font-family: var(--fontNormal);
             text-align: justify;
-            width: 55vw;
+            width: 47vw;
             font-weight: bold;
             color: rgb(35, 35, 35);
         }
@@ -274,6 +274,7 @@
             font-size: 2em;
             padding: 20px;
         }
+        
         #laranja{
             position: absolute;
             left: 48%;
@@ -328,6 +329,9 @@
             right: 1.3vw;
             transition: 1s all;
         }
+        #buydiv{
+            width: 100vw;
+        }        
         #latinhaBuy{
             height: 3vw;
             opacity: 0;
@@ -361,6 +365,91 @@
             margin-left: 30px;
             width: 10vw;
         }
+       .footer {
+  background-color: var(--cor06);
+  color: var(--cor05);
+  font-family: var(--fontTitle), sans-serif;
+  padding-top: 40px;
+  margin: 0;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Parte Principal */
+.footer-main {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 30px;
+  border-bottom: 1px solid var(--cor03);
+}
+
+/* Logo */
+.footer-logo img {
+  width: 160px;
+  height: auto;
+}
+
+/* Contato */
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.contact-item {
+  font-size: 16px;
+  color: #ccc;
+}
+
+.contact-item a {
+  color: var(--cor01);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.contact-item a:hover {
+  color: #1e90ff;
+}
+
+/* Rodapé Inferior */
+.footer-bottom {
+  padding: 20px 0;
+  background-color: var(--cor06);
+  font-size: 14px;
+}
+
+.footer-bottom-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-links {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.footer-links img {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.3s ease;
+}
+
+.footer-links img:hover {
+  transform: scale(1.2);
+}
+
+/* Responsivo */
+
         @media (orientation: portrait) {
             #herosection button{
                 width: 60vw;
@@ -371,6 +460,9 @@
             }
             #imglayer2 {
                 left: 7vw;
+            }
+            #maindivchild p{
+                width: 55vw;
             }
             #rosa{
                 height: 25vh;
@@ -453,6 +545,21 @@
             #buguinho img{
                 width: 34px;
             }
+            .footer-main {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-contact {
+    align-items: center;
+  }
+
+  .footer-bottom-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
         }
     </style>
 </head>
@@ -501,6 +608,37 @@
     </section>
     <img src="images/energeticodane-selaranja.png" alt="Energetico Dane-se Sabor Manga" id="laranja">
     <img src="images/energeticodane-serosa.png" alt="Energetico Dane-se Sabor Melancia" id="rosa">
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-main">
+                <!-- Logo -->
+                <div class="footer-logo">
+                    <div> <img src="https://daneseoficial.com.br/wp-content/uploads/2025/03/Sem-nome-299-x-445-px-276-x-442-px-484-x-264-px-1-1.png" alt=""></div>
+                </div>
+                
+                <!-- Informações de Contato -->
+                
+            </div>
+        </div>
+        
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="footer-container">
+                <div class="footer-bottom-content">
+                    <div class="copyright">
+                        © 2025 Dane-Se, Inc. • Settings [Beta] 
+                    </div>
+                    <div class="footer-links">
+                        
+                        <a href="https://www.instagram.com/dane_se_oficial/" target="_blank"><img src="https://img.icons8.com/?size=100&id=32323&format=png&color=000000" alt=""></a>
+    
+                        
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
     <script>
         const img = document.querySelector('#imglayer1 img');
         const div1 = document.querySelector('#maindivchild p');
@@ -559,12 +697,7 @@ burguer.addEventListener('click', () => {
 
         // Função auxiliar para aplicar rotate corretamente
         function setRotate(element, deg) {
-            // Pega o transform atual (se houver)
-            let current = element.style.transform || '';
-            // Remove qualquer rotate anterior
-            current = current.replace(/rotate\([^)]+\)/, '');
-            // Adiciona o novo rotate
-            element.style.transform = (current + ` rotate(${deg})`).trim();
+            element.style.tranform = `translateX(-50%) translateY(-50%) rotate(${deg}deg)`;
         }
         
         setTimeout(() => {
@@ -575,8 +708,9 @@ burguer.addEventListener('click', () => {
                 
                 if (numberOfScrolls == 1 && !isPortrait){
                     img.style.top = '100vh';
-                    setRotate(img, '35deg');
+                    setRotate(img, -35);
                     img.style.height = '80vh';
+                    
                     img.style.transition = '2s all';
                     
                     img.addEventListener('mouseenter', () => {
@@ -605,6 +739,7 @@ burguer.addEventListener('click', () => {
                 if (numberOfScrolls == 2 && !isPortrait){
                     img.style.top = '195vh';
                     setRotate(img, '2deg');
+                    
                     img.style.height = '45vh';
                     
                     if (img.style.top == '195vh'){
@@ -710,16 +845,18 @@ burguer.addEventListener('click', () => {
                     });
                 }
                 if (numberOfScrolls == 2 && isPortrait){
-                    img.style.top = '206vh';
+                    img.style.top = '214vh';
                     setRotate(img, '-10deg');
                     img.style.height = '25vh';
                     
-                    if (img.style.top == '206vh'){
+                    if (img.style.top == '214vh'){
                         setTimeout(() => {
                             laranja.style.opacity = '1';
                             rosa.style.opacity = '1';
-                            laranja.style.left = '15vw';
-                            rosa.style.left = '85vw';
+                            laranja.style.left = '25vw';
+                            rosa.style.left = '80vw';
+                            rosa.style.rotate = '-5deg';
+                            rosa.style.top = '225vh'
                             setTimeout(clearBlurIfOutside, 100);
                         }, 1800);
                         
