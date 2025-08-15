@@ -119,6 +119,7 @@
             width: 100vw;
             height: 100vh;
             position: relative;
+            
         }
         #imglayer1 img{
             height: 80vh;
@@ -133,6 +134,7 @@
             animation-direction: normal;
             animation-fill-mode: forwards; 
             transition: 2s all;
+            z-index: 999;
         }
         #imglayer1{
             position: absolute;
@@ -151,6 +153,7 @@
             font-family: var(--fontNormal);
             font-weight: bold;
             font-size: 3em;
+            
             color: white;
             opacity: 0;
         }
@@ -250,8 +253,11 @@
             background-repeat: no-repeat;
             background-size: cover;
             height: 90vh;
+            width: 100vw;
             background-attachment: fixed;
             position: relative; 
+            overflow-x: hidden;
+        
         }
         
         #intext{
@@ -374,7 +380,7 @@
 }
 
 .footer-container {
-  max-width: 1200px;
+  max-width: 100vw;
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -456,7 +462,10 @@
                 left: 23vw;
             }
             #herosection{
-                width: 110vw;
+                width: 100vw;
+            }
+            #herosection h1{
+                max-width: 95vw;
             }
             #imglayer2 {
                 left: 7vw;
@@ -474,7 +483,7 @@
                margin-left: 10vw; 
             }
             #buydiv{
-                width: 110vw;
+                width: 100vw;
             }
             #logo{
                 width: 10vw;
@@ -545,10 +554,16 @@
             #buguinho img{
                 width: 34px;
             }
+            .footer-container{
+                width: 100vw;
+                
+                margin-bottom: 0px;
+            }
             .footer-main {
     flex-direction: column;
     align-items: center;
     text-align: center;
+     border: none;
   }
 
   .footer-contact {
@@ -559,6 +574,7 @@
     flex-direction: column;
     text-align: center;
     gap: 10px;
+    
   }
         }
     </style>
