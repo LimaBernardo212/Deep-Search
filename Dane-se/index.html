@@ -30,16 +30,20 @@
             --color: #4771b0;
             --color1: #2b4a7d;
             --cor011: rgb(10, 10, 10);
-            --nav: #F2F2F2; /* Corrigido: adicionada variável para o background do navigator */
-            --hovernav: #4771b0; /* Corrigido: adicionada variável para hover dos links */
+            --nav: #F2F2F2;
+            --hovernav: #4771b0;
         }
+        
         body{
-            height: 100vh;
+            
             width: 100vw;
-            overflow-x: hidden;
+            overflow-x: hidden !important; 
             margin: 0;
             padding: 0;
         }
+        body, html {
+    overflow-x: hidden !important;
+}
         #mobileNav{
             display: none;
         }
@@ -58,10 +62,8 @@
             border-radius: 20px;
             transform: translateX(-50%);
             background-color: var(--cor06);
-            
-            
             z-index: 999999;
-            opacity: 1; /* Corrigido: sempre visível */
+            opacity: 1;
             transition: 2s all;
         }
         #navigator img{
@@ -120,6 +122,7 @@
             height: 100vh;
             position: relative;
             
+            /* Removido overflow-x: hidden daqui */
         }
         #imglayer1 img{
             height: 80vh;
@@ -130,18 +133,17 @@
             filter: drop-shadow(0px 0px 10px black);
             animation-name: surger;
             animation-duration: 2s;
-            z-index: 25;
+            
             animation-direction: normal;
             animation-fill-mode: forwards; 
             transition: 2s all;
-            z-index: 999;
         }
         #imglayer1{
             position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            z-index: 20;
+            
         }
        
         #imglayer2 h1{
@@ -153,8 +155,8 @@
             font-family: var(--fontNormal);
             font-weight: bold;
             font-size: 3em;
-            
             color: white;
+            
             opacity: 0;
         }
         #imglayer2 p{
@@ -173,7 +175,7 @@
             position: absolute;
             top: 40vh;
             left: 3vw;
-            z-index: 30;
+             /* Aumentado o z-index para garantir que fique por cima */
         }
         #coler{
             background: linear-gradient(to right,var(--cor01), var(--cor05));
@@ -190,30 +192,35 @@
             0%{
                 transform: translateX(-200vw) translateY(-50%);
                 left: 50%;
-                right: 50%;
+                
             }
             100%{
                 transform: translateX(-8vw) translateY(-50%);
                 left: 50%;
-                right: 50%;
+               
             }
         }
+        
+        /* Animação modificada para evitar overflow horizontal */
         @keyframes surge {
             0%{
-                transform: translateX(-200vw);
-                opacity: 0;
+                transform: translateX(-200vw); /* Reduzido de -200vw para -100px */
+                opacity: 1;
             }
             100%{
-                transform: translateX(0vw);
+                transform: translateX(0px);
                 opacity: 1;
             }
         }
+        
         #maindiv1{
             width: 100vw;
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: start;
+            position: relative; /* Adicionado */
+            z-index: 10; /* Z-index menor que imglayer2 */
         }
         #maindivchild{
             width: 60vw;
@@ -223,7 +230,8 @@
             flex-direction: column;
             justify-content: center;
             border-radius: 20px;
-            z-index: 45;
+            z-index: 150; /* Z-index menor que imglayer2 */
+            position: relative; /* Adicionado */
         }
         #maindivchild h1{
             text-transform: uppercase;
@@ -237,6 +245,8 @@
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            z-index: 150;
+            position: relative;
         }
         #maindivchild p{
             text-transform: uppercase;
@@ -254,10 +264,9 @@
             background-size: cover;
             height: 90vh;
             width: 100vw;
+            z-index: -2;
             background-attachment: fixed;
             position: relative; 
-            overflow-x: hidden;
-        
         }
         
         #intext{
@@ -385,7 +394,6 @@
   padding: 0 20px;
 }
 
-/* Parte Principal */
 .footer-main {
   display: flex;
   flex-wrap: wrap;
@@ -395,13 +403,11 @@
   border-bottom: 1px solid var(--cor03);
 }
 
-/* Logo */
 .footer-logo img {
   width: 160px;
   height: auto;
 }
 
-/* Contato */
 .footer-contact {
   display: flex;
   flex-direction: column;
@@ -424,7 +430,6 @@
   color: #1e90ff;
 }
 
-/* Rodapé Inferior */
 .footer-bottom {
   padding: 20px 0;
   background-color: var(--cor06);
@@ -453,25 +458,48 @@
 .footer-links img:hover {
   transform: scale(1.2);
 }
-
-/* Responsivo */
-
-        @media (orientation: portrait) {
+   
+        @media (orientation: portrait) and (max-width: 1023px) {
+            
+            @keyframes surger{
+            0%{
+                transform: translateX(-200vw) translateY(-50%);
+                left: 50%;
+                
+            }
+            100%{
+                transform: translateX(-21vw) translateY(-50%);
+                left: 50%;
+               
+            }
+        }
             #herosection button{
                 width: 60vw;
                 left: 23vw;
             }
             #herosection{
+                position: relative;
                 width: 100vw;
+                margin: 0;
+                 
             }
             #herosection h1{
-                max-width: 95vw;
+                max-width: 90vw;
+                margin-right: 0;
             }
             #imglayer2 {
                 left: 7vw;
+                z-index: 100;
+                
+            }
+            
+            #imglayer1 img{
+                height: 55vh; 
+                margin: 0;
             }
             #maindivchild p{
                 width: 55vw;
+                
             }
             #rosa{
                 height: 25vh;
@@ -489,10 +517,10 @@
                 width: 10vw;
             }
             #head{
-                width: 85vw;
-                left: 10px;
-                transform: translateX(0);
-            }
+        width: calc(100vw - 20px); /* Em vez de 85vw */
+        left: 10px;
+        transform: translateX(0);
+    }
             #latinha{
                 height: 4.5vh;
                 width: 15px;
@@ -511,6 +539,7 @@
                 margin-left: -2px;
                 border-radius: 20px;
                 transition: 1s all;
+                z-index: 99999; /* Alto z-index para o menu mobile */
             }
             #mobileNav a{
                 font-family: var(--fontNormal);
@@ -556,27 +585,65 @@
             }
             .footer-container{
                 width: 100vw;
-                
                 margin-bottom: 0px;
             }
             .footer-main {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-     border: none;
-  }
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                border: none;
+            }
 
-  .footer-contact {
-    align-items: center;
-  }
+            .footer-contact {
+                align-items: center;
+            }
 
-  .footer-bottom-content {
-    flex-direction: column;
-    text-align: center;
-    gap: 10px;
-    
-  }
+            .footer-bottom-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            /* Animação modificada para mobile */
+            @keyframes surge {
+                0%{
+                    transform: translateX(-200vw); /* Ainda menor no mobile */
+                    opacity: 1;
+                }
+                100%{
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+             
         }
+        @media (min-width: 760px) and (max-width: 1400px) and (orientation: portrait) {
+                 
+        @keyframes surger{
+            0%{
+                transform: translateX(-200vw) translateY(-50%);
+                left: 50%;
+                
+            }
+            100%{
+                transform: translateX(-2vw) translateY(-50%);
+                left: 50%;
+               
+            }
+        }
+        #navigator{
+            height: 7vh;
+            width: 93vw;
+            margin-left: 0;
+        }
+        #laranja, #rosa{
+            height: 25vh;
+        }
+        #Especial{
+            height: 5vh;
+            width: 15vw;
+        }
+            }
     </style>
 </head>
 <body>
@@ -713,7 +780,7 @@ burguer.addEventListener('click', () => {
 
         // Função auxiliar para aplicar rotate corretamente
         function setRotate(element, deg) {
-            element.style.tranform = `translateX(-50%) translateY(-50%) rotate(${deg}deg)`;
+            element.style.transform = `translateX(-50%) translateY(-50%) rotate(${deg}deg)`;
         }
         
         setTimeout(() => {
@@ -812,8 +879,9 @@ burguer.addEventListener('click', () => {
                 }
                 if (numberOfScrolls == 1 && isPortrait){
                     img.style.top = '100vh';
-                    setRotate(img, '-1deg');
-                    img.style.height = '80vh';
+                    img.style.rotate = '10deg'
+                    img.style.height = '55vh';
+                    
                     img.style.transition = '2s all';
                     
                     setTimeout(() => {
@@ -837,8 +905,8 @@ burguer.addEventListener('click', () => {
                 }
                 if (numberOfScrolls == 0 && isPortrait){
                     img.style.top = '50%';
-                    setRotate(img, '-2deg');
-                    img.style.height = '80vh';
+                    img.style.rotate = '-3deg'
+                    img.style.height = '55vh';
                     img.style.transition = '2s all';
                     
                     setTimeout(() => {
@@ -862,14 +930,15 @@ burguer.addEventListener('click', () => {
                 }
                 if (numberOfScrolls == 2 && isPortrait){
                     img.style.top = '214vh';
-                    setRotate(img, '-10deg');
+                    img.style.rotate = '-4deg'
                     img.style.height = '25vh';
                     
                     if (img.style.top == '214vh'){
                         setTimeout(() => {
                             laranja.style.opacity = '1';
                             rosa.style.opacity = '1';
-                            laranja.style.left = '25vw';
+                            laranja.style.left = '76vw';
+                            laranja.style.rotate = '-35deg'
                             rosa.style.left = '80vw';
                             rosa.style.rotate = '-5deg';
                             rosa.style.top = '225vh'
