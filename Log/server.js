@@ -17,6 +17,10 @@ const conectDB = async() => {
     
 }
 conectDB()
+app.listen(PORT, () => {
+    console.log(`Hello Server! You as running at ${PORT}° of my Home`)
+})
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Middleware = Uma função que trata as informações recebidas
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //CREATE
@@ -58,7 +62,4 @@ app.delete("/vendas/:id", async (req, res) => {
     } catch (error) {
         res.json({error: error})
     }
-})
-app.listen(PORT, () => {
-    console.log(`Hello Server! You as running at ${PORT}° of my Home`)
 })
