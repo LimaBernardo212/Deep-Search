@@ -11,7 +11,7 @@ const app = express();
 const PORT = 5000;
 app.use(express.json());
 app.use(express.urlencoded( { extended: true } ));
-app.use(express.static("public"));
+app.use(express.static("./public"));
 const conectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI);

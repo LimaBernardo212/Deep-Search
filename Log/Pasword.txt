@@ -4,3 +4,43 @@ mongodb+srv://bernardolimarodrigues4_db_user:qVgwJUlmvAoOZtQz@cluster0.kcxhcwf.m
 ------------------------------
 Login 👍
 Agendamentos
+---------------------------------
+<Section Code>
+async function carregarUsuario() {
+      try {
+        const res = await fetch("/api/me", { credentials: "include" });
+        if (res.status === 401) {
+          // Não autenticado: redirecione para login
+          window.location.href = "/login.html";
+          return;
+        }
+        if (!res.ok) {
+          throw new Error("Falha ao obter usuário");
+        }
+        const data = await res.json();
+        const sec = document.getElementById("user-section");
+        sec.classList.remove("muted");
+        sec.innerHTML = `
+          <div><strong>Nome:</strong> ${data.name ?? "-"}</div>
+          <div><strong>Email:</strong> ${data.email ?? "-"}</div>
+          <div><strong>Perfil:</strong> ${data.isStore ? "Loja" : "Cliente"}</div>
+        `;
+      } catch (e) {
+        console.error("Falha ao carregar usuário:", e);
+        const sec = document.getElementById("user-section");
+        if (sec) sec.textContent = "Erro ao carregar usuário.";
+      }
+    }
+
+    async function logout() {
+      try {
+        await fetch("/logout", { method: "POST", credentials: "include" });
+        window.location.href = "/login.html";
+      } catch (e) {
+        console.error("Falha no logout:", e);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("logout-btn").addEventListener("click", logout);
+      carregarUsuario();
