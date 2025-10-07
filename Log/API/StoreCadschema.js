@@ -8,4 +8,4 @@ const StoreCadSchema = new mongoose.Schema({
     phone: String,
     storeEmail: String
 })
-export default mongoose.model("storecad", StoreCadSchema);
+export default mongoose.model("Storecad", StoreCadSchema);
