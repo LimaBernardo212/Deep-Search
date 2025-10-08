@@ -9,5 +9,4 @@ const HourSchema = new mongoose.Schema(
   }
 );
 
-// Usa cache para evitar OverwriteModelError em hot-reload
 export default mongoose.models['hoursStorage'] || mongoose.model('hoursStorage', HourSchema);

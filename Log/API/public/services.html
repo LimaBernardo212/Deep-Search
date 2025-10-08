@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services</title>
+</head>
+<body>
+    <h1>Services</h1>
+    <form action="/servicesCad" method="post">
+        <div class="services-container">
+            <div class="ServiceDiv">
+                <input type="text" name="serviceName" id="serviceName" placeholder="Nome do Serviço">
+                <textarea name="serviceDesc" id="serviceDesc"></textarea>
+                <input type="number" name="servicePrice" id="servicePrice" placeholder="Preço do Serviço">
+            </div>
+        </div>
+        <div class="action-container">
+            <button>Adicionar novo Serviço</button>
+            <input type="submit" value="Cadastrar">
+        </div>
+    </form>
+</body>
+<script>
+    const container = document.querySelector('.services-container');
+    const addButton = document.querySelector('.action-container button');
+    function createService(){
+        const service = document.createElement('div');
+        service.classList.add('ServiceDiv');
+        service.innerHTML = '<input type="text" name="serviceName" id="serviceName" placeholder="Nome do Serviço"><textarea name="serviceDesc" id="serviceDesc"></textarea><input type="number" name="servicePrice" id="servicePrice" placeholder="Preço do Serviço">';
+        return service;
+    }
+    addButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        container.appendChild(createService());
+    })
+</script>
+</html>
