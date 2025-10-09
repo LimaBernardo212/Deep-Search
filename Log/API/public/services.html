@@ -7,9 +7,10 @@
 </head>
 <body>
     <h1>Services</h1>
-    <form action="/servicesCad" method="post">
+    <form action="/servicesCad" method="post" enctype="multipart/form-data">
         <div class="services-container">
             <div class="ServiceDiv">
+                <input type="file" name="imageFile" id="ImageFile">
                 <input type="text" name="serviceName" id="serviceName" placeholder="Nome do Serviço">
                 <textarea name="serviceDesc" id="serviceDesc"></textarea>
                 <input type="number" name="servicePrice" id="servicePrice" placeholder="Preço do Serviço">
@@ -27,7 +28,7 @@
     function createService(){
         const service = document.createElement('div');
         service.classList.add('ServiceDiv');
-        service.innerHTML = '<input type="text" name="serviceName" id="serviceName" placeholder="Nome do Serviço"><textarea name="serviceDesc" id="serviceDesc"></textarea><input type="number" name="servicePrice" id="servicePrice" placeholder="Preço do Serviço">';
+        service.innerHTML = '<input type="file" name="imageFile" id="ImageFile"> <input type="text" name="serviceName" id="serviceName" placeholder="Nome do Serviço"><textarea name="serviceDesc" id="serviceDesc"></textarea><input type="number" name="servicePrice" id="servicePrice" placeholder="Preço do Serviço">';
         return service;
     }
     addButton.addEventListener('click', (e) => {
