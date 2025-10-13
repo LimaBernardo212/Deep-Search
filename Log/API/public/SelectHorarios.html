@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Horários</title>
+</head>
+<body>
+    <h1>Horários Select Page</h1>
+
+    <!-- Container onde os horários serão renderizados -->
+    <div id="hours"></div>
+
+    <!-- Template correto para um item de horário -->
+    <template id="hours-tpl">
+        <div class="hour-item">
+            <p class="hour">[Horário]</p>
+        </div>
+    </template>
+
+    <script>
+        async function lerHorarios() {
+            const container = document.getElementById('hours');
+
+            try {
+                const response = await fetch('http://localhost:3868/api/hours', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro na requisição: ' + response.status);
+                }
+
+                const data = await response.json();
+                renderHours(data);
+            } catch (error) {
+                console.error('Erro ao buscar dados:', error);
+                if (container) {
+                    container.textContent = 'Erro ao buscar horários.';
+                }
+            }
+        }
+
+        function renderHours(hours) {
+            const container = document.getElementById('hours');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            if (!Array.isArray(hours) || hours.length === 0) {
+                container.textContent = 'Nenhum horário encontrado.';
+                return;
+            }
+
+            const tpl = document.getElementById('hours-tpl');
+            if (!tpl) {
+                container.textContent = 'Template não encontrado.';
+                return;
+            }
+
+            hours.forEach(h => {
+                const node = tpl.content.cloneNode(true);
+                const hourEl = node.querySelector('.hour');
+
+                // Ajuste esta linha conforme o nome do campo retornado pela sua API (ex.: h.hour, h.horario, h.time)
+                hourEl.textContent = h.hour ?? h.horario ?? h.time ?? String(h);
+
+                container.appendChild(node);
+            });
+        }
+
+        // Chama a função para carregar os horários ao carregar a página
+        window.addEventListener('DOMContentLoaded', lerHorarios);
+    </script>
+</body>
+</html>

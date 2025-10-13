@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Stores Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+       
+    </style>
+</head>
+
+<body>
+    <h1>Select Stores Page</h1>
+
+    <div id="stores">Carregando lojas...</div>
+
+    <template id="store-button-tpl">
+        <button class="store" type="button">
+            <h2 class="name"></h2>
+            <p class="address"></p>
+            <p class="phone"></p>
+        </button>
+    </template>
+
+    <script>
+        async function lerLojas(){
+            try {
+                const response = await fetch('http://localhost:9398/api/stores', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro na requisição: ' + response.status);
+                }
+
+                const data = await response.json();
+                // data é um array de lojas agora
+                renderStores(data);
+            } catch (error) {
+                console.error('Erro ao buscar dados:', error);
+                document.getElementById('stores').textContent = 'Erro ao buscar lojas.';
+            }
+        }
+
+        function renderStores(stores) {
+            const container = document.getElementById('stores');
+            container.innerHTML = '';
+
+            if (!Array.isArray(stores) || stores.length === 0) {
+                container.textContent = 'Nenhuma loja encontrada.';
+                return;
+            }
+
+            const tpl = document.getElementById('store-button-tpl');
+
+            stores.forEach(s => {
+                const node = tpl.content.cloneNode(true);
+                node.querySelector('.name').textContent = s.storeName ?? s.name ?? 'Sem nome';
+                node.querySelector('.address').textContent = s.address ?? 'Sem endereço';
+                node.querySelector('.phone').textContent = s.phone ?? 'Sem telefone';
+
+                // Exemplo de ação ao clicar
+                node.querySelector('.store').addEventListener('click', () => {
+                    console.log('Loja selecionada:', s);
+                });
+
+                container.appendChild(node);
+            });
+        }
+
+        lerLojas();
+    </script>
+</body>
+</html>
