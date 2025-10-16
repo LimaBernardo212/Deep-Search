@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Services</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .service { border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin: 8px 0; }
+        .service .name { font-weight: bold; }
+        .service .price { color: #2b7a0b; }
+        img.image { max-width: 120px; height: auto; display: block; margin-bottom: 8px; }
+        .store { color: #555; font-size: 0.9rem; margin: 0 0 6px; }
+    </style>
+</head>
+<body>
+    <h1>Select Services</h1>
+
+    <div id="services">Carregando serviços...</div>
+
+    <template id="service-button-tpl">
+        <div class="service">
+            <div class="store"></div>
+            <img class="image" src="" alt="Imagem do serviço">
+            <p class="name"></p>
+            <p class="desc"></p>
+            <p class="price"></p>
+        </div>
+    </template>
+
+    <script>
+        const API_BASE = 'http://localhost:1202';
+
+        function toArrayMaybe(x) {
+            if (Array.isArray(x)) return x;
+            if (x === null || x === undefined) return [];
+            return [x];
+        }
+
+        function fmtPrice(value) {
+            if (value === null || value === undefined) return 'Sem preço';
+            if (typeof value === 'number' && !Number.isNaN(value)) {
+                return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            }
+            const num = Number(String(value).replace(/[^0-9.,-]/g, '').replace('.', '').replace(',', '.'));
+            if (!Number.isNaN(num)) {
+                return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            }
+            return String(value);
+        }
+
+        function buildImageSrc(doc, idx) {
+            const p = doc.serviceImagePath;
+            if (!p) return '';
+            let chosen = '';
+            if (Array.isArray(p)) {
+                chosen = p[idx] ?? p[0] ?? '';
+            } else if (typeof p === 'string') {
+                chosen = p;
+            }
+            if (!chosen) return '';
+            const isAbsolute = /^(https?:)?\/\//i.test(chosen);
+            if (isAbsolute) return chosen;
+            // Se começar com '/', prefixa com API_BASE; senão assume que é relativo a /uploads/services/
+            if (chosen.startsWith('/')) return API_BASE + chosen;
+            return API_BASE + '/uploads/services/' + chosen;
+        }
+
+        async function pushServices(){
+            try {
+                const res = await fetch(API_BASE + '/api/services', {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' },
+                    credentials: 'include'
+                });
+
+                if (!res.ok){
+                    throw new Error('Erro na requisição: ' + res.status);
+                }
+
+                const data = await res.json();
+                renderService(data);
+            } catch (error) {
+                console.error('Erro ao buscar serviços:', error);
+                const container = document.getElementById('services');
+                container.textContent = 'Erro ao buscar serviços.';
+            }
+        }
+
+        function renderService(docs){
+            const container = document.getElementById('services');
+            container.innerHTML = '';
+
+            if (!Array.isArray(docs) || docs.length === 0) {
+                container.textContent = 'Nenhum serviço encontrado.';
+                return;
+            }
+
+            const tpl = document.getElementById('service-button-tpl');
+
+            docs.forEach(doc => {
+                const names = toArrayMaybe(doc.serviceName);
+                const descs = toArrayMaybe(doc.serviceDesc);
+                const prices = toArrayMaybe(doc.servicePrice);
+                const maxLen = Math.max(names.length, descs.length, prices.length);
+                if (maxLen === 0) return;
+
+                const storeLabel = doc.storeName || doc.name || 'Sem loja';
+
+                for (let i = 0; i < maxLen; i++) {
+                    const node = tpl.content.cloneNode(true);
+                    node.querySelector('.store').textContent = 'Loja: ' + storeLabel;
+                    node.querySelector('.name').textContent = names[i] ?? 'Sem nome';
+                    node.querySelector('.desc').textContent = descs[i] ?? 'Sem descrição';
+                    node.querySelector('.price').textContent = fmtPrice(prices[i]);
+
+                    const img = node.querySelector('.image');
+                    const src = buildImageSrc(doc, i);
+                    if (src) {
+                        img.src = src;
+                        img.alt = names[i] ?? 'Imagem do serviço';
+                    } else {
+                        img.remove();
+                    }
+
+                    container.appendChild(node);
+                }
+            });
+        }
+
+        window.addEventListener('load', pushServices);
+    </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+@charset "UTF-8";
+@import url('https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inconsolata:wght@200..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Roboto:ital,wght@0,100..900;1,100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+/* Basic Configurations */
+
+:root{
+    --cor01: #A6A6A6;
+    --cor02: #595959;
+    --cor03: #262526;
+    --cor04: #0D0D0D;
+    --cor05: #F2F2F2;
+    --cor06: #042326;
+    --cor07: #246B73;
+    --cor08:#238C6E;
+    --cor09: #29A65F;
+    --cor10: #3BD952;
+    --logoColor: #1a1a1a;
+    --fontJetBrains: 'JetBrains Mono', monospace;
+    --fontRoboto: 'Roboto', sans-serif;
+    --fontInconsolata: 'Inconsolata', monospace;
+    --fontIBM: 'IBM Plex Mono', monospace;
+    --fontAnonymous: 'Anonymous Pro', monospace;
+    --fontSpace: 'Space Mono', monospace;
+}
+
+*{
+    margin: 0;
+    padding: 0;
+}
+
+/* Css Document*/
+
+/* Nav Bar */
+
+.nav-content{
+    width: 100vw;
+    height: 13vh;
+    background-color: var(--logoColor);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.img-content{
+    margin-left: 2vw;
+}
+.img-content img{
+    width: 10vw;
+}
+.links-content{
+    display: flex;
+    gap: 2vw;
+}
+.navLink{
+    text-decoration: none;
+    color: var(--cor05);
+    font-family: var(--fontJetBrains);
+    font-size: 0.9em;
+    transition: 0.7s all;
+}
+.navLink:hover{
+    color: var(--cor08);
+    text-decoration: underline;
+}
+.loginButton{
+    margin-right: 2vw;
+    display: flex;
+    width: 10vw;
+    align-items: center;
+    justify-content: center;
+    height: 6vh;
+    background-color: var(--logoColor);
+    border: 3px solid var(--cor05);
+    color: var(--cor05);
+    font-family: var(--fontJetBrains);
+    font-weight: bold;
+    font-size: 0.8em;
+    border-radius: 3px;
+    transition: 0.8s all;
+}
+.loginButton:hover{
+    color: var(--cor08);
+    border-radius: 
+    20px;
+    
+    border-color: var(--cor08);
+    cursor: pointer;
+    
+}
