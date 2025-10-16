@@ -59,6 +59,16 @@
 .navLink:hover{
     color: var(--cor08);
     text-decoration: underline;
+    transform: translate(-1px,-1px);
+}
+.active{
+    color: var(--cor08);
+    height: 3vh;
+    border-bottom: 2px solid var(--cor08);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .loginButton{
     margin-right: 2vw;
@@ -80,8 +90,8 @@
     color: var(--cor08);
     border-radius: 
     20px;
-    
+    transform: translate(-2px, -2px);
     border-color: var(--cor08);
     cursor: pointer;
-    
+    box-shadow: 2px 5px 10px #238c6ec3;
 }
