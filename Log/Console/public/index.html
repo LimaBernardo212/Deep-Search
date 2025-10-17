@@ -3,52 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log: bussiness solutions for bussiness person</title>
+    <title>Log: Tools for business</title>
+    <meta name="description" content="Fast, privacy-first tools for everyday tasks—no sign-up, no clutter.">
     <link rel="stylesheet" href="./style/style.css">
     <link rel="shortcut icon" href="./favicons/favicon-32x32.png" type="image/x-icon">
 </head>
 <body>
     <header class="nav-content">
-
         <div class="img-content">
-
-            <img src="img/Retangular.png" alt="">
-
+            <img src="img/Retangular.png" alt="Log logo">
         </div>
 
-        <nav class="links-content">
-            <a href="" class="navLink active">
-                Home
-            </a>
-
-            <a href="" class="navLink">
-                About
-            </a>
-
-            <a href="" class="navLink">
-                Documentation
-            </a>
-
-            <a href="" class="navLink">
-                Pricing
-            </a>
-
+        <nav class="links-content" aria-label="Primary">
+            <a href="#" class="navLink active">Home</a>
+            <a href="#" class="navLink">About</a>
+            <a href="#" class="navLink">Documentation</a>
+            <a href="#" class="navLink">Pricing</a>
         </nav>
 
         <div class="loginButton-content">
-            <button class="loginButton">
-                Start now
+            <button class="loginButton" type="button">
+                Get Started
             </button>
         </div>
     </header>
 
     <main class="fourSections-content">
-        
+        <section class="Hero-Section">
+            <div class="infos-container">
+                <div class="text-content">
+                    <h1> <strong class="consoleWrite">>_</strong> Log: A plataform for manage <strong id="dinamicState"></strong></h1>
+                    <p><strong class="consoleWrite">>></strong> If you need services to manage your business's schedules, projects, and treatments, Log offers all of this and much more in the future.</p>
+                </div>
+                <div class="apelativeButton">
+                    <button class="ApexButton" type="button">
+                        Get Started Now
+                    </button>
+                    <a href="" class="lm">Learn More >></a>
+                </div>
+            </div>
+            <div class="separativeLines">
+                <div id="Line1"></div>
+            </div>
+        </section>
     </main>
 
     <footer class="desapearRandom">
-
     </footer>
-
 </body>
+<script>
+    const dinamicState = document.getElementById('dinamicState');
+    const states = ['Schedules.', 'Projects.', 'Treatments.'];
+    let index = 0;
+
+    function changeState() {
+        dinamicState.style.opacity = 0;
+        setTimeout(() => {
+            dinamicState.style.opacity = 1;
+            dinamicState.innerHTML = states[index];
+            index = (index + 1) % states.length;
+        }, 450);
+       
+    }
+
+    setInterval(changeState, 3567);
+    changeState();
+</script>
 </html>
