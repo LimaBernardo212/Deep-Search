@@ -33,7 +33,7 @@
             <div class="infos-container">
                 <div class="text-content">
                     <h1> <strong class="consoleWrite">>_</strong> Log: A plataform for manage <strong id="dinamicState"></strong></h1>
-                    <p><strong class="consoleWrite">>></strong> If you need services to manage your business's schedules, projects, and treatments, Log offers all of this and much more in the future.</p>
+                    <p> <strong class="consoleWrite">>></strong> If you need services to manage your business's schedules, projects, and treatments, Log offers all of this and much more in the future.<strong class="pointer">||</strong></p>
                 </div>
                 <div class="apelativeButton">
                     <button class="ApexButton" type="button">
@@ -42,9 +42,8 @@
                     <a href="" class="lm">Learn More >></a>
                 </div>
             </div>
-            <div class="separativeLines">
-                <div id="Line1"></div>
-            </div>
+            
+        
         </section>
     </main>
 
@@ -55,6 +54,8 @@
     const dinamicState = document.getElementById('dinamicState');
     const states = ['Schedules.', 'Projects.', 'Treatments.'];
     let index = 0;
+    
+   
 
     function changeState() {
         dinamicState.style.opacity = 0;
@@ -65,8 +66,10 @@
         }, 450);
        
     }
-
+    
     setInterval(changeState, 3567);
+   
     changeState();
+    
 </script>
 </html>
