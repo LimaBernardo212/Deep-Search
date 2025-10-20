@@ -9,20 +9,20 @@
     <link rel="shortcut icon" href="./favicons/favicon-32x32.png" type="image/x-icon">
 </head>
 <body>
-    <header class="nav-content">
-        <div class="img-content">
-            <img src="img/Retangular.png" alt="Log logo">
+    <header class="nav-content navigatorContainer">
+        <div class="img-content navigatorContainer">
+            <img src="img/Transparent.png" alt="Log logo" class=" navigatorContainer">
         </div>
 
         <nav class="links-content" aria-label="Primary">
-            <a href="#" class="navLink active">Home</a>
-            <a href="#" class="navLink">About</a>
-            <a href="#" class="navLink">Documentation</a>
-            <a href="#" class="navLink">Pricing</a>
+            <a href="#" class="navLink active navigatorContainer">Home</a>
+            <a href="#" class="navLink navigatorContainer">About</a>
+            <a href="#" class="navLink navigatorContainer">Documentation</a>
+            <a href="#" class="navLink navigatorContainer">Pricing</a>
         </nav>
 
-        <div class="loginButton-content">
-            <button class="loginButton" type="button">
+        <div class="loginButton-content navigatorContainer">
+            <button class="loginButton navigatorContainer" type="button">
                 Get Started
             </button>
         </div>
@@ -33,7 +33,7 @@
             <div class="infos-container">
                 <div class="text-content">
                     <h1> <strong class="consoleWrite">>_</strong> Log: A plataform for manage <strong id="dinamicState"></strong></h1>
-                    <p> <strong class="consoleWrite">>></strong> If you need services to manage your business's schedules, projects, and treatments, Log offers all of this and much more in the future.<strong class="pointer">||</strong></p>
+                    <p> <strong class="consoleWrite">>></strong> If you need services to manage your business's schedules, projects, and treatments, Log offers all of this and much more in the future.<strong class="pointer">|</strong></p>
                 </div>
                 <div class="apelativeButton">
                     <button class="ApexButton" type="button">
@@ -45,12 +45,43 @@
             
         
         </section>
+        <div id="heroToSBN">
+            
+        </div>
+        <section class="SBN-Section">
+            <div class="text">
+                <h2 class="SubTitle">About <strong class="GreenCard">Us</strong><strong class="pointer">|</strong></h2>
+                <h1><strong class="consoleWrite">>_</strong> What is <strong class="GreenCard">Log</strong>? And what can it offer? </h1>
+                <p><strong class="consoleWrite">&lt;/</strong> Log is a schedule, treatment, and project management system. It can be used by a large clinic or a small freelancer. It also has an API included if you want to use our system in any of your projects. All of this is offered through a professional interface, providing the needed boost for a surge in new clients. <strong class="consoleWrite">/></strong></p>
+                <div class="apelativeButton">
+                <button class="ApexButton" type="button">
+                    Start Your Journey
+                </button>
+            </div>
+            </div>
+            
+            <div class="light">
+            </div>
+            <div class="image-Section">
+                <img src="img/TapaBuraco.png" alt="" class="TapaBuraco">
+            </div>
+            
+        </section>
     </main>
 
     <footer class="desapearRandom">
     </footer>
 </body>
 <script>
+
+    //Vars
+
+    const text = document.querySelector('.text');
+    const imgSect = document.querySelector('.TapaBuraco');
+    const nav = document.querySelector('.nav-content');
+    
+    //Dinamic State
+
     const dinamicState = document.getElementById('dinamicState');
     const states = ['Schedules.', 'Projects.', 'Treatments.'];
     let index = 0;
@@ -70,6 +101,39 @@
     setInterval(changeState, 3567);
    
     changeState();
+
+    //Observer
+    let IsOnNavigationMode = false;
+    const observerText = new IntersectionObserver((e) => {
+        e.forEach((el) => {
+            if (el.isIntersecting){
+                el.target.classList.add('UpperActiveText');
+                nav.classList.add('NavigatorActive')
+                setTimeout(() => {
+                    nav.classList.add('Hide')
+                }, 1250);
+            }else{
+                nav.classList.remove('NavigatorActive');
+                
+                nav.classList.remove('Hide');
+            }
+        })
+    }, {
+        threshold: 0.3
+    })
+    const observerImages = new IntersectionObserver((e) => {
+        e.forEach((el) => {
+            if (el.isIntersecting){
+                el.target.classList.add('UpperActiveImages');
+            }
+        })
+    }, {
+        threshold: 0.7
+    })
+    observerText.observe(text);
+    setTimeout(() => {
+        observerImages.observe(imgSect)
+    }, 1250)
     
 </script>
 </html>

@@ -26,7 +26,8 @@
 *{
     margin: 0;
     padding: 0;
-   
+   scroll-behavior: smooth;
+   scrollbar-width: thin;
 }
  body{
      overflow-x: hidden;
@@ -41,7 +42,12 @@
     background-color: var(--logoColor);
     display: flex;
     align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    transition: 1s all;
     justify-content: space-between;
+    border: 3px solid transparent;
 }
 .img-content{
     margin-left: 2vw;
@@ -91,10 +97,27 @@
     cursor: pointer;
     box-shadow: 2px 5px 10px #238c6ec3;
 }
+.NavigatorActive{
+    background-color: transparent;
+    border: 3px solid var(--cor05);
+    width: 98vw;
+    height: 12vh;
+    top: 10px;
+    margin: auto;
+    border-radius: 15px;
+}
+.Hide{
+    opacity: 0;
+}
+.Hide:hover{
+    opacity: 1;
+}
 /*Hero Section*/
+
 .Hero-Section{
+    margin-top: -14vh;
     width: 100vw;
-    height: 87vh;
+    height: 100vh;
     display: flex;
     align-items: center;
     background-color: var(--cor04);
@@ -104,9 +127,10 @@
     color: var(--cor05);
     margin-left: 5vw;
     max-width: 65vw;
+    margin-top: 14vh;
 }
 .consoleWrite{
-    
+    font-weight: bolder;
     color: var(--cor08);
     font-size: 1em;
     margin-right: 5px;
@@ -167,6 +191,7 @@
     width: 3vw;
     height: 3vh;
     margin-left: 5px;
+    font-family: var(--fontAnonymous);
     background-color: var(--cor05);
     color: var(--cor05);
     animation-name: pisk;
@@ -186,4 +211,106 @@
         opacity: 0;
     }
     
+}
+
+/* SBN-Section */
+#heroToSBN{
+    display:flex;
+    position: absolute;
+    width: 100vw;
+    height: 10vh;
+    background-image: linear-gradient(to bottom, var(--cor04), var(--cor06));
+}
+
+.SBN-Section{
+    background-color: var(--cor06);
+    height: 87vh;
+    width: 100vw;
+    display: flex;
+    
+   
+    align-items: center;
+}
+
+.SubTitle{
+    color: var(--cor05);
+    font-family: var(--fontIBM);
+    font-size: 0.9em;
+    margin-bottom: 2vh;
+    margin-left: 5vw;
+}
+.text{
+    opacity: 0;
+}
+.text h1{
+    color: var(--cor05);
+    font-family: var(--fontRoboto);
+    margin-bottom: 2vh;
+    margin-left: 5vw;
+}
+.text p{
+    color: var(--cor05);
+    font-family: var(--fontRoboto);
+    max-width: 55vw;
+    line-height: 1.5em;
+    margin-bottom: 2vh;
+    margin-left: 5vw;
+}
+.GreenCard{
+    color: var(--cor08);
+    font-family: var(--fontIBM);
+}
+.light{
+    width: 40vw;
+    height: 77vh;
+    position: absolute;
+    right: 0;
+    transform: translateY(5vh);
+    background-image: linear-gradient(to right, var(--cor06), var(--cor04));
+}
+.TapaBuraco{
+    width: 20vw;
+    right: 5vw;
+    opacity: 0;
+    transform: translateY(-22vh);
+    position: absolute;
+}
+.image-Section{
+    position: absolute;
+    right: 5vw;
+}
+.UpperActiveText{
+    animation-name: TextsUpper;
+    animation-duration: 1.5s;
+    animation-fill-mode: forwards;
+}
+.UpperActiveImages{
+    animation-name: ImagesUpper;
+    animation-duration: 1.2s;
+    animation-fill-mode: forwards;
+  
+}
+@keyframes TextsUpper {
+    0%{
+        transform: translateY(25vh);
+        opacity: 0;
+    }
+    100%{
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+@keyframes ImagesUpper {
+    0%{
+        transform: translateY(-8vh);
+        opacity: 0;
+       
+        
+    }
+    100%{
+        transform: translateY(-25vh);
+        opacity: 1;
+        
+        
+    }
 }
