@@ -67,6 +67,29 @@
             </div>
             
         </section>
+        <div id="SBNToService">
+
+        </div>
+        <section class="Services-Section">
+            <div class="ServicesTitle">
+                <h1 id="TitleOfServiceDiv">Our <strong class="GreenCard"> Services</strong><strong class="pointer">|</strong></h1>
+            </div>
+            
+            </div>
+            <div class="ConsoleStandard">
+                <div id="schedules" class="Standard-Container">
+                    <img src="img/CalendarIcon.png" alt="" class="StandardIcon">
+                    
+                </div>
+                <div id="projects" class="Standard-Container">
+                    <img src="img/ManageIcon.png" alt="" class="StandardIcon">
+                    
+                </div>
+                <div id="Treatments" class="Standard-Container">
+                    <img src="img/TreatmentsIcon.png" alt="" class="StandardIcon">
+                    
+                </div>
+        </section>
     </main>
 
     <footer class="desapearRandom">
@@ -79,7 +102,11 @@
     const text = document.querySelector('.text');
     const imgSect = document.querySelector('.TapaBuraco');
     const nav = document.querySelector('.nav-content');
-    
+    const hero = document.querySelector('.Hero-Section');
+    const service = document.querySelector('.ServicesTitle');
+    const schedule = document.querySelector('#schedules');
+    const project = document.querySelector('#projects')
+    const treatment = document.querySelector('#Treatments')
     //Dinamic State
 
     const dinamicState = document.getElementById('dinamicState');
@@ -104,18 +131,14 @@
 
     //Observer
     let IsOnNavigationMode = false;
-    const observerText = new IntersectionObserver((e) => {
+    const observerTextAndNav = new IntersectionObserver((e) => {
         e.forEach((el) => {
             if (el.isIntersecting){
                 el.target.classList.add('UpperActiveText');
-                nav.classList.add('NavigatorActive')
-                setTimeout(() => {
-                    nav.classList.add('Hide')
-                }, 1250);
-            }else{
-                nav.classList.remove('NavigatorActive');
+                nav.classList.add('NavigatorActive');
                 
-                nav.classList.remove('Hide');
+
+               
             }
         })
     }, {
@@ -128,12 +151,44 @@
             }
         })
     }, {
-        threshold: 0.7
+        threshold: 0.3
+    });
+    const observerHero = new IntersectionObserver((e) => {
+        e.forEach((el) => {
+            if (el.isIntersecting){
+                nav.classList.remove('NavigatorActive')
+            }
+        })
+    }, {
+        threshold: 0.3
     })
-    observerText.observe(text);
+    const observerStandards = new IntersectionObserver((e) => {
+        e.forEach((el) => {
+            if(el.isIntersecting){
+                setTimeout(() => {
+                    el.target.classList.add('UpperActiveText');
+                }, 1000);
+                setTimeout(() => {
+                    project.classList.add('UpperActiveText')
+                }, 2000);
+                setTimeout(() => {
+                    treatment.classList.add('UpperActiveText')
+                }, 3000)
+            }
+        })
+    }, {
+        threshold: 0.3
+    })
+    observerTextAndNav.observe(text);
     setTimeout(() => {
         observerImages.observe(imgSect)
     }, 1250)
+    observerHero.observe(hero)
+    observerTextAndNav.observe(service);
+    //observerStandards.observe(schedule)
+
+    
+    
     
 </script>
 </html>

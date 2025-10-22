@@ -283,12 +283,13 @@
     animation-name: TextsUpper;
     animation-duration: 1.5s;
     animation-fill-mode: forwards;
+    transition: 0.7s all;
 }
 .UpperActiveImages{
     animation-name: ImagesUpper;
     animation-duration: 1.2s;
     animation-fill-mode: forwards;
-  
+  transition: 0.7s all;
 }
 @keyframes TextsUpper {
     0%{
@@ -312,5 +313,102 @@
         opacity: 1;
         
         
+    }
+}
+
+/*Services Section*/
+#SBNToService{
+    width: 100vw;
+    height: 10vh;
+    background-image: linear-gradient(to bottom, var(--cor06), var(--cor04));
+}
+.Services-Section{
+    width: 100vw;
+    height: 88vh;
+    background-color: var(--cor04);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.ServicesTitle{
+    opacity: 0;
+    margin-bottom: 15vh;
+    color: var(--cor05);
+    font-family: var(--fontRoboto);
+}
+.ConsoleStandard{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 50vw;
+}
+.StandardIcon{
+    width: 3.5vw;
+    transition: 1s all;
+}
+.Standard-Container{
+    width: 4vw;
+    height: 4vw;
+    border-radius: 30px;
+    background-color: var(--cor05);
+    border: 7px solid var(--cor05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 1s all;
+    /*opacity: 0;*/
+}
+.Standard-Container:hover{
+    background-color: transparent;
+    border: 7px solid var(--cor08);
+}
+.Standard-Container:hover img{
+    transform: rotate(-15deg) scale(1.1);
+    
+}
+.TitleOfServiceDiv{
+    animation-fill-mode: forwards;
+}
+#projects{
+    background-color: transparent;
+    border: 7px solid var(--cor08);
+    position: absolute;
+    
+    left: 45vw;
+    top:247vh;
+    animation-name: tremidinha;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+#projects:hover{
+    background-color: var(--cor05);
+    border: 7px solid transparent;
+}
+#projects:hover img{
+    transform: scale(1.1) translateX(2px);
+}
+#schedules{
+    position: absolute;
+    left: 7vw;
+    top:    243vh;
+    
+}
+#Treatments{
+    position: absolute;
+    right: 11vw;
+    top:243vh;
+    
+}
+@keyframes tremidinha {
+    0%{
+        transform: rotate(0) ;
+    }
+    50%{
+        transform: rotate(15deg) ;
+    }
+    100%{
+        transform: rotate(0) ;
     }
 }
