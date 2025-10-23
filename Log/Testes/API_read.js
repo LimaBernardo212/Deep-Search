@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import bcrypt from "bcrypt";
-import User from "./Loginschema.js";
+import User from "../Console/Loginschema.js";
 
 dotenv.config();
 

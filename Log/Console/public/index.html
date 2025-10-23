@@ -155,6 +155,7 @@
     const treatment = document.querySelector('.Master');
     const plan = document.querySelector('.Ass-Plan');
     const footer = document.querySelector('.desapearRandom')
+    const loginButton = document.querySelector('.loginButton');
     //Dinamic State
 
     const dinamicState = document.getElementById('dinamicState');
@@ -243,8 +244,10 @@
     observerPlan.observe(service);
     observerPlan.observe(footer)
     observerStandards.observe(schedule)
-
-    
+    //Clicker
+    loginButton.addEventListener('click', () => {
+        window.location.href = "Login.html"
+    })
     
     
 </script>
