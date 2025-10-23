@@ -458,3 +458,85 @@ border-radius: 0 0 17px 17px;
     transform: translate(-3px, -3px);
     box-shadow: 3px 5px 7px var(--cor06);
 }
+/*Footer*/
+.desapearRandom{
+    opacity: 0;
+    width: 98vw;
+    height: 30vh;
+    background-color: var(--logoColor);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    margin: -30vh auto 0 auto;
+}
+.footLogo img{
+    width: 15vw;
+   
+}
+.letrasMiudas{
+    font-size: 0.4em;
+    font-family: var(--fontSpace);
+    color: var(--cor05);
+    margin-left: 1vw;
+}
+.importantLinks{
+    display: flex;
+    flex-direction: column;
+}
+.importantLinks a{
+    text-decoration: none;
+    color: var(--cor08);
+    font-family: var(--fontJetBrains);
+    font-size: 0.9em;
+}
+#MainToFooter{
+    width: 100vw;
+    height: 40vh;
+    background-color: var(--cor04);
+}
+.socialMedia{
+    display: flex;
+    gap: 3vw;
+    
+}
+.mediaLink{
+    width: 30vw;
+    display: flex;
+    flex-direction: column;
+    align-items:center;
+}
+.mediaLink h1{
+    color: var(--cor05);
+    font-family: var(--fontJetBrains);
+    font-size: 1.2em;
+    margin-bottom: 2vh;
+}
+#instagram img, #facebook img, #x img{
+    width: 48px;
+}
+#instagram{
+   margin-left: -2.5vw;
+}
+#instagram:hover, #facebook:hover, #x:hover{
+    transition: 0.8s all;
+    transform: translate(-5px, -5px);
+}
+#instagram:hover .on, #facebook:hover .on, #x:hover .on{
+    opacity: 1;
+}
+#instagram:hover .off, #facebook:hover .off,#x:hover .off{
+    opacity: 0;
+}
+.on{
+    position: absolute;
+    opacity: 0;
+    transition: 0.6s all;
+    
+}
+.off{
+    position: absolute;
+    transition: 0.6s all;
+    
+}

@@ -28,7 +28,7 @@
         </div>
     </header>
 
-    <main class="fourSections-content">
+    <main class="ThreeSections-content">
         <section class="Hero-Section">
             <div class="infos-container">
                 <div class="text-content">
@@ -72,7 +72,7 @@
         </div>
         <section class="Ass-Plan">
             <div class="Text-Plan">
-                <h1>Our <strong class="GreenCard">Services</strong></h1>
+                <h1>Our subscription  <strong class="GreenCard">Plans</strong></h1>
             </div>
            <div class="Plans-content">
                <div class="Basic Plan">
@@ -109,8 +109,36 @@
            </div>
         </section>
     </main>
-
+    <div id="MainToFooter"></div>
     <footer class="desapearRandom">
+        <div class="footLogo">
+            <img src="img/Transparent.png" alt="">
+            <p class="letrasMiudas">Log is not a company, but a project. All rights reserved ®</p>
+        </div>
+        <div class="importantLinks">
+            <a href="" class="lm">>> About Us</a>
+            <a href="" class="lm">>> Documentation</a>
+            <a href="" class="lm">>> Help</a>
+            <a href="" class="lm">>> Plans</a>
+        </div>
+        <div class="mediaLink">
+            <h1>Visit our <strong class="GreenCard">social media</strong></h1>
+            <div class="socialMedia">
+            
+                <div id="instagram">
+                    <img src="https://img.icons8.com/?size=100&id=2auu2UERwFm8&format=png&color=FFFFFF" alt="" class="off">
+                    <img src="https://img.icons8.com/?size=100&id=76ONJsCfaP13&format=png&color=FFFFFF" alt="" class="on">
+                </div>
+                <div id="facebook">
+                    <img src="https://img.icons8.com/?size=100&id=wXMZXFfEZdAj&format=png&color=FFFFFF" alt="" class="off">
+                    <img src="https://img.icons8.com/?size=100&id=LFstHLxClwj2&format=png&color=FFFFFF" alt="" class="on">
+                </div>
+                <div id="x">
+                    <img src="https://img.icons8.com/?size=100&id=6Fsj3rv2DCmG&format=png&color=FFFFFF" alt="" class="off">
+                    <img src="https://img.icons8.com/?size=100&id=phOKFKYpe00C&format=png&color=FFFFFF" alt="" class="on">
+                </div>
+            </div>
+        </div>
     </footer>
 </body>
 <script>
@@ -125,7 +153,8 @@
     const schedule = document.querySelector('.Basic');
     const project = document.querySelector('.Pro')
     const treatment = document.querySelector('.Master');
-    const plan = document.querySelector('.Ass-Plan')
+    const plan = document.querySelector('.Ass-Plan');
+    const footer = document.querySelector('.desapearRandom')
     //Dinamic State
 
     const dinamicState = document.getElementById('dinamicState');
@@ -211,7 +240,8 @@
         observerImages.observe(imgSect)
     }, 1250)
     observerHero.observe(hero)
-    observerPlan.observe(service)
+    observerPlan.observe(service);
+    observerPlan.observe(footer)
     observerStandards.observe(schedule)
 
     
