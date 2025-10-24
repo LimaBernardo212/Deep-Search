@@ -3,18 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form</title>
+    <link rel="shortcut icon" href="favicons/favicon-32x32.png" type="image/x-icon">
+    <link rel="stylesheet" href="style/style.css">
+    <title>Login - Log</title>
 </head>
 <body>
-    <h1>Login</h1>
-    <form action="/api/login" method="post">
-        <input type="text" name="name" placeholder="Nome:" id="name">
-        <input type="email" name="email" id="email" placeholder="Email:">
-        <input type="password" name="password" id="password" placeholder="Senha:">
-        <input type="checkbox" name="isStore" id="isStore"> É uma loja?
-        <button type="submit">Enviar</button>
-    </form>
-    
-    
+    <header class="nb">
+        <button>
+            <img src="" alt="">
+        </button>
+    </header><!--NextBack-->
+    <section class="loginFormulary">
+        <div class="login-img-content">
+            <img src="" alt="">
+        </div>
+        
+    <div class="inputs">
+        <div class="datas">
+            <h1><strong class="consoleWrite">>_ Login</strong></h1>
+        </div>
+        <div class="formulary">
+            <form action="/api/login" method="post">
+            
+                        <input type="text" name="name" id="name">
+                <input type="email" name="email" id="email" placeholder="Email:">
+                <input type="password" name="password" id="password" placeholder="Senha:">
+                <div class="eye">
+            
+                        <img src="" alt="" id="eyeOn">
+                        <img src="" alt="" Id="eyeOff">
+                </div>
+            </div>
+            
+            <button type="submit">Enviar</button>
+                </form>
+        </div>
+    </div>
+    </section>
 </body>
 </html>

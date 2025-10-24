@@ -133,6 +133,7 @@
     font-weight: bolder;
     color: var(--cor08);
     font-size: 1em;
+    font-family: var(--fontInconsolata);
     margin-right: 5px;
 }
 .text-content h1{
@@ -190,6 +191,7 @@
 .pointer{
     width: 3vw;
     height: 3vh;
+   
     margin-left: 5px;
     font-family: var(--fontAnonymous);
     background-color: var(--cor05);
@@ -460,7 +462,7 @@ border-radius: 0 0 17px 17px;
 }
 /*Footer*/
 .desapearRandom{
-    opacity: 0;
+    
     width: 98vw;
     height: 30vh;
     background-color: var(--logoColor);
@@ -539,4 +541,47 @@ border-radius: 0 0 17px 17px;
     position: absolute;
     transition: 0.6s all;
     
+}
+/*Login Form*/
+.loginFormulary{
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--logoColor);
+    
+}
+
+.datas{
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+}
+.datas h1{
+    margin: 2vw;
+}
+.inputs label{
+    color: var(--cor08);
+    font-family: var(--fontInconsolata);
+    font-size: 1.2em;
+}
+.path{
+    color: var(--cor08);
+    font-size: 0.7em;
+    font-family: var(--fontSpace);
+   
+    margin: 2vh 0.5vw 2vh 3vw;
+}
+.name-content{
+    margin: 3vh 25vw;
+}
+.union{
+    display: flex;
+    align-items: center;
+}
+#name{
+    background-color: transparent;
+    color: var(--cor08);
+    font-family: var(--fontSpace);
+    border: none;
 }
