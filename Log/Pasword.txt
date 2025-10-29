@@ -44,3 +44,9 @@ async function carregarUsuario() {
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("logout-btn").addEventListener("click", logout);
       carregarUsuario();
+///////////////////////////////////////////////
+
+Google client ID:
+633112521248-muv37pdhnpbqdaeatden6mat5m04c3g6.apps.googleusercontent.com
+Google secret ID:
+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

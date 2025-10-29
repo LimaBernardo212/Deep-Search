@@ -6,39 +6,176 @@
     <link rel="shortcut icon" href="favicons/favicon-32x32.png" type="image/x-icon">
     <link rel="stylesheet" href="style/style.css">
     <title>Login - Log</title>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <header class="nb">
-        <button>
-            <img src="" alt="">
+        <button class="nButton" id="back">
+            <img src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF" alt="">
         </button>
-    </header><!--NextBack-->
+    </header>
+    
     <section class="loginFormulary">
-        <div class="login-img-content">
-            <img src="" alt="">
+        <div class="inputs">
+            <div class="formulary">
+                <form id="loginForm">
+                    <input type="text" name="name" id="name" placeholder="Name:" required>
+                    <input type="email" name="email" id="email" placeholder="Email:" required>
+                    <div class="eye">
+                        <input type="password" name="password" id="password" placeholder="Password:" required>
+                        <div class="eyeimg">
+                            <img src="https://img.icons8.com/?size=100&id=MiB2bvr7uGVu&format=png&color=FFFFFF" alt="" id="eyeOn">
+                            <img src="https://img.icons8.com/?size=100&id=4y6r43dyjbzw&format=png&color=FFFFFF" alt="" id="eyeOff">
+                        </div>
+                    </div>
+                    <button type="submit" class="SubmitButton">Continue</button>
+                </form>
+            </div>
         </div>
         
-    <div class="inputs">
-        <div class="datas">
-            <h1><strong class="consoleWrite">>_ Login</strong></h1>
+        <div class="or">
+            <div class="orLine"></div>
+            <p>or</p>
+            <div class="orLine"></div>
         </div>
-        <div class="formulary">
-            <form action="/api/login" method="post">
-            
-                        <input type="text" name="name" id="name">
-                <input type="email" name="email" id="email" placeholder="Email:">
-                <input type="password" name="password" id="password" placeholder="Senha:">
-                <div class="eye">
-            
-                        <img src="" alt="" id="eyeOn">
-                        <img src="" alt="" Id="eyeOff">
-                </div>
-            </div>
-            
-            <button type="submit">Enviar</button>
-                </form>
+        
+        <div class="buttons">
+            <div id="buttonDiv"></div>
+            <button id="emailButton">
+                <img src="https://img.icons8.com/?size=100&id=19673&format=png&color=000000" alt="">
+                I forgot my password
+            </button>
         </div>
-    </div>
     </section>
+
+    <script>
+        // Back Button
+        document.querySelector('#back').addEventListener('click', () => {
+            window.history.back();
+        });
+
+        // Eye Toggle
+        const onEye = document.querySelector('#eyeOn');
+        const offEye = document.querySelector('#eyeOff');
+        const password = document.querySelector('#password');
+
+        onEye.addEventListener('click', () => {
+            onEye.style.opacity = '0';
+            offEye.style.opacity = '1';
+            password.type = 'text';
+        });
+
+        offEye.addEventListener('click', () => {
+            onEye.style.opacity = '1';
+            offEye.style.opacity = '0';
+            password.type = 'password';
+        });
+
+        // Login Tradicional
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    console.log('✅ Login bem-sucedido!', data);
+                    alert('Login realizado com sucesso!');
+                    // Redirecionar
+                    window.location.href = '/home';
+                } else {
+                    alert('Erro: ' + (data.error || data.mensage || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                console.error('❌ Erro:', error);
+                alert('Erro ao fazer login');
+            }
+        });
+
+        // Google Sign-In
+        function handleCredentialResponse(res) {
+            try {
+                const decodeFn = typeof jwt_decode !== 'undefined' ? jwt_decode : jwtDecode;
+                const data = decodeFn(res.credential);
+                
+                console.log('✅ Login Google bem-sucedido!');
+                console.log('Dados do usuário:', data);
+                
+                // Enviar para backend
+                fetch('/api/login/authGoogle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: data.email,
+                        name: data.name,
+                        sub: data.sub,
+                        picture: data.picture
+                    })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    console.log('✅ Backend respondeu:', result);
+                    
+                    if (result.msg === 'Sucesss' || result.msg === 'SUPER SUCESS') {
+                        alert('Login Google realizado com sucesso!');
+                        window.location.href = '/home';
+                    } else {
+                        alert('Erro: ' + (result.msg || 'Erro desconhecido'));
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Erro no backend:', error);
+                    alert('Erro ao comunicar com o servidor');
+                });
+            } catch (error) {
+                console.error('❌ Erro ao decodificar token:', error);
+                alert('Erro ao processar login do Google');
+            }
+        }
+        
+        // Inicializar Google Sign-In
+        window.onload = function () {
+            console.log('🚀 Inicializando Google Sign-In...');
+            
+            google.accounts.id.initialize({
+                client_id: "633112521248-muv37pdhnpbqdaeatden6mat5m04c3g6.apps.googleusercontent.com",
+                callback: handleCredentialResponse,
+                auto_select: false,
+                cancel_on_tap_outside: true
+            });
+            
+            google.accounts.id.renderButton(
+                document.getElementById("buttonDiv"),
+                { 
+                    type: "standard",
+                    shape: "pill",
+                    theme: "outline",
+                    text: "continue_with",
+                    size: "large",
+                    locale: "en-US",
+                    logo_alignment: "left"
+                }
+            );
+            
+            google.accounts.id.prompt();
+        };
+    </script>
 </body>
 </html>
