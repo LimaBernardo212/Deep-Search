@@ -41,7 +41,13 @@
         </div>
         
         <div class="buttons">
-            <div id="buttonDiv"></div>
+            <div class="unique">
+                <div id="buttonDiv"></div>
+                <button id="googleButton">
+                    <img src="https://img.icons8.com/?size=100&id=V5cGWnc9R4xj&format=png&color=000000" alt="">
+                    Continue with Google
+                </button>
+            </div>
             <button id="emailButton">
                 <img src="https://img.icons8.com/?size=100&id=19673&format=png&color=000000" alt="">
                 I forgot my password
@@ -61,14 +67,20 @@
         const password = document.querySelector('#password');
 
         onEye.addEventListener('click', () => {
+            offEye.style.display = 'flex'
             onEye.style.opacity = '0';
-            offEye.style.opacity = '1';
+            setTimeout(() => {
+                offEye.style.opacity = '1';
+            }, 150)
             password.type = 'text';
         });
 
         offEye.addEventListener('click', () => {
-            onEye.style.opacity = '1';
             offEye.style.opacity = '0';
+            onEye.style.opacity = '1';
+            setTimeout(() => {
+                offEye.style.display = 'none'
+            }, 750)
             password.type = 'password';
         });
 
@@ -95,15 +107,13 @@
 
                 if (response.ok) {
                     console.log('✅ Login bem-sucedido!', data);
-                    alert('Login realizado com sucesso!');
-                    // Redirecionar
-                    window.location.href = '/home';
+                    window.location.href = '/verifyItsNewUser'
                 } else {
-                    alert('Erro: ' + (data.error || data.mensage || 'Erro desconhecido'));
+                    //alert('Erro: ' + (data.error || data.mensage || 'Erro desconhecido'));
                 }
             } catch (error) {
                 console.error('❌ Erro:', error);
-                alert('Erro ao fazer login');
+                //alert('Erro ao fazer login');
             }
         });
 
@@ -125,8 +135,7 @@
                     body: JSON.stringify({
                         email: data.email,
                         name: data.name,
-                        sub: data.sub,
-                        picture: data.picture
+                        sub: data.sub
                     })
                 })
                 .then(response => response.json())
@@ -134,10 +143,10 @@
                     console.log('✅ Backend respondeu:', result);
                     
                     if (result.msg === 'Sucesss' || result.msg === 'SUPER SUCESS') {
-                        alert('Login Google realizado com sucesso!');
-                        window.location.href = '/home';
+                        console.log('SUCESS')
+                        window.location.href = '/verifyItsNewUser'
                     } else {
-                        alert('Erro: ' + (result.msg || 'Erro desconhecido'));
+                        //alert('Erro: ' + (result.msg || 'Erro desconhecido'));
                     }
                 })
                 .catch(error => {
@@ -175,7 +184,9 @@
             );
             
             google.accounts.id.prompt();
+
         };
+        
     </script>
 </body>
 </html>

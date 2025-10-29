@@ -638,6 +638,7 @@ border-radius: 0 0 17px 17px;
     justify-content: center;
 }
 #eyeOff{
+    display: none;
     opacity: 0;
 }
 .SubmitButton{
@@ -693,4 +694,25 @@ border-radius: 0 0 17px 17px;
     background-color: var(--cor05);
     transform: translate(-3px, -3px);
     color: var(--cor04);
+}
+.unique{
+    width: 20vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 4vh 0;
+}
+.unique:hover button{
+     background-color: var(--cor05);
+    transform: translate(-3px, -3px);
+    color: var(--cor04);
+}
+.unique div{
+    position: absolute;
+    z-index: 95;
+    opacity: 0;
+}
+.unique button{
+    position: absolute;
+    z-index: 50;
 }

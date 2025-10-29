@@ -50,3 +50,74 @@ Google client ID:
 633112521248-muv37pdhnpbqdaeatden6mat5m04c3g6.apps.googleusercontent.com
 Google secret ID:
 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
+/////////////////////////////////////////////////////////////////
+
+        // Google Sign-In
+        function handleCredentialResponse(res) {
+            try {
+                const decodeFn = typeof jwt_decode !== 'undefined' ? jwt_decode : jwtDecode;
+                const data = decodeFn(res.credential);
+                
+                console.log('✅ Login Google bem-sucedido!');
+                console.log('Dados do usuário:', data);
+                
+                // Enviar para backend
+                fetch('/api/login/authGoogle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: data.email,
+                        name: data.name,
+                        sub: data.sub,
+                        picture: data.picture
+                    })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    console.log('✅ Backend respondeu:', result);
+                    
+                    if (result.msg === 'Sucesss' || result.msg === 'SUPER SUCESS') {
+                        alert('Login Google realizado com sucesso!');
+                        window.location.href = '/home';
+                    } else {
+                        alert('Erro: ' + (result.msg || 'Erro desconhecido'));
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Erro no backend:', error);
+                    alert('Erro ao comunicar com o servidor');
+                });
+            } catch (error) {
+                console.error('❌ Erro ao decodificar token:', error);
+                alert('Erro ao processar login do Google');
+            }
+        }
+        
+        // Inicializar Google Sign-In
+        window.onload = function () {
+            console.log('🚀 Inicializando Google Sign-In...');
+            
+            google.accounts.id.initialize({
+                client_id: "633112521248-muv37pdhnpbqdaeatden6mat5m04c3g6.apps.googleusercontent.com",
+                callback: handleCredentialResponse,
+                auto_select: false,
+                cancel_on_tap_outside: true
+            });
+            
+            google.accounts.id.renderButton(
+                document.getElementById("buttonDiv"),
+                { 
+                    type: "standard",
+                    shape: "pill",
+                    theme: "outline",
+                    text: "continue_with",
+                    size: "large",
+                    locale: "en-US",
+                    logo_alignment: "left"
+                }
+            );
+            
+            google.accounts.id.prompt();
+        };
