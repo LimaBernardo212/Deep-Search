@@ -564,7 +564,15 @@ border-radius: 0 0 17px 17px;
     background-color: var(--cor04);
     display: flex;
     align-items: center;
-    justify-content: first baseline;
+    justify-content: space-between;
+}
+.nbu{
+    width: 100vw;
+    height: 10vh;
+    background-color: var(--cor06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 .nButton{
     margin: 0 3vw;
@@ -574,6 +582,10 @@ border-radius: 0 0 17px 17px;
     font-family: var(--fontAnonymous);
     font-weight: bolder;
     transition: 0.7s all;
+    
+}
+#go{
+    transform: rotate(180deg);
 }
 .nButton:hover{
     transform: translateX(-3px);
@@ -586,7 +598,7 @@ border-radius: 0 0 17px 17px;
     flex-direction: column;
     justify-content: center;
 }*/
-.formulary input, .newEmail{
+.formulary input, .newEmail, #former input{
     display: block;
     background-color: var(--cor05);
     width: 17vw;
@@ -599,17 +611,17 @@ border-radius: 0 0 17px 17px;
     font-family: var(--fontInconsolata);
     transition: 0.7s all;
 }
-.formulary input:focus, .newEmail:focus{
+.formulary input:focus, .newEmail:focus, #former input:focus{
     background-color: var(--cor05);
     outline: none;   
     color: var(--cor04);
 }
-.formulary input::placeholder, .newEmail::placeholder{
+.formulary input::placeholder, .newEmail::placeholder, #former input::placeholder{
     color: var(--cor04);
     
     font-family: var(--fontInconsolata);
 }
-.formulary input:hover, .SubmitButton:hover, .newEmail:hover{
+.formulary input:hover, .SubmitButton:hover, .newEmail:hover, #former input:hover{
     transform: translate(-5px, -3px);
 }
 #password{
@@ -743,4 +755,76 @@ border-radius: 0 0 17px 17px;
 .unique button{
     position: absolute;
     z-index: 50;
+}
+
+/*Forgot Form*/
+
+.forgotPassword{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100vw;
+    height: 85vh;
+    background-color: var(--cor06);
+}
+#nbtoforgot{
+    width: 100vw;
+    height: 5vh;
+    background-image: linear-gradient(to bottom, var(--cor04), var(--cor06));
+}
+#forgottonb{
+    width: 100vw;
+    height: 5vh;
+    background-image: linear-gradient(to bottom, var(--cor06), var(--cor04));
+}
+.breakLines{
+    margin-left: 10vw;
+}
+.breakLine h1, .breakLines h1{
+    color: var(--cor05);
+    font-family: var(--fontRoboto);
+    margin-bottom: 2vh;
+    margin-top: -7vh;
+}
+.breakLine p, .breakLines p{
+    color: var(--cor05);
+    font-family: var(--fontRoboto);
+    margin-bottom: 2vh;
+}
+.codeDiv{
+    width: 5vw;
+    height: 12vh;
+    border: 5px solid var(--cor07);
+    border-radius: 20px;
+    background-color: transparent;
+    margin: 0.5vw 1vw;
+    text-align: center;
+    font-size: 3em;
+    font-family: var(--fontSpace);
+    transition: 1s all;
+    caret-color: var(--cor05);
+    color: var(--cor05);
+}
+.codeDiv:focus{
+    background-color: transparent;
+    outline: none;
+    border: 5px solid var(--cor05);
+}
+.newPassword{
+    width: 100vw;
+    height: 85vh;
+    background-color: var(--cor04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#former{
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    justify-self: center;
+    margin: 5vh auto;
+}
+#former #name{
+    margin-bottom: -0.2vh;
 }

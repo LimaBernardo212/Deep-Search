@@ -9,6 +9,7 @@ import path from 'path';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';  // ← Adicione isso
 import { fileURLToPath } from 'url'; 
+import coding from './codeSchema.js'
 
 dotenv.config();
 
@@ -80,101 +81,114 @@ function tokenVerify(req, res, next) {
 
 // ✅ NOVA FUNÇÃO: Enviar email de recuperação COM TOKEN
 async function enviarEmailRecuperacao(email, resetToken) {
-    const resetUrl = `http://localhost:3000/reset-password.html?token=${resetToken}`;
+    const resetUrl = `http://localhost:3000/reset-password.html`;
     
     const emailOptions = {
         from: 'bernardolimarodrigues4@gmail.com',
         to: email,
-        subject: '🔒 Recuperação de Senha',
+        subject: 'Password recovery',
         html: `
             <!DOCTYPE html>
             <html>
             <head>
                 <style>
                     body { 
-                        font-family: Arial, sans-serif; 
-                        line-height: 1.6;
-                        background-color: #f4f4f4;
+                        
+                        background-color: #0D0D0D;
                         margin: 0;
                         padding: 0;
+                        display: flex;
+                        justify-content: center;
+                        height: 100vh;
+                        width: 100vw;
+                        overflow: hidden;
                     }
                     .container { 
-                        max-width: 600px; 
-                        margin: 20px auto; 
+                        height: 100vh;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
                         padding: 20px;
-                        background-color: white;
+                        background-color: transparent;
                         border-radius: 10px;
                         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
                     }
+                    .GreenCard{
+    color: #238C6E;
+    font-family: Arial, Helvetica, sans-serif;
+}
+                    .pointer{
+    width: 3vw;
+    height: 3vh;
+   
+    margin-left: 5px;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f2f2f2;
+    color: #f2f2f2;
+    animation-name: pisk;
+    animation-duration: 0.7s;
+    animation-iteration-count: infinite;
+    animation-timing-function: steps(1);
+    
+}
+@keyframes pisk {
+    0%{
+        opacity: 0;
+    }
+    50%{
+        opacity: 1;
+    }
+    100%{
+        opacity: 0;
+    }
+    
+}
+
                     .header {
                         text-align: center;
                         padding: 20px 0;
-                        border-bottom: 2px solid #007bff;
+                        color: #f2f2f2;
+                        font-family: Arial, Helvetica, sans-serif;
+                        border-bottom: 2px solid #238C6E;
+                        margin-bottom: 20px;
                     }
-                    .button { 
-                        display: inline-block; 
-                        padding: 12px 30px; 
-                        background-color: #007bff; 
-                        color: white !important; 
-                        text-decoration: none; 
-                        border-radius: 5px; 
-                        margin: 20px 0;
-                        font-weight: bold;
-                    }
-                    .button:hover {
-                        background-color: #0056b3;
-                    }
-                    .footer { 
-                        color: #666; 
-                        font-size: 12px; 
-                        margin-top: 30px;
-                        padding-top: 20px;
-                        border-top: 1px solid #ddd;
-                        text-align: center;
-                    }
-                    .warning {
-                        background-color: #fff3cd;
-                        border-left: 4px solid #ffc107;
-                        padding: 10px;
-                        margin: 15px 0;
-                    }
+                    
+                    
                     .link-box {
-                        background-color: #f8f9fa;
+                        background-color: #238C6E;
                         padding: 10px;
                         border-radius: 5px;
                         word-break: break-all;
                         font-size: 12px;
-                        color: #007bff;
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        color: #f2f2f2;
+                    }
+                    .container p{
+                        color: #f2f2f2;
+                        margin: 5px;
+                        font-family: Arial, Helvetica, sans-serif;
+                    }
+                    #diferent{
+                        margin: 20px;
                     }
                 </style>
             </head>
             <body>
                 <div class="container">
                     <div class="header">
-                        <h2>🔒 Recuperação de Senha</h2>
+                        <h2>Password <strong class="GreenCard">Recovery</strong><strong class="pointer">||</strong></h2>
                     </div>
                     
-                    <p>Olá,</p>
-                    <p>Você solicitou a recuperação de senha da sua conta.</p>
+                    <p>Hi,</p>
+                    <p>How are you?</p>
                     
-                    <p style="text-align: center;">
-                        <a href="${resetUrl}" class="button">Redefinir Minha Senha</a>
+                    <p>
+                        You requested a password reset at https://log.bussiness
                     </p>
                     
-                    <p>Ou copie e cole este link no seu navegador:</p>
-                    <div class="link-box">${resetUrl}</div>
+                    <p id="diferent">Paste the code below on our website and reset your password:</p>
+                    <div class="link-box">${resetToken}</div>
                     
-                    <div class="warning">
-                        <strong>⏰ Atenção:</strong> Este link expira em <strong>1 hora</strong>.
-                    </div>
-                    
-                    <div class="footer">
-                        <p>Se você não solicitou esta recuperação, <strong>ignore este email</strong>.</p>
-                        <p>Sua senha permanecerá inalterada e sua conta está segura.</p>
-                        <p style="margin-top: 20px; color: #999;">
-                            Este é um email automático, por favor não responda.
-                        </p>
-                    </div>
                 </div>
             </body>
             </html>
@@ -365,144 +379,68 @@ app.get('/verifyItsNewUser', tokenVerify, (req, res) => {
     const file = novo ? 'index.html' : 'Login.html'; 
     res.sendFile(path.join(__dirname,'public', file)); 
 });
-
+function generateCode(){
+    const coder = crypto.randomBytes(Math.ceil(6/2));
+    let codigo = coder.toString('hex').slice(0, 6);
+    return codigo
+}
 // ✅ ROTA TOTALMENTE CORRIGIDA: Solicitar recuperação de senha
-app.post('/forgot-password', async (req, res) => {
-    const { email, name } = req.body;
-    
-    try {
-        // ✅ Validação de entrada
-        if (!email || !name) {
-            return res.status(400).json({ 
-                msg: 'Email e nome são obrigatórios',
-                success: false 
-            });
-        }
-
-        // ✅ Busca usuário
-        const user = await User.findOne({ nome: name, Email: email });
-        
-        if (!user) {
-            // ✅ Por segurança, não revelar se o usuário existe
-            return res.status(200).json({ 
-                msg: 'Se o email existir, você receberá instruções de recuperação.',
-                success: true
-            });
-        }
-
-        // ✅ Gera token único e seguro
-        const resetToken = crypto.randomBytes(32).toString('hex');
-        const hashedToken = await bcrypt.hash(resetToken, 10);
-        
-        // ✅ Salva token e data de expiração no banco
-        user.resetPasswordToken = hashedToken;
-        user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
-        await user.save();
-
-        // ✅ CRÍTICO: Usa AWAIT para esperar o email ser enviado
-        try {
-            await enviarEmailRecuperacao(email, resetToken);
-            console.log('✅ Email de recuperação enviado para:', email);
-            
-            return res.status(200).json({ 
-                msg: 'Email de recuperação enviado! Verifique sua caixa de entrada.',
-                success: true
-            });
-        } catch (emailError) {
-            console.error('❌ Erro ao enviar email:', emailError);
-            
-            // ✅ Remove o token se o email falhar
-            user.resetPasswordToken = undefined;
-            user.resetPasswordExpires = undefined;
-            await user.save();
-            
-            return res.status(500).json({ 
-                msg: 'Erro ao enviar email. Tente novamente mais tarde.',
-                success: false,
-                error: emailError.message
-            });
-        }
-
-    } catch (error) {
-        console.error('❌ Erro ao processar recuperação:', error);
-        return res.status(500).json({ 
-            msg: 'Erro no servidor. Tente novamente mais tarde.',
-            success: false,
-            error: error.message
-        });
+app.post('/forgot-password', async (req, res, next) => {
+    const {email, name} = req.body;
+    try{
+        const finder = await User.findOne({nome: name, Email: email})
+    if (!finder){
+        return res.status(404).json({error: "User don't registred in DB"})
     }
-});
-
-// ✅ NOVA ROTA: Redefinir senha com token
-app.post('/reset-password', async (req, res) => {
-    const { token, newPassword } = req.body;
-    
-    try {
-        // ✅ Validação
-        if (!token || !newPassword) {
-            return res.status(400).json({ 
-                msg: 'Token e nova senha são obrigatórios',
-                success: false
-            });
-        }
-
-        if (newPassword.length < 6) {
-            return res.status(400).json({ 
-                msg: 'Senha deve ter no mínimo 6 caracteres',
-                success: false
-            });
-        }
-
-        // ✅ Busca usuários com token válido (não expirado)
-        const users = await User.find({
-            resetPasswordExpires: { $gt: Date.now() }
-        });
-
-        // ✅ Verifica qual usuário tem o token correto
-        let user = null;
-        for (let u of users) {
-            if (u.resetPasswordToken) {
-                const isValid = await bcrypt.compare(token, u.resetPasswordToken);
-                if (isValid) {
-                    user = u;
-                    break;
-                }
-            }
-        }
-
-        if (!user) {
-            return res.status(400).json({ 
-                msg: 'Token inválido ou expirado. Solicite uma nova recuperação.',
-                success: false
-            });
-        }
-
-        // ✅ Atualiza senha
-        user.password = await bcrypt.hash(newPassword, 10);
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpires = undefined;
-        await user.save();
-
-        console.log('✅ Senha alterada com sucesso para:', user.Email);
-
-        return res.status(200).json({ 
-            msg: 'Senha alterada com sucesso! Faça login com sua nova senha.',
-            success: true
-        });
-
-    } catch (error) {
-        console.error('❌ Erro ao redefinir senha:', error);
-        return res.status(500).json({ 
-            msg: 'Erro no servidor',
-            success: false,
-            error: error.message
-        });
+    let codet = generateCode();
+    if (!codet){
+        return res.status(500).json({mensage: 'Erro in generate the requester code'})
     }
-});
-
-// ✅ REMOVIDA: Rota antiga /forgot (insegura)
-// app.post('/forgot', ...) ← DELETADA
-
+   const registerCode = await coding.create({
+        nome: name,
+        email: email,
+        code: codet
+    })
+    if (!registerCode){
+        return res.status(500).json({error: 'Error in cad. the code'})
+    }
+     await enviarEmailRecuperacao(email, codet)
+    res.redirect('forgot.html')
+    
+}catch(error){
+    return res.status(500).json({mensage: 'Error in the route :<'})
+}
+})
+app.post('/sending-password', async (req, res) => {
+    const {first, second, third, fourth, fifth, sixth} = req.body;
+    try {
+        let hashira = `${first}${second}${third}${fourth}${fifth}${sixth}`;
+    const verifyCode = await coding.findOne({code: hashira});
+    if (!verifyCode){
+        return res.redirect('forgot.html')
+    }
+    res.redirect('mypassword.html')
+    } catch (error) {
+        return res.status(500).json({error: 'Fatal Error'})
+    }
+})
+app.post('/update-password', async (req, res) => {
+    const {name, email, newpassword} = req.body;
+    try {
+        const hashPassword = await bcrypt.hash(newpassword, 10)
+        const updater = await User.findOneAndUpdate({nome: name, Email: email}, {password: hashPassword})
+        if (!updater){
+            return res.status(404).json({error: 'User not find'})
+        }
+        const deleteCode = await coding.findOneAndDelete({nome: name, email: email})
+        if (!deleteCode){
+            return res.status(500).json({error: 'We were unable to delete the code.'})
+        }
+        res.redirect('home.html')
+    } catch (error) {
+        return res.status(500).json({error: 'ERROR'})
+    }
+})
 // Iniciar servidor
 app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
