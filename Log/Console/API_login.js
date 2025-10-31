@@ -436,7 +436,25 @@ app.post('/update-password', async (req, res) => {
         if (!deleteCode){
             return res.status(500).json({error: 'We were unable to delete the code.'})
         }
-        res.redirect('home.html')
+        const datas = await User.findOne({nome: name, Email: email})
+        if(!datas){
+            return res.status(404).json({error: 'User not find'})
+        }
+        const passwordPayload = {
+            id: datas.id,
+            name: datas.nome,
+            email: datas.Email,
+            itsNew: false
+        }
+        const passwordToken = jwt.sign(passwordPayload, JWT_SECRET, {expiresIn: '30d'})
+        res.cookie("authToken", passwordToken, {
+            httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+                maxAge: 30 * 24 * 60 * 60 * 1000
+        })
+        return res.status(200).json({mgs: 'SUPERRRR', payload: passwordPayload})
+        //res.redirect('home.html')
     } catch (error) {
         return res.status(500).json({error: 'ERROR'})
     }
