@@ -586,10 +586,10 @@ border-radius: 0 0 17px 17px;
     flex-direction: column;
     justify-content: center;
 }*/
-.formulary input{
+.formulary input, .newEmail{
     display: block;
     background-color: var(--cor05);
-    width: 18vw;
+    width: 17vw;
     height: 4.7vh;
     margin: 1.5vh 0;
     border: 2px solid var(--cor05);
@@ -599,17 +599,17 @@ border-radius: 0 0 17px 17px;
     font-family: var(--fontInconsolata);
     transition: 0.7s all;
 }
-.formulary input:focus{
+.formulary input:focus, .newEmail:focus{
     background-color: var(--cor05);
     outline: none;   
     color: var(--cor04);
 }
-.formulary input::placeholder{
+.formulary input::placeholder, .newEmail::placeholder{
     color: var(--cor04);
     
     font-family: var(--fontInconsolata);
 }
-.formulary input:hover, .SubmitButton:hover{
+.formulary input:hover, .SubmitButton:hover, .newEmail:hover{
     transform: translate(-5px, -3px);
 }
 #password{
@@ -642,7 +642,7 @@ border-radius: 0 0 17px 17px;
     opacity: 0;
 }
 .SubmitButton{
-    width: 19vw;
+    width: 20vw;
     height: 6vh;
     background-color: var(--cor08);
     border: none;
@@ -675,6 +675,34 @@ border-radius: 0 0 17px 17px;
 .buttons img{
     width: 32px;
     margin: 0 8px 0 0;
+}
+.secretForm{
+    display: none;
+    opacity: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 20vw;
+    height: 30vh;
+    margin-top: 5vh;
+    border-top: 1px solid var(--cor01);
+    transition: 1s all;
+}
+.secretForm .SubmitButton{
+    width: 20vw;
+    height: 6vh;
+    background-color: var(--cor08);
+    border: none;
+    color: var(--cor05);
+    font-family: var(--fontInconsolata);
+    border-radius: 20px;
+    display: block;
+    transition: 0.7s all;
+}
+.secretForm .SubmitButton:hover{
+    background-color: var(--cor08);
+    transform: translate(-3px, -3px);
+    color: var(--cor05);
 }
 .buttons button{
     width: 17vw;

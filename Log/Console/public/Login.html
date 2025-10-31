@@ -48,10 +48,21 @@
                     Continue with Google
                 </button>
             </div>
-            <button id="emailButton">
-                <img src="https://img.icons8.com/?size=100&id=19673&format=png&color=000000" alt="">
-                I forgot my password
-            </button>
+            <div class="requirePassword">
+                <button id="emailButton">
+                    <img src="https://img.icons8.com/?size=100&id=MLi6qD7yodwo&format=png&color=000000" alt="">
+                    I forgot my password
+                </button>
+                <div class="secretForm">
+                    <form action="/forgot-password" method="POST">
+                        <input type="email" name="email" id="email" placeholder="Email:" required class="newEmail">
+                        
+                        <input type="text" name="name" id="name" placeholder="Name:" required class="newEmail">
+                          <button type="submit" class="SubmitButton">Continue</button>
+                   
+                    </form>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -83,7 +94,16 @@
             }, 750)
             password.type = 'password';
         });
-
+        //Button I forgot my password
+        const secretForm = document.querySelector('.secretForm');
+        const emailButton = document.querySelector('#emailButton');
+        emailButton.addEventListener('click', () => {
+            emailButton.style.transform = 'translateX(1.5vw)'
+            secretForm.style.display = 'flex';
+            setTimeout(() => {
+                secretForm.style.opacity = '1'
+            }, 150)
+        })
         // Login Tradicional
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
