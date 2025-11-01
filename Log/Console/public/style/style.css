@@ -295,6 +295,12 @@
     animation-fill-mode: forwards;
   transition: 0.7s all;
 }
+.UpperActiveImg{
+    animation-name: reducedUpper;
+    animation-duration: 1.2s;
+    animation-fill-mode: forwards;
+  transition: 0.7s all;
+}
 @keyframes TextsUpper {
     0%{
         transform: translateY(25vh);
@@ -319,7 +325,16 @@
        
     }
 }
-
+@keyframes reducedUpper {
+    0%{
+        transform: translateY(25vh);
+        opacity: 0;
+    }
+    100%{
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
 /*Ass-Plan*/
 #SBNToService{
     width: 100vw;
@@ -764,21 +779,25 @@ border-radius: 0 0 17px 17px;
     align-items: center;
     justify-content: space-around;
     width: 100vw;
-    height: 85vh;
+    height: 80vh;
     background-color: var(--cor06);
 }
 #nbtoforgot{
     width: 100vw;
-    height: 5vh;
+    height: 10vh;
     background-image: linear-gradient(to bottom, var(--cor04), var(--cor06));
 }
 #forgottonb{
     width: 100vw;
-    height: 5vh;
+    height: 10vh;
     background-image: linear-gradient(to bottom, var(--cor06), var(--cor04));
 }
 .breakLines{
     margin-left: 10vw;
+    margin-top: -5vh;
+}
+.breakLine{
+    margin-top: -5vh;
 }
 .breakLine h1, .breakLines h1{
     color: var(--cor05);
@@ -812,7 +831,7 @@ border-radius: 0 0 17px 17px;
 }
 .newPassword{
     width: 100vw;
-    height: 85vh;
+    height: 80vh;
     background-color: var(--cor04);
     display: flex;
     align-items: center;
@@ -827,4 +846,20 @@ border-radius: 0 0 17px 17px;
 }
 #former #name{
     margin-bottom: -0.2vh;
+}
+.error{
+    display: flex;
+    background-color: var(--cor06);
+    width: 100vw;
+    height: 80vh;
+    align-items: center;
+    justify-content: space-around;
+}
+.ernor{
+    display: flex;
+    background-color: var(--cor04);
+    width: 100vw;
+    height: 80vh;
+    align-items: center;
+    justify-content: space-around;
 }
