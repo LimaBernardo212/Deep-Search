@@ -235,10 +235,7 @@ app.post('/api/login', async (req, res) => {
                 maxAge: 30 * 24 * 60 * 60 * 1000
             });
 
-            return res.status(200).json({
-                mensage: "Autenticado com sucesso",
-                payload: payload
-            });
+            res.redirect('/home.html')
         } else {
             const senhaHash = await bcrypt.hash(password, 10);
 
@@ -265,10 +262,7 @@ app.post('/api/login', async (req, res) => {
                 maxAge: 30 * 24 * 60 * 60 * 1000
             });
 
-            return res.status(200).json({
-                mensage: "Cadastrado e autenticado com sucesso",
-                payload: payload
-            });
+            res.redirect('/home.html')
         }
     } catch (error) {
         console.error('❌ Erro em /api/login:', error);

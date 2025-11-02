@@ -863,3 +863,120 @@ border-radius: 0 0 17px 17px;
     align-items: center;
     justify-content: space-around;
 }
+
+/*Home Navbar*/
+
+.homenav{
+    display: flex;
+    align-items: center;
+    height: 8vh;
+    width: 100vw;
+    background-color: var(--logoColor);
+    
+}
+.consoleImg{
+    margin: 0 2vw;
+    width: 7vw;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+}
+.consoleImg img{
+    width: 32px;
+}
+.comanders:hover{
+    transform: translate(-3px, -3px);
+}
+.quick-comands{
+    display: flex;
+    align-items: center;
+    height: 8vh;
+    margin-left: 3vw;
+}
+.links{
+    display: none;
+}
+.comanders{
+    background-color: var(--cor00);
+    border: none;
+    transition: 0.7s all;
+}
+.comanders img{
+    width: 24px;
+}
+.navComands{
+    margin-left: 1vw;
+}
+.search{
+    margin-left: 22vw;
+    
+}
+.search form{
+    display: flex;
+    align-items: center;
+    height: 8vh;
+}
+.search button{
+    background-color: var(--cor00);
+    border: none;
+    transition: 0.7s all;
+}
+.search button:hover{
+    transform: translate(3px, -3px);
+}
+.search button img{
+    width: 24px;
+}
+.search input{
+    height: 5vh;
+    margin-right: 1vw;
+    width: 17vw;
+    background-color: var(--cor05);
+    border-radius: 20px;
+    padding: 0 0 0 20px;
+    border: none;
+    transition: 0.7s all;
+    font-family: var(--fontRoboto);
+}
+.search input:focus{
+    outline: none;
+}
+.search input:hover{
+    transform: translate(-2px, -2px);
+}
+.account{
+    display: flex;
+    margin-left: 30vw;
+    align-items: center;
+}
+.account img{
+    width: 24px;
+}
+.person, .settings{
+    margin-right: 1vw;
+    transition: 0.7s all;
+}
+.person:hover, .settings:hover{
+    transform: translate(-3px, -3px);
+}
+.leftBar{
+    background-color: var(--cor03);
+    width: 4vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 92vh;
+}
+.itens{
+    margin-top: 5vh;
+    transition: 0.7s all;
+}
+.itens img{
+    width: 28px;
+}
+.itens:hover{
+    transform: translate(-3px, -3px);
+    
+}

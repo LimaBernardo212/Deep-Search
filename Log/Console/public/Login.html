@@ -19,7 +19,7 @@
     <section class="loginFormulary">
         <div class="inputs">
             <div class="formulary">
-                <form id="loginForm">
+                <form id="loginForm" method="POST" action="/api/login">
                     <input type="text" name="name" id="name" placeholder="Name:" required>
                     <input type="email" name="email" id="email" placeholder="Email:" required>
                     <div class="eye">
@@ -55,9 +55,9 @@
                 </button>
                 <div class="secretForm">
                     <form action="/forgot-password" method="POST">
-                        <input type="email" name="email" id="email" placeholder="Email:" required class="newEmail">
+                        <input type="email" name="requestemail" id="requestemail" placeholder="Email:" required class="newEmail">
                         
-                        <input type="text" name="name" id="name" placeholder="Name:" required class="newEmail">
+                        <input type="text" name="request_name" id="request_name" placeholder="Name:" required class="newEmail">
                           <button type="submit" class="SubmitButton">Continue</button>
                    
                     </form>
@@ -105,38 +105,7 @@
             }, 150)
         })
         // Login Tradicional
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value
-            };
-
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    console.log('✅ Login bem-sucedido!', data);
-                    window.location.href = '/verifyItsNewUser'
-                } else {
-                    //alert('Erro: ' + (data.error || data.mensage || 'Erro desconhecido'));
-                }
-            } catch (error) {
-                console.error('❌ Erro:', error);
-                //alert('Erro ao fazer login');
-            }
-        });
-
+       
         // Google Sign-In
         function handleCredentialResponse(res) {
             try {
