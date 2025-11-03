@@ -175,7 +175,39 @@
             google.accounts.id.prompt();
 
         };
-        
+        //Observer
+        const name = document.querySelector('#name');
+        const Email = document.querySelector('#email')
+        const pass = document.querySelector('.eye');
+        const passw = document.querySelector('.eye input')
+        const SubmitButton = document.querySelector('.SubmitButton')
+        const googleButton = document.querySelector('.unique')
+        const obs = new IntersectionObserver((e) => {
+            e.forEach((el) => {
+                if (el.isIntersecting){
+                    setTimeout(() => {
+                        el.target.classList.add('UpperActiveText');
+                    }, 250);
+                    setTimeout(() => {
+                        email.classList.add('UpperActiveText')
+                    }, 500);
+                    setTimeout(() => {
+                        passw.classList.add('UpperActiveImg')
+                        pass.classList.add('UpperActiveImg')
+                    }, 750);
+                    setTimeout(() => {
+                        SubmitButton.classList.add('UpperActiveImg')
+                    }, 1000);
+                    setTimeout(() => {
+                        googleButton.classList.add('UpperActiveText')
+                    }, 1250);
+                    setTimeout(() => {
+                        emailButton.classList.add('UpperActiveImg')
+                    }, 1750);
+                }
+            })
+        })
+        obs.observe(name)
     </script>
 </body>
 </html>

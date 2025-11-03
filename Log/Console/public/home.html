@@ -75,22 +75,63 @@
             </div>
         </div>
     </header>
-    <aside class="leftBar">
-        <div id="home" class="itens" title="Home">
-            <img src="https://img.icons8.com/?size=100&id=86527&format=png&color=FFFFFF" alt="">
-        </div>
-        <div id="schedule" class="itens" title="Your Schedules">
-            <img src="https://img.icons8.com/?size=100&id=116296&format=png&color=FFFFFF" alt="">
-        </div>
-        <div id="treatments" class="itens" title="Your Treatments">
-            <img src="https://img.icons8.com/?size=100&id=86312&format=png&color=FFFFFF" alt="">
-        </div>
-        <div id="plansinapp" class="itens" title="Yours Plans in Stores"><img src="https://img.icons8.com/?size=100&id=86440&format=png&color=FFFFFF" alt=""></div>
-        <div id="projects" class="itens" title="Your Project"><img src="https://img.icons8.com/?size=100&id=85615&format=png&color=FFFFFF" alt=""></div>
-        <div id="API" class="itens" title="API">
-            <img src="https://img.icons8.com/?size=100&id=85950&format=png&color=FFFFFF" alt="">
-        </div>
-    </aside>
-    
+    <section class="userPOV">
+        <aside class="leftBar">
+            <div id="home" class="itens" title="Home">
+                <img src="https://img.icons8.com/?size=100&id=86527&format=png&color=FFFFFF" alt="">
+            </div>
+            <div id="schedule" class="itens" title="Your Schedules">
+                <img src="https://img.icons8.com/?size=100&id=116296&format=png&color=FFFFFF" alt="">
+            </div>
+            <div id="treatments" class="itens" title="Your Treatments">
+                <img src="https://img.icons8.com/?size=100&id=86312&format=png&color=FFFFFF" alt="">
+            </div>
+            <div id="plansinapp" class="itens" title="Yours Plans in Stores"><img src="https://img.icons8.com/?size=100&id=86440&format=png&color=FFFFFF" alt=""></div>
+            <div id="projects" class="itens" title="Your Project"><img src="https://img.icons8.com/?size=100&id=85615&format=png&color=FFFFFF" alt=""></div>
+            <div id="API" class="itens" title="API">
+                <img src="https://img.icons8.com/?size=100&id=85950&format=png&color=FFFFFF" alt="">
+            </div>
+        </aside>
+        <main class="infoContent">
+            <div id="loading"></div>
+        </main>
+    </section>
 </body>
+<script>
+    const infoContent = document.querySelector('.infoContent')
+    const loading = document.querySelector('#loading')
+    function createStores(el){
+        const element = document.createElement('div')
+                        element.classList.add('storeRow')
+                        element.innerHTML = el
+                        return element
+    }
+    window.addEventListener('load', async () => {
+        const req = await fetch('/return/data', {
+              method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                body: JSON.stringify({
+                    also: "Also"
+                })})
+                if (req.ok){
+                    const data = await req.json();
+                    const objects = data.return
+                    loading.style.opacity = 0;
+                    setTimeout(() => {
+                        loading.style.display = 'none';
+                        objects.forEach(el => {
+                        infoContent.appendChild(createStores(el))
+                    });
+                    }, 750)
+                    
+                    
+                    
+                }else{
+                    console.log('Algo deu errado', req.status)
+                }
+            })
+    
+</script>
 </html>

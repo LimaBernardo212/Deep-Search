@@ -10,6 +10,7 @@ import nodemailer from 'nodemailer';
 import crypto from 'crypto';  // ← Adicione isso
 import { fileURLToPath } from 'url'; 
 import coding from './codeSchema.js'
+import StoreCad from './StoreCadschema.js';
 
 dotenv.config();
 
@@ -451,6 +452,26 @@ app.post('/update-password', async (req, res) => {
         //res.redirect('home.html')
     } catch (error) {
         return res.status(500).json({error: 'ERROR'})
+    }
+})
+app.post('/return/data', tokenVerify, async (req, res) => {
+    const {name, email} = req.user;
+    const also = req.body;
+    try {
+        const findAllStores = await StoreCad.find();
+        if (!findAllStores){
+        return res.sendStatus(404).json({error: 'Error 404'})
+        }
+        const storesNum = findAllStores.length;
+        const htmlStructure = `<div><h1>Hello World</h1></div>`
+         const returner = [];
+        for (let i = 0; i < storesNum; i++) {
+           returner.push(htmlStructure)
+                }
+        return res.status(200).json({return: returner})
+       
+    } catch (error) {
+        return res.status(500).json({error: 'Error in the server :(<'})
     }
 })
 // Iniciar servidor

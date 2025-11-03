@@ -327,7 +327,7 @@
 }
 @keyframes reducedUpper {
     0%{
-        transform: translateY(25vh);
+        transform: translateY(15vh);
         opacity: 0;
     }
     100%{
@@ -613,6 +613,9 @@ border-radius: 0 0 17px 17px;
     flex-direction: column;
     justify-content: center;
 }*/
+.formulary input{
+    opacity: 0;
+}
 .formulary input, .newEmail, #former input{
     display: block;
     background-color: var(--cor05);
@@ -644,6 +647,7 @@ border-radius: 0 0 17px 17px;
     
 }
 .eye{
+    opacity: 0;
     display: flex;
     align-items: center;
     justify-content: space-around;
@@ -669,6 +673,7 @@ border-radius: 0 0 17px 17px;
     opacity: 0;
 }
 .SubmitButton{
+    opacity: 0;
     width: 20vw;
     height: 6vh;
     background-color: var(--cor08);
@@ -751,6 +756,7 @@ border-radius: 0 0 17px 17px;
     color: var(--cor04);
 }
 .unique{
+    opacity: 0;
     width: 20vw;
     display: flex;
     align-items: center;
@@ -771,7 +777,9 @@ border-radius: 0 0 17px 17px;
     position: absolute;
     z-index: 50;
 }
-
+#emailButton{
+    opacity: 0;
+}
 /*Forgot Form*/
 
 .forgotPassword{
@@ -977,6 +985,39 @@ border-radius: 0 0 17px 17px;
     width: 28px;
 }
 .itens:hover{
-    transform: translate(-3px, -3px);
-    
+    transform: translate(-3px, -3px);   
+}
+#loading{
+    width: 5vw;
+    height: 5vw;
+    border-radius: 50%;
+    border: 3px solid var(--cor02);
+    border-left: 3px solid var(--cor00);
+    transition: 0.7s all;
+    animation-name: rotate;
+    animation-duration: 100s;
+    animation-iteration-count: infinite;
+}
+
+main.infoContent{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 96vw;
+    height: 92vh;
+    flex-direction: column;
+}
+@keyframes rotate {
+    0%{
+        transform: rotate(-3600deg);
+    }
+    100%{
+        transform: rotate(36000deg);
+    }
+}
+.userPOV{
+    display: flex;
+    width: 100vw;
+    height: 92vh;
+    align-items: center;
 }
