@@ -463,15 +463,34 @@ app.post('/return/data', tokenVerify, async (req, res) => {
         return res.sendStatus(404).json({error: 'Error 404'})
         }
         const storesNum = findAllStores.length;
-        const htmlStructure = `<div><h1>Hello World</h1></div>`
+        let counter = 0;
+        
          const returner = [];
+         
         for (let i = 0; i < storesNum; i++) {
+            const htmlStructure = `<div id="store">
+                        <div class="juntos">
+                            <div id="img">
+                                <img src="img/().png" alt="">
+                            </div>
+                            <div id="storeinfos">
+                                <p id="storename"><strong class="GreenCard">&lt;/</strong>${findAllStores[counter].storeName}<strong class="GreenCard">/></strong></p>
+                                <p id="storeDescription">${findAllStores[counter].description}</p>
+                            </div>
+                        </div>
+                        <div id="moreinfos">
+                            <button>
+                                <img src="https://img.icons8.com/?size=100&id=85501&format=png&color=FFFFFF" alt="">
+                            </button>
+                        </div>
+                    </div>`
+            counter++;
            returner.push(htmlStructure)
                 }
         return res.status(200).json({return: returner})
        
     } catch (error) {
-        return res.status(500).json({error: 'Error in the server :(<'})
+        return res.status(500).json({error: 'Error in the server :<'})
     }
 })
 // Iniciar servidor

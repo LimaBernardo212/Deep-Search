@@ -79,7 +79,7 @@ app.get("/api/me", TokenVerify, async (req, res) =>
 )
 app.post('/CadNewStore', TokenVerify, async (req, res) => {
     const {id, name, email} = req.user;
-    const {storeName, address, cnpj, phone, storeEmail} = req.body;
+    const {storeName, address, cnpj, phone, storeEmail, description} = req.body;
     if(!req.userId){
         return res.status(401).json({message: "Acesso negado. Token não fornecido."});
     }
@@ -87,6 +87,7 @@ app.post('/CadNewStore', TokenVerify, async (req, res) => {
         const newStore = await StoreCad.create({
         name: name,
         email: email,
+        description: description,
         storeName: storeName,
         address: address,
         cnpj: cnpj,
