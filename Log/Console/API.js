@@ -1,16 +1,20 @@
 import express from "express";
 import dotenv from "dotenv";
-import mongoose from "mongoose";
+import mongoose, { model } from "mongoose";
 import User from "./Loginschema.js";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import bcrypt from "bcrypt";
-import path from 'path';
-import nodemailer from 'nodemailer';
-import crypto from 'crypto';  // ← Adicione isso
-import { fileURLToPath } from 'url'; 
-import coding from './codeSchema.js'
-import StoreCad from './StoreCadschema.js';
+import path from "path";
+import nodemailer from "nodemailer";
+import crypto from "crypto"; // ← Adicione isso
+import { fileURLToPath } from "url";
+import coding from "./codeSchema.js";
+import StoreCad from "./StoreCadschema.js";
+import ServicesCad from "./ServiceCadSchema.js";
+import multer from "multer";
+import sharp from "sharp";
+import fs from "fs/promises";
 
 dotenv.config();
 
@@ -20,10 +24,28 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const UPLOADS_ROOT = path.resolve("uploads");
+const SERVICES_UPLOADS_DIR = path.join(UPLOADS_ROOT, "services");
+const STORES_UPLOADS_DIR = path.join(UPLOADS_ROOT, "stores");
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("./public"));
 app.use(cookieParser());
+app.use("/uploads", express.static(UPLOADS_ROOT));
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    return res
+      .status(400)
+      .json({ message: "Erro de upload", error: err.message });
+  }
+  if (err) {
+    return res
+      .status(400)
+      .json({ message: "Erro na requisição", error: err.message });
+  }
+  return next();
+});
 
 // ✅ CORRIGIDO: Transporter com SSL configurado
 var transport = nodemailer.createTransport({
@@ -31,64 +53,88 @@ var transport = nodemailer.createTransport({
   port: 2525,
   auth: {
     user: "d357f63add29f7",
-    pass: "fc32811f387516"
-  }
+    pass: "fc32811f387516",
+  },
 });
 // ✅ Testa conexão ao iniciar
 transport.verify((error, success) => {
-    if (error) {
-        console.error('❌ Erro na configuração do email:', error.message);
-    } else {
-        console.log('✅ Servidor de email pronto para enviar mensagens');
+  if (error) {
+    console.error("❌ Erro na configuração do email:", error.message);
+  } else {
+    console.log("✅ Servidor de email pronto para enviar mensagens");
+  }
+});
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 15 * 1024 * 1024, // 15MB por arquivo
+  },
+  fileFilter: (req, file, cb) => {
+    const okTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+      "image/avif",
+      "image/heic",
+      "image/heif",
+    ];
+    if (okTypes.includes(file.mimetype)) {
+      return cb(null, true);
     }
+    return cb(
+      new Error("Tipo de arquivo inválido. Apenas imagens são permitidas.")
+    );
+  },
 });
 
 // Conectar ao MongoDB
 const conectDB = async () => {
-    try {
-        await mongoose.connect(process.env.MONGO_URI);
-        console.log('✅ Conectado ao MongoDB com sucesso!');
-    } catch (error) {
-        console.error('❌ Erro ao conectar MongoDB:', error);
-    }
-}
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("✅ Conectado ao MongoDB com sucesso!");
+  } catch (error) {
+    console.error("❌ Erro ao conectar MongoDB:", error);
+  }
+};
 conectDB();
 
 // Middleware de verificação de token
 function tokenVerify(req, res, next) {
-    const token = req.cookies.authToken;
-    
-    if (!token) {
-        return res.status(401).json({ error: 'Acesso Negado' });
-    }
-    
-    try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        req.user = {
-            id: decoded.id,
-            name: decoded.name,
-            email: decoded.email,
-            itsNew: decoded.itsNew
-        };
-        req.userId = decoded.id;
-        req.userName = decoded.name;
-        req.userEmail = decoded.email;
-        req.itsNew = decoded.itsNew;
-        next();
-    } catch (error) {
-        return res.status(401).json({ error: 'Token Inválido' });
-    }
+  const token = req.cookies.authToken;
+
+  if (!token) {
+    return res.status(401).json({ error: "Acesso Negado" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = {
+      id: decoded.id,
+      name: decoded.name,
+      email: decoded.email,
+      itsNew: decoded.itsNew,
+    };
+    req.userId = decoded.id;
+    req.userName = decoded.name;
+    req.userEmail = decoded.email;
+    req.itsNew = decoded.itsNew;
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: "Token Inválido" });
+  }
 }
 
 // ✅ NOVA FUNÇÃO: Enviar email de recuperação COM TOKEN
 async function enviarEmailRecuperacao(email, resetToken) {
-    const resetUrl = `http://localhost:3000/reset-password.html`;
-    
-    const emailOptions = {
-        from: 'bernardolimarodrigues4@gmail.com',
-        to: email,
-        subject: 'Password recovery',
-        html: `
+  const resetUrl = `http://localhost:3000/reset-password.html`;
+
+  const emailOptions = {
+    from: "bernardolimarodrigues4@gmail.com",
+    to: email,
+    subject: "Password recovery",
+    html: `
             <!DOCTYPE html>
             <html>
             <head>
@@ -193,282 +239,424 @@ async function enviarEmailRecuperacao(email, resetToken) {
                 </div>
             </body>
             </html>
-        `
-    };
+        `,
+  };
+
+  // ✅ IMPORTANTE: Retorna a Promise para poder tratar erros
+  return await transport.sendMail(emailOptions);
+}
+async function createPostRoute(storeName) {
+  app.get(`/store/${storeName}`, async (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "base.html"));
+  });
+  app.get(`/api/store/${storeName}`, async (req, res) => {
+    try {
+      const storeData = await StoreCad.findOne({ storeName: storeName });
+      if (!storeData) {
+        return res.status(404).json({ error: "Not found" });
+      }
+
+      const servicesData = await ServicesCad.find({
+        storeName: storeName,
+      }).lean();
+      if (!servicesData || servicesData.length == 0) {
+        return res.status(404).json({ error: "Services not found" });
+      }
+      let htmlArray = [];
+      let count = 0;
+      for (let i = 0; i < servicesData.length; i++) {
+        const servicesDoc = servicesData[i];
+        const names = servicesDoc.serviceName;
+        const desc = servicesDoc.serviceDesc;
+        const prices = servicesDoc.servicePrice;
+
+        for (let j = 0; j < names.length; j++) {
+          let structure = `
+                <div class="Service">
+            <img src="" alt="">
+            <h1>${names[j]}</h1>
+            <p>${desc[j]}</p>
+            <h2>${prices[j]}</h2>
+            <button>
+                Agendar Agora
+            </button>
+        </div>`;
+          count++;
+          htmlArray.push(structure);
+        }
+      }
+
+      let servicesReturner = htmlArray.join("");
+      let returnS = servicesReturner + "</section>";
+      let htmlBasePageModel3 = `<section class="storeGrandSect">
+        <img src="/img/().png" alt="">
+        <h1>${storeName}</h1>
+        <p>${storeData.description}</p>
+        <div class="openAt">${storeData.openHours}</div>
+        <div class="closeAt">${storeData.closedHours}</div>
+        <div class="functionDays">${storeData.closedDays}</div>
+        <button>
+            Agende agora
+        </button>
+    </section>
+    <!--SOMOS DIFERENTES DIVS-->
+    <section class="services-content">
+    ${returnS}
+    ${servicesData}
     
-    // ✅ IMPORTANTE: Retorna a Promise para poder tratar erros
-    return await transport.sendMail(emailOptions);
+        `;
+      return res.status(200).json({
+        htmlPage: htmlBasePageModel3,
+        services: servicesData,
+        store: storeData,
+        StoreName: storeName,
+        returner: returnS,
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Server error" });
+    }
+  });
+  return true;
+}
+async function ensureUploadsDir() {
+  try {
+    await fs.mkdir(SERVICES_UPLOADS_DIR, { recursive: true });
+    await fs.mkdir(STORES_UPLOADS_DIR, { recursive: true }); // ✅ CRIAR AMBOS
+  } catch (error) {
+    console.error("Erro ao criar diretório de uploads:", error);
+    throw error;
+  }
+}
+async function processImageToWebp(
+  buffer,
+  { maxWidth = 1024, maxHeight = 1024, quality = 80 } = {}
+) {
+  const pipeline = sharp(buffer, { failOn: "none" }).rotate(); // corrige orientação EXIF
+  const webpBuffer = await pipeline
+    .resize({
+      width: maxWidth,
+      height: maxHeight,
+      fit: "inside",
+      withoutEnlargement: true,
+    })
+    .webp({ quality })
+    .toBuffer();
+
+  const meta = await sharp(webpBuffer).metadata();
+  return {
+    buffer: webpBuffer,
+    format: "webp",
+    width: meta.width,
+    height: meta.height,
+    sizeBytes: webpBuffer.length,
+  };
 }
 
+async function saveBufferToDisk(buffer, ext = "webp", type = "service") {
+  const fileName = `${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2)}.${ext}`;
+  
+  // ✅ Escolher diretório baseado no tipo
+  const uploadDir = type === "store" ? STORES_UPLOADS_DIR : SERVICES_UPLOADS_DIR;
+  const urlPath = type === "store" ? "stores" : "services";
+  
+  const filePath = path.join(uploadDir, fileName);
+  await fs.writeFile(filePath, buffer);
+  
+  return {
+    fileName,
+    absPath: filePath,
+    relPath: `/uploads/${urlPath}/${fileName}`, // ✅ Caminho dinâmico
+  };
+}
 // ========================================
 // SUAS ROTAS DE LOGIN (permanecem iguais)
 // ========================================
-app.post('/api/login', async (req, res) => {
-    try {
-        const { name, email, password } = req.body;
+app.post("/api/login", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
 
-        if (!name || !email || !password) {
-            return res.status(400).json({ error: 'Por favor, preencha todos os campos.' });
-        }
-
-        const usuario = await User.findOne({ Email: email });
-
-        if (usuario) {
-            const senhaValida = await bcrypt.compare(password, usuario.password);
-
-            if (!senhaValida) {
-                return res.status(401).json({ error: 'Credenciais inválidas' });
-            }
-
-            const payload = {
-                id: usuario._id.toString(),
-                email: usuario.Email,
-                name: usuario.nome,
-                itsNew: false
-            };
-
-            const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "30d" });
-
-            res.cookie("authToken", token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-                maxAge: 30 * 24 * 60 * 60 * 1000
-            });
-
-            res.redirect('/home.html')
-        } else {
-            const senhaHash = await bcrypt.hash(password, 10);
-
-            const novoUser = await User.create({
-                nome: name,
-                Email: email,
-                password: senhaHash,
-                isStore: false
-            });
-
-            const payload = {
-                id: novoUser._id.toString(),
-                email: novoUser.Email,
-                name: novoUser.nome,
-                itsNew: true
-            };
-
-            const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "30d" });
-
-            res.cookie("authToken", token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-                maxAge: 30 * 24 * 60 * 60 * 1000
-            });
-
-            res.redirect('/home.html')
-        }
-    } catch (error) {
-        console.error('❌ Erro em /api/login:', error);
-        return res.status(500).json({ error: 'Erro no servidor' });
+    if (!name || !email || !password) {
+      return res
+        .status(400)
+        .json({ error: "Por favor, preencha todos os campos." });
     }
-});
 
-app.post('/api/login/authGoogle', async (req, res) => {
-    try {
-        const { name, email, sub } = req.body;
+    const usuario = await User.findOne({ Email: email });
 
-        if (!name || !email || !sub) {
-            return res.status(400).json({ msg: 'Dados incompletos' });
-        }
+    if (usuario) {
+      const senhaValida = await bcrypt.compare(password, usuario.password);
 
-        console.log('📝 Login Google recebido:', { name, email, sub });
+      if (!senhaValida) {
+        return res.status(401).json({ error: "Credenciais inválidas" });
+      }
 
-        let googleUsuario = await User.findOne({Email: email });
+      const payload = {
+        id: usuario._id.toString(),
+        email: usuario.Email,
+        name: usuario.nome,
+        itsNew: false,
+      };
 
-        if (googleUsuario) {
-            googleUsuario.nome = name;
-            googleUsuario.Email = email;
-            googleUsuario.id = sub;
-            
-            console.log('✅ Usuário Google atualizado:', googleUsuario._id);
+      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "30d" });
 
-            const googlePayload = {
-                id: googleUsuario._id.toString(),
-                nome: googleUsuario.nome,
-                Email: googleUsuario.Email,
-                itsNew: false
-            };
-
-            const googleToken = jwt.sign(googlePayload, JWT_SECRET, { expiresIn: "30d" });
-
-            res.cookie("authToken", googleToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-                maxAge: 30 * 24 * 60 * 60 * 1000
-            });
-
-            return res.status(200).json({
-                msg: "Sucesss",
-                payload: googlePayload
-            });
-        } else {
-            const newGoogleUser = await User.create({
-                nome: name,
-                Email: email,
-                password: "Not shared with us"
-            });
-
-            console.log('✅ Novo usuário Google criado:', newGoogleUser._id);
-
-            const newPayloadGoogle = {
-                id: newGoogleUser._id.toString(),
-                name: newGoogleUser.nome,
-                email: newGoogleUser.Email,
-                itsNew: true
-            };
-
-            const newGoogleUserToken = jwt.sign(newPayloadGoogle, JWT_SECRET, { expiresIn: "30d" });
-
-            res.cookie("authToken", newGoogleUserToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-                maxAge: 30 * 24 * 60 * 60 * 1000
-            });
-
-            return res.status(200).json({
-                msg: "SUPER SUCESS",
-                payload: newPayloadGoogle
-            });
-        }
-    } catch (error) {
-        console.error('❌ Erro em /api/login/authGoogle:', error);
-        return res.status(500).json({ 
-            msg: "ERROR", 
-            error: error.message 
-        });
-    }
-});
-
-app.get('/api/me', tokenVerify, async (req, res) => {
-    return res.json({
-        id: req.userId,
-        name: req.userName,
-        email: req.userEmail
-    });
-});
-
-app.post('/api/logout', (req, res) => {
-    res.clearCookie('authToken', {
+      res.cookie("authToken", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict"
-    });
-    
-    return res.status(200).json({
-        mensage: 'Logout efetuado com sucesso'
-    });
+        sameSite: "strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      });
+
+      res.redirect("/home.html");
+    } else {
+      const senhaHash = await bcrypt.hash(password, 10);
+
+      const novoUser = await User.create({
+        nome: name,
+        Email: email,
+        password: senhaHash,
+        isStore: false,
+      });
+
+      const payload = {
+        id: novoUser._id.toString(),
+        email: novoUser.Email,
+        name: novoUser.nome,
+        itsNew: true,
+      };
+
+      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "30d" });
+
+      res.cookie("authToken", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      });
+
+      res.redirect("/home.html");
+    }
+  } catch (error) {
+    console.error("❌ Erro em /api/login:", error);
+    return res.status(500).json({ error: "Erro no servidor" });
+  }
 });
 
-app.get('/verifyItsNewUser', tokenVerify, (req, res) => { 
-    const novo = Boolean(req.user.itsNew); 
-    const file = novo ? 'index.html' : 'Login.html'; 
-    res.sendFile(path.join(__dirname,'public', file)); 
+app.post("/api/login/authGoogle", async (req, res) => {
+  try {
+    const { name, email, sub } = req.body;
+
+    if (!name || !email || !sub) {
+      return res.status(400).json({ msg: "Dados incompletos" });
+    }
+
+    console.log("📝 Login Google recebido:", { name, email, sub });
+
+    let googleUsuario = await User.findOne({ Email: email });
+
+    if (googleUsuario) {
+      googleUsuario.nome = name;
+      googleUsuario.Email = email;
+      googleUsuario.id = sub;
+
+      console.log("✅ Usuário Google atualizado:", googleUsuario._id);
+
+      const googlePayload = {
+        id: googleUsuario._id.toString(),
+        nome: googleUsuario.nome,
+        Email: googleUsuario.Email,
+        itsNew: false,
+      };
+
+      const googleToken = jwt.sign(googlePayload, JWT_SECRET, {
+        expiresIn: "30d",
+      });
+
+      res.cookie("authToken", googleToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      });
+
+      return res.status(200).json({
+        msg: "Sucesss",
+        payload: googlePayload,
+      });
+    } else {
+      const newGoogleUser = await User.create({
+        nome: name,
+        Email: email,
+        password: "Not shared with us",
+      });
+
+      console.log("✅ Novo usuário Google criado:", newGoogleUser._id);
+
+      const newPayloadGoogle = {
+        id: newGoogleUser._id.toString(),
+        name: newGoogleUser.nome,
+        email: newGoogleUser.Email,
+        itsNew: true,
+      };
+
+      const newGoogleUserToken = jwt.sign(newPayloadGoogle, JWT_SECRET, {
+        expiresIn: "30d",
+      });
+
+      res.cookie("authToken", newGoogleUserToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      });
+
+      return res.status(200).json({
+        msg: "SUPER SUCESS",
+        payload: newPayloadGoogle,
+      });
+    }
+  } catch (error) {
+    console.error("❌ Erro em /api/login/authGoogle:", error);
+    return res.status(500).json({
+      msg: "ERROR",
+      error: error.message,
+    });
+  }
 });
-function generateCode(){
-    const coder = crypto.randomBytes(Math.ceil(6/2));
-    let codigo = coder.toString('hex').slice(0, 6);
-    return codigo
+
+app.get("/api/me", tokenVerify, async (req, res) => {
+  return res.json({
+    id: req.userId,
+    name: req.userName,
+    email: req.userEmail,
+  });
+});
+
+app.post("/api/logout", (req, res) => {
+  res.clearCookie("authToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+
+  return res.status(200).json({
+    mensage: "Logout efetuado com sucesso",
+  });
+});
+
+app.get("/verifyItsNewUser", tokenVerify, (req, res) => {
+  const novo = Boolean(req.user.itsNew);
+  const file = novo ? "home.html" : "home.html";
+  res.sendFile(path.join(__dirname, "public", file));
+});
+function generateCode() {
+  const coder = crypto.randomBytes(Math.ceil(6 / 2));
+  let codigo = coder.toString("hex").slice(0, 6);
+  return codigo;
 }
 // ✅ ROTA TOTALMENTE CORRIGIDA: Solicitar recuperação de senha
-app.post('/forgot-password', async (req, res, next) => {
-    const {email, name} = req.body;
-    try{
-        const finder = await User.findOne({nome: name, Email: email})
-    if (!finder){
-        return res.status(404).json({error: "User don't registred in DB"})
+app.post("/forgot-password", async (req, res, next) => {
+  const { email, name } = req.body;
+  try {
+    const finder = await User.findOne({ nome: name, Email: email });
+    if (!finder) {
+      return res.status(404).json({ error: "User don't registred in DB" });
     }
     let codet = generateCode();
-    if (!codet){
-        return res.status(500).json({mensage: 'Erro in generate the requester code'})
+    if (!codet) {
+      return res
+        .status(500)
+        .json({ mensage: "Erro in generate the requester code" });
     }
-   const registerCode = await coding.create({
-        nome: name,
-        email: email,
-        code: codet
-    })
-    if (!registerCode){
-        return res.status(500).json({error: 'Error in cad. the code'})
+    const registerCode = await coding.create({
+      nome: name,
+      email: email,
+      code: codet,
+    });
+    if (!registerCode) {
+      return res.status(500).json({ error: "Error in cad. the code" });
     }
-     await enviarEmailRecuperacao(email, codet)
-    res.redirect('forgot.html')
-    
-}catch(error){
-    return res.status(500).json({mensage: 'Error in the route :<'})
-}
-})
-app.post('/sending-password', async (req, res) => {
-    const {first, second, third, fourth, fifth, sixth} = req.body;
-    try {
-        let hashira = `${first}${second}${third}${fourth}${fifth}${sixth}`;
-    const verifyCode = await coding.findOne({code: hashira});
-    if (!verifyCode){
-        return res.redirect('forgot.html')
+    await enviarEmailRecuperacao(email, codet);
+    res.redirect("forgot.html");
+  } catch (error) {
+    return res.status(500).json({ mensage: "Error in the route :<" });
+  }
+});
+app.post("/sending-password", async (req, res) => {
+  const { first, second, third, fourth, fifth, sixth } = req.body;
+  try {
+    let hashira = `${first}${second}${third}${fourth}${fifth}${sixth}`;
+    const verifyCode = await coding.findOne({ code: hashira });
+    if (!verifyCode) {
+      return res.redirect("forgot.html");
     }
-    res.redirect('mypassword.html')
-    } catch (error) {
-        return res.status(500).json({error: 'Fatal Error'})
+    res.redirect("mypassword.html");
+  } catch (error) {
+    return res.status(500).json({ error: "Fatal Error" });
+  }
+});
+app.post("/update-password", async (req, res) => {
+  const { name, email, newpassword } = req.body;
+  try {
+    const hashPassword = await bcrypt.hash(newpassword, 10);
+    const updater = await User.findOneAndUpdate(
+      { nome: name, Email: email },
+      { password: hashPassword }
+    );
+    if (!updater) {
+      return res.status(404).json({ error: "User not find" });
     }
-})
-app.post('/update-password', async (req, res) => {
-    const {name, email, newpassword} = req.body;
-    try {
-        const hashPassword = await bcrypt.hash(newpassword, 10)
-        const updater = await User.findOneAndUpdate({nome: name, Email: email}, {password: hashPassword})
-        if (!updater){
-            return res.status(404).json({error: 'User not find'})
-        }
-        const deleteCode = await coding.findOneAndDelete({nome: name, email: email})
-        if (!deleteCode){
-            return res.status(500).json({error: 'We were unable to delete the code.'})
-        }
-        const datas = await User.findOne({nome: name, Email: email})
-        if(!datas){
-            return res.status(404).json({error: 'User not find'})
-        }
-        const passwordPayload = {
-            id: datas.id,
-            name: datas.nome,
-            email: datas.Email,
-            itsNew: false
-        }
-        const passwordToken = jwt.sign(passwordPayload, JWT_SECRET, {expiresIn: '30d'})
-        res.cookie("authToken", passwordToken, {
-            httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-                maxAge: 30 * 24 * 60 * 60 * 1000
-        })
-        return res.status(200).json({mgs: 'SUPERRRR', payload: passwordPayload})
-        //res.redirect('home.html')
-    } catch (error) {
-        return res.status(500).json({error: 'ERROR'})
+    const deleteCode = await coding.findOneAndDelete({
+      nome: name,
+      email: email,
+    });
+    if (!deleteCode) {
+      return res
+        .status(500)
+        .json({ error: "We were unable to delete the code." });
     }
-})
-app.post('/return/data', tokenVerify, async (req, res) => {
-    const {name, email} = req.user;
-    const also = req.body;
-    try {
-        const findAllStores = await StoreCad.find();
-        if (!findAllStores){
-        return res.sendStatus(404).json({error: 'Error 404'})
-        }
-        const storesNum = findAllStores.length;
-        let counter = 0;
-        
-         const returner = [];
-         
-        for (let i = 0; i < storesNum; i++) {
-            const htmlStructure = `<div id="store">
+    const datas = await User.findOne({ nome: name, Email: email });
+    if (!datas) {
+      return res.status(404).json({ error: "User not find" });
+    }
+    const passwordPayload = {
+      id: datas.id,
+      name: datas.nome,
+      email: datas.Email,
+      itsNew: false,
+    };
+    const passwordToken = jwt.sign(passwordPayload, JWT_SECRET, {
+      expiresIn: "30d",
+    });
+    res.cookie("authToken", passwordToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+    return res.status(200).json({ mgs: "SUPERRRR", payload: passwordPayload });
+    //res.redirect('home.html')
+  } catch (error) {
+    return res.status(500).json({ error: "ERROR" });
+  }
+});
+app.post("/return/data", tokenVerify, async (req, res) => {
+  const { name, email } = req.user;
+  const also = req.body;
+  try {
+    const findAllStores = await StoreCad.find();
+    if (!findAllStores) {
+      return res.sendStatus(404).json({ error: "Error 404" });
+    }
+    const storesNames = findAllStores.map((store) => store.storeName);
+    const storesNum = findAllStores.length;
+    let counter = 0;
+
+    const returner = [];
+
+    for (let i = 0; i < storesNum; i++) {
+      const htmlStructure = `<div class="store">
                         <div class="juntos">
                             <div id="img">
                                 <img src="img/().png" alt="">
@@ -483,18 +671,299 @@ app.post('/return/data', tokenVerify, async (req, res) => {
                                 <img src="https://img.icons8.com/?size=100&id=85501&format=png&color=FFFFFF" alt="">
                             </button>
                         </div>
-                    </div>`
-            counter++;
-           returner.push(htmlStructure)
-                }
-        return res.status(200).json({return: returner})
-       
-    } catch (error) {
-        return res.status(500).json({error: 'Error in the server :<'})
+                    </div>`;
+      counter++;
+      returner.push(htmlStructure);
     }
-})
+    return res.status(200).json({
+      return: returner,
+      closedHour: findAllStores.map((store) => store.closedHours),
+      closedDays: findAllStores.map((store) => store.closedHours),
+      openHours: findAllStores.map((store) => store.openHours),
+      storeName: storesNames,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Error in the server :<" });
+  }
+});
+app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
+  try {
+    await ensureUploadsDir();
+    
+    console.log("Body keys:", Object.keys(req.body));
+    console.log("Files:", (req.files || []).map((f, idx) => ({
+      idx,
+      fieldname: f.fieldname,
+      originalname: f.originalname,
+      mimetype: f.mimetype,
+      size: f.size,
+    })));
+
+    const { id, name, email } = req.user;
+    const {
+      storeName,
+      address,
+      cnpj,
+      phone,
+      storeEmail,
+      description,
+      closedHours,
+      closedDays,
+      openHours,
+    } = req.body;
+
+    // Validação básica
+    if (!storeName || !address || !cnpj || !phone || !storeEmail) {
+      return res.status(400).json({ 
+        error: "Campos obrigatórios faltando" 
+      });
+    }
+
+    // Verificar duplicação
+    const existingStore = await StoreCad.findOne({ storeName });
+    if (existingStore) {
+      return res.status(400).json({ 
+        error: "Já existe uma loja com este nome" 
+      });
+    }
+
+    // ✅ Processar imagem da loja
+    let imageInfo = null;
+    const storeImageFile = (req.files || []).find(
+      f => f.fieldname === 'storeImage'
+    );
+    
+    console.log("📸 Arquivo de imagem encontrado:", !!storeImageFile);
+    
+    if (storeImageFile?.buffer) {
+      try {
+        const processed = await processImageToWebp(storeImageFile.buffer, {
+          maxWidth: 1024,
+          maxHeight: 1024,
+          quality: 80,
+        });
+
+        // ✅ PASSAR "store" COMO TERCEIRO PARÂMETRO
+        const saved = await saveBufferToDisk(processed.buffer, processed.format, "store");
+        
+        imageInfo = {
+          storage: "disk",
+          path: saved.relPath,
+          filename: saved.fileName,
+          format: processed.format,
+          width: processed.width,
+          height: processed.height,
+          sizeBytes: processed.sizeBytes,
+        };
+
+        console.log("✅ Imagem processada e salva em:", saved.relPath);
+      } catch (imgErr) {
+        console.error("❌ Falha ao processar imagem da loja:", imgErr);
+        // Continua sem imagem
+      }
+    } else {
+      console.log("⚠️ Nenhuma imagem enviada para a loja");
+    }
+
+    // Criar loja no banco
+    const newStore = await StoreCad.create({
+      name: name,
+      email: email,
+      description: description || "",
+      closedHours: closedHours || "",
+      closedDays: closedDays || "",
+      openHours: openHours || "",
+      model: 0,
+      storeName: storeName,
+      address: address,
+      cnpj: cnpj,
+      phone: phone,
+      storeEmail: storeEmail,
+      storeImagePath: imageInfo?.path ?? null,
+      storeImageMeta: imageInfo ?? null,
+    });
+
+    console.log("✅ Loja cadastrada:", newStore._id);
+    console.log("📁 Imagem salva em:", imageInfo?.path || "sem imagem");
+
+    return res.status(201).json({ 
+      message: "Loja cadastrada com sucesso!",
+      storeId: newStore._id,
+      storeName: newStore.storeName,
+      hasImage: !!imageInfo,
+      imagePath: imageInfo?.path || null
+    });
+    
+  } catch (error) {
+    console.error("❌ Erro ao cadastrar loja:", error);
+    
+    if (error.code === 11000) {
+      return res.status(400).json({ 
+        error: "Loja com dados duplicados",
+        details: error.message 
+      });
+    }
+    
+    return res.status(500).json({ 
+      error: "Erro ao cadastrar loja",
+      details: error.message 
+    });
+  }
+});
+app.post("/store/page", async (req, res) => {
+  const { storeName } = req.body;
+  try {
+    await createPostRoute(storeName);
+    return res.status(200).json({
+      message: "Rota criada com sucesso!", // ERRO: "mensage" → "message"
+      redirect: `/store/${storeName}`,
+      redirectTwo: `/api/store/${storeName}`,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Erro ao criar a rota." });
+  }
+});
+
+app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
+  try {
+    await ensureUploadsDir();
+
+    console.log("Body keys:", Object.keys(req.body));
+    console.log(
+      "Files:",
+      (req.files || []).map((f, idx) => ({
+        idx,
+        fieldname: f.fieldname,
+        originalname: f.originalname,
+        mimetype: f.mimetype,
+        size: f.size,
+      }))
+    );
+
+    const { name, email } = req.user;
+
+    const findStore = await StoreCad.findOne({ name, email }).lean();
+    if (!findStore) {
+      return res
+        .status(400)
+        .json({ message: "Loja não encontrada para o usuário autenticado" });
+    }
+
+    const toArray = (v) => (Array.isArray(v) ? v : v !== undefined ? [v] : []);
+
+    const serviceNames = toArray(
+      req.body["serviceName[]"] ?? req.body.serviceName
+    );
+    const serviceDescs = toArray(
+      req.body["serviceDesc[]"] ?? req.body.serviceDesc
+    );
+    const servicePricesRaw = toArray(
+      req.body["servicePrice[]"] ?? req.body.servicePrice
+    );
+
+    const files = req.files || [];
+
+    const total =
+      Math.max(
+        serviceNames.length,
+        serviceDescs.length,
+        servicePricesRaw.length
+      ) || 0;
+      
+    if (
+      total === 0 &&
+      !serviceNames.length &&
+      !serviceDescs.length &&
+      !servicePricesRaw.length
+    ) {
+      return res.status(400).json({ message: "Nenhum serviço enviado." });
+    }
+
+    const created = [];
+    let fileCursor = 0;
+    let fileUsedIndex = null;
+    let file = null;
+
+    if (fileCursor < files.length) {
+      file = files[fileCursor];
+    }
+
+    let imageInfo = null;
+    if (file?.buffer) {
+      try {
+        const processed = await processImageToWebp(file.buffer, {
+          maxWidth: 1024,
+          maxHeight: 1024,
+          quality: 80,
+        });
+
+        const saved = await saveBufferToDisk(
+          processed.buffer,
+          processed.format
+        );
+        imageInfo = {
+          storage: "disk",
+          path: saved.relPath,
+          filename: saved.fileName,
+          format: processed.format,
+          width: processed.width,
+          height: processed.height,
+          sizeBytes: processed.sizeBytes,
+        };
+
+        fileUsedIndex = fileCursor;
+        fileCursor++;
+      } catch (imgErr) {
+        console.warn(
+          "Falha ao processar imagem do serviço:",
+          imgErr.message
+        ); // ERRO: removido "i" que não existe
+        fileCursor++;
+      }
+    }
+
+    const newService = await ServicesCad.create({
+      name: name,
+      email: email,
+      storeName: findStore.storeName,
+      storeEmail: findStore.storeEmail,
+      phone: findStore.phone,
+      serviceName: serviceNames,
+      serviceDesc: serviceDescs,
+      servicePrice: servicePricesRaw,
+      serviceImagePath: imageInfo?.path ?? null,
+      serviceImageMeta: imageInfo ?? null,
+    });
+
+    created.push({
+      ...newService.toObject(),
+      _debugFileUsedIndex: fileUsedIndex,
+    });
+
+    if (created.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Nenhuma entrada válida de serviço para cadastrar." });
+    }
+
+    console.log(
+      `Criados ${created.length} serviço(s). files.length=${files.length}`
+    );
+    return res.status(201).json({
+      message: "Serviço(s) cadastrado(s) com sucesso",
+      count: created.length,
+      services: created,
+    });
+  } catch (error) {
+    console.error("Erro ao cadastrar serviços:", error);
+    return res.status(500).json({
+      message: "Erro ao processar o cadastro de serviços.",
+      error: error.message,
+    });
+  }
+});
 // Iniciar servidor
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
-    console.log(`📧 Sistema de recuperação de senha ativo`);
+  console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+  console.log(`📧 Sistema de recuperação de senha ativo`);
 });

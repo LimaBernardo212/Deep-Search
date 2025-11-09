@@ -1009,6 +1009,7 @@ body {
   animation-name: rotate;
   animation-duration: 100s;
   animation-iteration-count: infinite;
+  animation-timing-function: linear;
 }
 
 main.infoContent {
@@ -1055,13 +1056,16 @@ main.infoContent {
     border-radius: 10px;
     border: none;
     padding: 0 0 0 20px;
-    background-color: var(--cor05);
+    background-color: var(--cor00);
+    color: var(--cor05);
+    border: 1px solid var(--cor01Esvoaçada);
     font-family: var(--fontInconsolata);
     font-size: 1em;
     transition: 0.7s all;
 }
 #searchForm input:focus{
     outline: none;
+    border: 1px solid var(--cor05);
 }
 #searchForm button{
     background-color: var(--cor00);
@@ -1078,7 +1082,7 @@ main.infoContent {
 .store-content{
     margin-top: 5vh;
 }
-#store{
+.store{
     width: 75vw;
     display: flex;
     
@@ -1097,10 +1101,10 @@ main.infoContent {
     display: flex;
     align-items: center;
 }
-#store #img img{
+.store #img img{
     width: 32px;
 }
-#store #img{
+.store #img{
     margin: 0 2vw;
 }
 #storename{
@@ -1133,15 +1137,15 @@ main.infoContent {
 #moreinfos button:hover{
     background-color: var(--cor02);
 }
-#store.closed:hover{
+.store.closed:hover{
    
     background-color: var(--cor11);
 }
-#store.closed button:hover{
+.store.closed button:hover{
     background-color: var(--cor12);
 }
 
-#store:hover{
+.store:hover{
     
     border-radius: 20px;
     

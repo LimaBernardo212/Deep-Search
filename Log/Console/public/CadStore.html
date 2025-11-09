@@ -5,16 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastrar Loja</title>
 </head>
+
 <body>
     <h1>Cadastro da Loja</h1>
-    <form action="/CadNewStore" method="post">
-        <input type="text" name="storeName" placeholder="Nome da Loja" required><br>
-        <input type="text" name="address" placeholder="Endereço" required><br>
-        <input type="number" name="cnpj" id="cnpj" placeholder="CNPJ" required><br>
-        <input type="tel" name="phone" placeholder="Telefone" required><br>
-        <input type="email" name="storeEmail" id="storeEmail" placeholder="Email da Loja" required><br>
-        <textarea name="description" id="description"></textarea>
-        <input type="submit" value="Cadastrar">
-    </form>
+    <form id="storeForm" enctype="multipart/form-data">
+  <!-- Campos de texto -->
+  <input type="text" name="storeName" id="storeName" required>
+  <input type="text" name="address" id="address" required>
+  <input type="text" name="cnpj" id="cnpj" required>
+  <input type="text" name="phone" id="phone" required>
+  <input type="email" name="storeEmail" id="storeEmail" required>
+  <textarea name="description" id="description"></textarea>
+  <input type="text" name="openHours" id="openHours">
+  <input type="text" name="closedHours" id="closedHours">
+  <input type="text" name="closedDays" id="closedDays">
+  
+  <!-- Input de arquivo - NOME DEVE SER "storeImage" -->
+  <input type="file" name="storeImage" id="storeImage" accept="image/*">
+  
+  <button type="submit">Cadastrar Loja</button>
+</form>
 </body>
+<script>
+    const form = document.getElementById('storeForm');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  // ✅ CRIAR FormData do form completo
+  const formData = new FormData(form);
+  
+  // ⚠️ IMPORTANTE: Verificar se o arquivo foi selecionado
+  const fileInput = document.getElementById('storeImage');
+  if (fileInput.files.length === 0) {
+    console.warn('⚠️ Nenhuma imagem selecionada');
+    // Você pode prosseguir ou avisar o usuário
+  } else {
+    console.log('✅ Arquivo selecionado:', fileInput.files[0].name);
+  }
+  
+  try {
+    const response = await fetch('/CadNewStore', {
+      method: 'POST',
+      body: formData,
+      // ❌ NÃO adicionar Content-Type - o navegador faz automaticamente
+      // ❌ NÃO usar headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      console.log('✅ Loja cadastrada:', data);
+      alert('Loja cadastrada com sucesso!');
+      
+      // Agora criar a página da loja
+      await criarPaginaLoja(data.storeName);
+    } else {
+      console.error('❌ Erro:', data);
+      alert(data.error || 'Erro ao cadastrar loja');
+    }
+  } catch (error) {
+    console.error('❌ Erro na requisição:', error);
+    alert('Erro ao cadastrar loja');
+  }
+});
+
+</script>
 </html>

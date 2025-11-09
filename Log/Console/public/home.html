@@ -1,109 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Log: Home</title>
-    <link rel="shortcut icon" href="favicons/favicon-32x32.png" type="image/x-icon">
-    <link rel="stylesheet" href="style/style.css">
-</head>
-<body>
+    <link
+      rel="shortcut icon"
+      href="favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+    <link rel="stylesheet" href="style/style.css" />
+  </head>
+  <body>
     <header class="homenav">
-        <div class="consoleImg">
-            <img src="img/().png" alt="">
+      <div class="consoleImg">
+        <img src="img/().png" alt="" />
+      </div>
+
+      <div class="account">
+        <div class="person" id="people">
+          <img
+            src="https://img.icons8.com/?size=100&id=85147&format=png&color=FFFFFF"
+            alt=""
+          />
         </div>
-        
-        
-        
-        <div class="account">
-            <div class="person" id="people">
-                <img src="https://img.icons8.com/?size=100&id=85147&format=png&color=FFFFFF" alt="">
-            </div>
-            <div class="settings" id="sett">
-                <img src="https://img.icons8.com/?size=100&id=83214&format=png&color=FFFFFF" alt="">
-            </div>
+        <div class="settings" id="sett">
+          <img
+            src="https://img.icons8.com/?size=100&id=83214&format=png&color=FFFFFF"
+            alt=""
+          />
         </div>
+      </div>
     </header>
     <section class="userPOV">
-        <aside class="leftBar">
-            <div id="home" class="itens" title="Home">
-                <img src="https://img.icons8.com/?size=100&id=86527&format=png&color=FFFFFF" alt="">
-            </div>
-            <div id="schedule" class="itens" title="Your Schedules">
-                <img src="https://img.icons8.com/?size=100&id=116296&format=png&color=FFFFFF" alt="">
-            </div>
-            <div id="treatments" class="itens" title="Your Treatments">
-                <img src="https://img.icons8.com/?size=100&id=86312&format=png&color=FFFFFF" alt="">
-            </div>
-            <div id="plansinapp" class="itens" title="Yours Plans in Stores"><img src="https://img.icons8.com/?size=100&id=86440&format=png&color=FFFFFF" alt=""></div>
-            <div id="projects" class="itens" title="Your Project"><img src="https://img.icons8.com/?size=100&id=85615&format=png&color=FFFFFF" alt=""></div>
-            <div id="documents" class="itens" title="Documents">
-                <img src="https://img.icons8.com/?size=100&id=83153&format=png&color=FFFFFF" alt="">
-            </div>
-            <div id="API" class="itens" title="API">
-                <img src="https://img.icons8.com/?size=100&id=85950&format=png&color=FFFFFF" alt="">
-            </div>
-        </aside>
-        <main class="infoContent">
-            <div id="loading"></div>
-            <div class="content">
-                <div class="searcher">
-                    <form action="" method="POST" id="searchForm">
-                        <input type="text" name="search" id="search" placeholder="Search using name or PIN:">
-                        <button type="submit">
-                            <img src="https://img.icons8.com/?size=100&id=83218&format=png&color=FFFFFF" alt="">
-                        </button>
-                    </form>
-                </div>
-                <div class="store-content">
-                    
-                </div>
+      <aside class="leftBar">
+        <div id="home" class="itens" title="Home">
+          <img
+            src="https://img.icons8.com/?size=100&id=86527&format=png&color=FFFFFF"
+            alt=""
+          />
+        </div>
+        <div id="schedule" class="itens" title="Your Schedules">
+          <img
+            src="https://img.icons8.com/?size=100&id=116296&format=png&color=FFFFFF"
+            alt=""
+          />
+        </div>
+        <div id="treatments" class="itens" title="Your Treatments">
+          <img
+            src="https://img.icons8.com/?size=100&id=86312&format=png&color=FFFFFF"
+            alt=""
+          />
+        </div>
+        <div id="plansinapp" class="itens" title="Yours Plans in Stores">
+          <img
+            src="https://img.icons8.com/?size=100&id=86440&format=png&color=FFFFFF"
+            alt=""
+          />
+        </div>
+        <div id="projects" class="itens" title="Your Project">
+          <img
+            src="https://img.icons8.com/?size=100&id=85615&format=png&color=FFFFFF"
+            alt=""
+          />
+        </div>
+        <div id="documents" class="itens" title="Documents">
+          <img
+            src="https://img.icons8.com/?size=100&id=83153&format=png&color=FFFFFF"
+            alt=""
+          />
+        </div>
+        <div id="API" class="itens" title="API">
+          <img
+            src="https://img.icons8.com/?size=100&id=85950&format=png&color=FFFFFF"
+            alt=""
+          />
+        </div>
+      </aside>
+      <main class="infoContent">
+        <div id="loading"></div>
+        <div class="content">
+          <div class="searcher">
+            <form action="" method="POST" id="searchForm">
+              <input
+                type="text"
+                name="search"
+                id="search"
+                placeholder="Search using name or PIN:"
+              />
+              <input type="submit" style="display: none;">
                 
-            </div>
-        
-        </main>
+              </button>
+            </form>
+          </div>
+          <div class="store-content"></div>
+        </div>
+      </main>
     </section>
-</body>
-<script>
-    const content = document.querySelector('.content')
-    const loading = document.querySelector('#loading');
-    const storecontent = document.querySelector('.store-content');
-    function createStores(el){
-        const element = document.createElement('div')
-                        element.classList.add('storeRow')
-                        element.innerHTML = el
-                        return element
+  </body>
+  <script>
+    const content = document.querySelector(".content");
+    const loading = document.querySelector("#loading");
+    const storecontent = document.querySelector(".store-content");
+    function createStores(el) {
+      const element = document.createElement("div");
+      element.classList.add("storeRow");
+      element.innerHTML = el;
+      return element;
     }
-    window.addEventListener('load', async () => {
-        const req = await fetch('/return/data', {
-              method: 'POST',
+    window.addEventListener("load", async () => {
+      const req = await fetch("/return/data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          also: "Also",
+        }),
+      });
+      if (req.ok) {
+        const data = await req.json();
+        const objects = data.return;
+        const storeNames = data.storeName;
+        loading.style.opacity = 0;
+        
+        setTimeout(() => {
+          loading.style.display = "none";
+          content.style.display = "flex";
+          setTimeout(() => {
+            content.style.opacity = 1;
+          }, 250);
+          objects.forEach((el, i) => {
+            storecontent.appendChild(createStores(el));
+          });
+          
+          const stored = document.querySelectorAll(".store");
+        stored.forEach((el, i) => {
+            el.addEventListener("click", async () => {
+                try {
+                    const request = await fetch('/store/page', {
+                    method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
-                body: JSON.stringify({
-                    also: "Also"
-                })})
-                if (req.ok){
-                    const data = await req.json();
-                    const objects = data.return
-                    loading.style.opacity = 0;
-                    setTimeout(() => {
-                        loading.style.display = 'none';
-                        content.style.display = 'flex';
-                        setTimeout(() => {
-                            content.style.opacity = 1;
-                        }, 250);
-                        objects.forEach(el => {
-                        storecontent.appendChild(createStores(el))
-                    });
-                    }, 750)
-                    
-                    
-                    
-                }else{
-                    console.log('Algo deu errado', req.status)
+                    body: JSON.stringify({
+                        storeName: storeNames[i]
+                    })
+                });
+                if (request.ok){
+                    const response = await request.json();
+                    console.log('Success:', response);
+                    const redirect = response.redirect;
+                    window.location.href = redirect;
+                } else {
+                    console.log('Algo deu errado', request.status);
                 }
-            })
-    
-</script>
+                } catch (error) {
+                   console.log('Error:', error); 
+                }
+            });
+        })
+        }, 750);
+        
+      } else {
+        console.log("Algo deu errado", req.status);
+      }
+    });
+  </script>
 </html>

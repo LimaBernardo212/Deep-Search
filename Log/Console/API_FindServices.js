@@ -53,19 +53,7 @@ app.get('/api/me', tokenVerify, async (req, res) => {
         return res.json({ id: req.userId, email: req.userEmail, name: req.userName, isStore: req.userIsStore });
     }
 })
-async function extrairServiços(req, res) {
-    try {
-        const service = await ServicesCad.find().lean();
-        if (!service || service.length === 0) {
-            return res.status(404).json({ message: "Nenhum serviço encontrado" });
-        }else{
-            return res.json(service);
-        }
-    } catch (error) {
-        return res.status(500).json({ message: "Erro ao buscar serviços", error: error.message });
-    }
-}
-app.get('/api/services', tokenVerify, extrairServiços);
+
 async function connect(){
     try {
         await mongoose.connect(process.env.MONGO_URI);

@@ -29,7 +29,7 @@
     </template>
 
     <script>
-        const API_BASE = 'http://localhost:1202';
+        const API_BASE = 'http://localhost:3000';
 
         function toArrayMaybe(x) {
             if (Array.isArray(x)) return x;
@@ -49,27 +49,12 @@
             return String(value);
         }
 
-        function buildImageSrc(doc, idx) {
-            const p = doc.serviceImagePath;
-            if (!p) return '';
-            let chosen = '';
-            if (Array.isArray(p)) {
-                chosen = p[idx] ?? p[0] ?? '';
-            } else if (typeof p === 'string') {
-                chosen = p;
-            }
-            if (!chosen) return '';
-            const isAbsolute = /^(https?:)?\/\//i.test(chosen);
-            if (isAbsolute) return chosen;
-            // Se começar com '/', prefixa com API_BASE; senão assume que é relativo a /uploads/services/
-            if (chosen.startsWith('/')) return API_BASE + chosen;
-            return API_BASE + '/uploads/services/' + chosen;
-        }
+        
 
         async function pushServices(){
             try {
-                const res = await fetch(API_BASE + '/api/services', {
-                    method: 'GET',
+                const res = await fetch('/api/services', {
+                    method: 'POST',
                     headers: { 'Accept': 'application/json' },
                     credentials: 'include'
                 });
