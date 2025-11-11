@@ -1,65 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Log : Home</title>
-    <link rel="stylesheet" href="/style/style.css">
-    <link rel="shortcut icon" href="/favicons/favicon-32x32.png" type="image/x-icon">
-</head>
-<script>
-    
-    
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <script>
     document.addEventListener("DOMContentLoaded", async () => {
-        const body = document.querySelector('body')
-        function render(el) {
-       const element = document.createElement("div");
-       element.classList.add("all");
-       element.innerHTML = el;
+      const body = document.querySelector("body");
+      function render(el) {
+        const element = document.createElement("div");
+        element.classList.add("all");
+        element.innerHTML = el;
         return element;
-    }
-        const url = window.location.pathname;
-        try {
-            const request = await fetch(`/api${url}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            }
+      }
+      const url = window.location.pathname;
+      try {
+        const request = await fetch(`/api${url}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
         });
-        if(request.ok){
-            const data = await request.json();
-            const html = data.htmlPage;
-            const name = data.StoreName;
-            document.title = name;
-            console.log(data.htmlPage + "|||||||||||||||||||||||||||||" + data.returner)
-            body.appendChild(render(html))
-        }
-        } catch (error) {
-            console.log('Error')
-        }
-    //     const API_BASE = 'http://localhost:3000';
-    //     function buildImageSrc(doc, idx) {
-    //         const p = doc.serviceImagePath;
-    //         if (!p) return '';
-    //         let chosen = '';
-    //         if (Array.isArray(p)) {
-    //             chosen = p[idx] ?? p[0] ?? '';
-    //         } else if (typeof p === 'string') {
-    //             chosen = p;
-    //         }
-    //         if (!chosen) return '';
-    //         const isAbsolute = /^(https?:)?\/\//i.test(chosen);
-    //         if (isAbsolute) return chosen;
-    //         // Se começar com '/', prefixa com API_BASE; senão assume que é relativo a /uploads/services/
-    //         if (chosen.startsWith('/')) return API_BASE + chosen;
-    //         return API_BASE + '/uploads/services/' + chosen;
-    //     }
-     });
+        if (request.ok) {
+          const data = await request.json();
+          const html = data.htmlPage;
+          const name = data.StoreName;
+          document.title = name;
+          console.log(
+            data.htmlPage + "|||||||||||||||||||||||||||||" + data.returner
+          );
+          body.appendChild(render(html));
+           document.querySelector('#back').addEventListener('click', () => {
+            window.history.back();
+        });
+          
 
-</script>
-<body>
+        }
+      } catch (error) {
+        console.log("Error");
+      }
+    });
+  </script>
+  <body>
     <!--<div id="loading"></div>-->
-    
-    
-</body>
+  </body>
 </html>

@@ -1113,7 +1113,7 @@ main.infoContent {
     font-family: var(--fontRoboto);
 }
 #storeDescription{
-    max-width: 65vw;
+    max-width: 60vw;
     font-size: 0.7em;
     font-family: var(--fontIBM);
 }
@@ -1168,4 +1168,181 @@ main.infoContent {
     position: absolute;
     font-family: var(--fontRoboto);
     font-size: 0.9em;
+}
+
+/*Base template*/
+.nbToStore{
+  display: none;
+}
+.all-stores-info{
+  width: 100vw;
+  min-height: 80vh;
+  background-image: linear-gradient(to bottom, var(--cor04), var(--cor06));
+  display: flex;
+  flex-direction: column;
+  
+}
+.storeGrandSect{
+  margin: 8vh 2.5vw 0 1.5vw;
+  width: 96vw;
+  height: 65vh;
+  display: flex;
+  align-items: center;
+  background-color: var(--cor06);
+  border-radius: 20px;
+  box-shadow: 2px 2px 50px var(--cor06);
+  transition: 0.7s all;
+}
+.storeGrandSect:hover{
+  transform: translate(-3px,-3px);
+  box-shadow: 2px 10px 50px var(--cor06);
+}
+.storeData{
+  display: flex;
+  align-items: center;
+  height: 70vh;
+}
+.imgData img{
+  width: 15vw;
+  height: 15vw;
+  border-radius: 50%;
+}
+.imgData{
+  margin-left: 10vw;
+}
+.infoData{
+  margin-left: 5vw;
+}
+.infoData h1{
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  margin-bottom: 2vh;
+}
+.infoData p{
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  line-height: 1.2em;
+  max-width: 55vw;
+  margin-bottom: 2vh;
+}
+.hours{
+  display: flex;
+  align-items: center;
+  margin-bottom: 2vh;
+  transition: 0.7s all;
+}
+.openAt{
+  color: var(--cor08);
+  font-family: var(--fontJetBrains);
+  font-size: 0.9em;
+  margin-left: 1vw;
+}
+.theHourLine{
+  width: 5vw;
+  height: 1px;
+  margin: 0 1vw;
+  background-image: linear-gradient(to right, var(--cor09), var(--cor12));
+}
+.closeAt{
+  color: var(--cor11);
+  font-family: var(--fontJetBrains);
+  font-size: 0.9em;
+}
+.placeholder{
+  font-size: 0.8em;
+  margin-left: 1vw;
+ 
+}
+.functionDays{/*!functionDays*/
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  margin-left: 3vw;
+  display: flex;
+  align-items: center;
+  height: 3vh;
+}
+.until{
+  
+  margin-left: 1vw;
+  font-family: var(--fontSpace);
+  color: var(--cor12);
+  font-size: 0.8em;
+  transition: 0.7s all;
+}
+.storeData button {
+  width: 14vw;
+  height: 6vh;
+  margin-left: 0.5vw;
+  margin-top: 2vh;
+  background-color: var(--cor08);
+  border: 2px solid var(--cor00);
+  font-family: var(--fontRoboto);
+  color: var(--fullWhite);
+  font-weight: bold;
+  border-radius: 5px;
+  transition: 0.9s all;
+}
+.storeData button:hover {
+  background-color: var(--cor00);
+  border: 2px solid var(--cor09);
+  color: var(--cor09);
+}
+
+.Service img{
+  width: 7vw;
+  height: 7vw;
+}
+.Service{
+  width: 25vw;
+  background-color: var(--cor00);
+  border: 1px solid var(--cor01Esvoaçada);
+  height: 60vh;
+  border-radius: 20px;
+  margin: 2vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  transition: 0.7s all;
+}
+.imageService{
+  margin-top: 0vh;
+}
+.servicesInfos{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 24vw;
+  margin-bottom: 2.5vh;
+}
+.servicesInfos h1{
+  color: var(--cor05);
+  margin: 2vh auto;
+  font-family: var(--fontRoboto);
+}
+.servicesInfos p{
+  font-size: 0.9em;
+  font-family: var(--fontRoboto);
+  color: var(--cor05);
+  max-width: 17vw;
+  margin-bottom: 2vh;
+  text-align: justify;
+}
+.servicesInfos h2{
+  color: var(--cor08);
+  font-family: var(--fontSpace);
+}
+.services-content{
+  display: flex;
+  margin-top: 15vh;
+  justify-content: center;
+}
+.Service:hover{
+  background-color: var(--cor03);
+  transform: translate(-3px, -3px);
+}
+
+.more img{
+  width: 32px;
+  height: 32px;
 }

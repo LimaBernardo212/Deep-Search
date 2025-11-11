@@ -133,7 +133,7 @@
                     
                     if (result.msg === 'Sucesss' || result.msg === 'SUPER SUCESS') {
                         console.log('SUCESS')
-                        window.location.href = '/verifyItsNewUser'
+                        window.location.href = '/api/login/authGoogle'
                     } else {
                         //alert('Erro: ' + (result.msg || 'Erro desconhecido'));
                     }
@@ -186,24 +186,24 @@
             e.forEach((el) => {
                 if (el.isIntersecting){
                     setTimeout(() => {
-                        el.target.classList.add('UpperActiveText');
-                    }, 250);
+                        el.target.style.opacity = 1;
+                    }, 0);
                     setTimeout(() => {
-                        email.classList.add('UpperActiveText')
-                    }, 500);
+                        email.style.opacity = 1
+                    }, 0);
                     setTimeout(() => {
-                        passw.classList.add('UpperActiveImg')
-                        pass.classList.add('UpperActiveImg')
-                    }, 750);
+                        passw.style.opacity = 1
+                        pass.style.opacity = 1
+                    }, 0);
                     setTimeout(() => {
-                        SubmitButton.classList.add('UpperActiveImg')
-                    }, 1000);
+                        SubmitButton.style.opacity = 1
+                    }, 0);
                     setTimeout(() => {
-                        googleButton.classList.add('UpperActiveText')
-                    }, 1250);
+                        googleButton.style.opacity = 1
+                    }, 0);
                     setTimeout(() => {
-                        emailButton.classList.add('UpperActiveImg')
-                    }, 1750);
+                        emailButton.style.opacity = 1;
+                    }, 0);
                 }
             })
         })

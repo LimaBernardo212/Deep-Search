@@ -259,27 +259,30 @@ async function createPostRoute(storeName) {
       const servicesData = await ServicesCad.find({
         storeName: storeName,
       }).lean();
-      if (!servicesData || servicesData.length == 0) {
-        return res.status(404).json({ error: "Services not found" });
-      }
+      //if (!servicesData || servicesData.length == 0) {
+      //return res.status(404).json({ error: "Services not found" });
+      //}
       let htmlArray = [];
       let count = 0;
+      const imgPath = storeData.storeImagePath;
       for (let i = 0; i < servicesData.length; i++) {
         const servicesDoc = servicesData[i];
         const names = servicesDoc.serviceName;
         const desc = servicesDoc.serviceDesc;
         const prices = servicesDoc.servicePrice;
+        const imgPath2 = servicesDoc.serviceImagePath;
 
         for (let j = 0; j < names.length; j++) {
           let structure = `
                 <div class="Service">
-            <img src="" alt="">
-            <h1>${names[j]}</h1>
-            <p>${desc[j]}</p>
-            <h2>${prices[j]}</h2>
-            <button>
-                Agendar Agora
-            </button>
+                
+            <div class="imageService"><img src="${imgPath2[j]}" alt=""></div>
+            <div class="servicesInfos">
+              <h1>${names[j]}</h1>
+              <p>${desc[j]}</p>
+              <h2>${prices[j]}</h2>
+            </div>
+            
         </div>`;
           count++;
           htmlArray.push(structure);
@@ -288,22 +291,36 @@ async function createPostRoute(storeName) {
 
       let servicesReturner = htmlArray.join("");
       let returnS = servicesReturner + "</section>";
-      let htmlBasePageModel3 = `<section class="storeGrandSect">
-        <img src="/img/().png" alt="">
-        <h1>${storeName}</h1>
-        <p>${storeData.description}</p>
-        <div class="openAt">${storeData.openHours}</div>
-        <div class="closeAt">${storeData.closedHours}</div>
-        <div class="functionDays">${storeData.closedDays}</div>
-        <button>
-            Agende agora
+      let htmlBasePageModel3 = `<header class="nb">
+        <button class="nButton" id="back">
+            <img src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF" alt="">
         </button>
+    </header>
+    <div class="nbToStore"></div>
+    <section class="all-stores-info">
+      <section class="storeGrandSect">
+          <div class="storeData">
+            <div class="imgData"><img src="${imgPath}" alt=""></div>
+            <div class="infoData">
+              <h1>${storeName}</h1>
+              <p><strong class="consoleWrite">>_</strong>${storeData.description}</p>
+              <div class="hours">
+                <div class="openAt">${storeData.openHours}</div>
+                <div class="theHourLine"></div>
+                <div class="closeAt">${storeData.closedHours}</div>
+              
+              <div class="functionDays"><div class="placeholder">Closed on days:</div><div class="until">${storeData.closedDays}</div></div>
+              </div>
+              
+            </div>
+          </div>
+          
+      </section>
+      <!--SOMOS DIFERENTES DIVS-->
+      <section class="services-content">
+      ${returnS}
+      
     </section>
-    <!--SOMOS DIFERENTES DIVS-->
-    <section class="services-content">
-    ${returnS}
-    ${servicesData}
-    
         `;
       return res.status(200).json({
         htmlPage: htmlBasePageModel3,
@@ -356,14 +373,15 @@ async function saveBufferToDisk(buffer, ext = "webp", type = "service") {
   const fileName = `${Date.now()}-${Math.random()
     .toString(36)
     .slice(2)}.${ext}`;
-  
+
   // ✅ Escolher diretório baseado no tipo
-  const uploadDir = type === "store" ? STORES_UPLOADS_DIR : SERVICES_UPLOADS_DIR;
+  const uploadDir =
+    type === "store" ? STORES_UPLOADS_DIR : SERVICES_UPLOADS_DIR;
   const urlPath = type === "store" ? "stores" : "services";
-  
+
   const filePath = path.join(uploadDir, fileName);
   await fs.writeFile(filePath, buffer);
-  
+
   return {
     fileName,
     absPath: filePath,
@@ -453,19 +471,18 @@ app.post("/api/login/authGoogle", async (req, res) => {
 
     console.log("📝 Login Google recebido:", { name, email, sub });
 
-    let googleUsuario = await User.findOne({ Email: email });
+    let googleUsuario = await User.findOne({ nome: name, Email: email });
 
     if (googleUsuario) {
       googleUsuario.nome = name;
       googleUsuario.Email = email;
       googleUsuario.id = sub;
 
-      console.log("✅ Usuário Google atualizado:", googleUsuario._id);
-
       const googlePayload = {
         id: googleUsuario._id.toString(),
         nome: googleUsuario.nome,
         Email: googleUsuario.Email,
+        password: "Not shared",
         itsNew: false,
       };
 
@@ -497,6 +514,7 @@ app.post("/api/login/authGoogle", async (req, res) => {
         id: newGoogleUser._id.toString(),
         name: newGoogleUser.nome,
         email: newGoogleUser.Email,
+        password: "Not shared",
         itsNew: true,
       };
 
@@ -659,7 +677,7 @@ app.post("/return/data", tokenVerify, async (req, res) => {
       const htmlStructure = `<div class="store">
                         <div class="juntos">
                             <div id="img">
-                                <img src="img/().png" alt="">
+                                <img src="${findAllStores[counter].storeImagePath}" alt="">
                             </div>
                             <div id="storeinfos">
                                 <p id="storename"><strong class="GreenCard">&lt;/</strong>${findAllStores[counter].storeName}<strong class="GreenCard">/></strong></p>
@@ -689,15 +707,18 @@ app.post("/return/data", tokenVerify, async (req, res) => {
 app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
   try {
     await ensureUploadsDir();
-    
+
     console.log("Body keys:", Object.keys(req.body));
-    console.log("Files:", (req.files || []).map((f, idx) => ({
-      idx,
-      fieldname: f.fieldname,
-      originalname: f.originalname,
-      mimetype: f.mimetype,
-      size: f.size,
-    })));
+    console.log(
+      "Files:",
+      (req.files || []).map((f, idx) => ({
+        idx,
+        fieldname: f.fieldname,
+        originalname: f.originalname,
+        mimetype: f.mimetype,
+        size: f.size,
+      }))
+    );
 
     const { id, name, email } = req.user;
     const {
@@ -714,27 +735,27 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
 
     // Validação básica
     if (!storeName || !address || !cnpj || !phone || !storeEmail) {
-      return res.status(400).json({ 
-        error: "Campos obrigatórios faltando" 
+      return res.status(400).json({
+        error: "Campos obrigatórios faltando",
       });
     }
 
     // Verificar duplicação
     const existingStore = await StoreCad.findOne({ storeName });
     if (existingStore) {
-      return res.status(400).json({ 
-        error: "Já existe uma loja com este nome" 
+      return res.status(400).json({
+        error: "Já existe uma loja com este nome",
       });
     }
 
     // ✅ Processar imagem da loja
     let imageInfo = null;
     const storeImageFile = (req.files || []).find(
-      f => f.fieldname === 'storeImage'
+      (f) => f.fieldname === "storeImage"
     );
-    
+
     console.log("📸 Arquivo de imagem encontrado:", !!storeImageFile);
-    
+
     if (storeImageFile?.buffer) {
       try {
         const processed = await processImageToWebp(storeImageFile.buffer, {
@@ -744,8 +765,12 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
         });
 
         // ✅ PASSAR "store" COMO TERCEIRO PARÂMETRO
-        const saved = await saveBufferToDisk(processed.buffer, processed.format, "store");
-        
+        const saved = await saveBufferToDisk(
+          processed.buffer,
+          processed.format,
+          "store"
+        );
+
         imageInfo = {
           storage: "disk",
           path: saved.relPath,
@@ -786,27 +811,26 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
     console.log("✅ Loja cadastrada:", newStore._id);
     console.log("📁 Imagem salva em:", imageInfo?.path || "sem imagem");
 
-    return res.status(201).json({ 
+    return res.status(201).json({
       message: "Loja cadastrada com sucesso!",
       storeId: newStore._id,
       storeName: newStore.storeName,
       hasImage: !!imageInfo,
-      imagePath: imageInfo?.path || null
+      imagePath: imageInfo?.path || null,
     });
-    
   } catch (error) {
     console.error("❌ Erro ao cadastrar loja:", error);
-    
+
     if (error.code === 11000) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: "Loja com dados duplicados",
-        details: error.message 
+        details: error.message,
       });
     }
-    
-    return res.status(500).json({ 
+
+    return res.status(500).json({
       error: "Erro ao cadastrar loja",
-      details: error.message 
+      details: error.message,
     });
   }
 });
@@ -842,11 +866,16 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
 
     const { name, email } = req.user;
 
-    const findStore = await StoreCad.findOne({ name, email }).lean();
+    const findStore = await StoreCad.findOne({ email: email });
     if (!findStore) {
+      console.log(name, email);
       return res
         .status(400)
-        .json({ message: "Loja não encontrada para o usuário autenticado" });
+        .json({
+          message: "Loja não encontrada para o usuário autenticado",
+          name: name,
+          email: email,
+        });
     }
 
     const toArray = (v) => (Array.isArray(v) ? v : v !== undefined ? [v] : []);
@@ -869,7 +898,7 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
         serviceDescs.length,
         servicePricesRaw.length
       ) || 0;
-      
+
     if (
       total === 0 &&
       !serviceNames.length &&
@@ -883,13 +912,15 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
     let fileCursor = 0;
     let fileUsedIndex = null;
     let file = null;
-
-    if (fileCursor < files.length) {
-      file = files[fileCursor];
-    }
-
+    const imagePaths = [];
+    const imageMeta = [];
     let imageInfo = null;
-    if (file?.buffer) {
+
+    for (let i = 0; i < files.length; i++) {
+      if (fileCursor < files.length) {
+        file = files[fileCursor];
+      }
+
       try {
         const processed = await processImageToWebp(file.buffer, {
           maxWidth: 1024,
@@ -899,7 +930,8 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
 
         const saved = await saveBufferToDisk(
           processed.buffer,
-          processed.format
+          processed.format,
+          "service"
         );
         imageInfo = {
           storage: "disk",
@@ -910,14 +942,11 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
           height: processed.height,
           sizeBytes: processed.sizeBytes,
         };
-
-        fileUsedIndex = fileCursor;
-        fileCursor++;
+        fileCursor++
+        imagePaths.push(saved.relPath);
+        imageMeta.push(imageInfo);
       } catch (imgErr) {
-        console.warn(
-          "Falha ao processar imagem do serviço:",
-          imgErr.message
-        ); // ERRO: removido "i" que não existe
+        console.warn("Falha ao processar imagem do serviço:", imgErr.message); // ERRO: removido "i" que não existe
         fileCursor++;
       }
     }
@@ -931,10 +960,9 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
       serviceName: serviceNames,
       serviceDesc: serviceDescs,
       servicePrice: servicePricesRaw,
-      serviceImagePath: imageInfo?.path ?? null,
-      serviceImageMeta: imageInfo ?? null,
+      serviceImagePath: imagePaths ?? null,
+      serviceImageMeta: imageMeta ?? null,
     });
-
     created.push({
       ...newService.toObject(),
       _debugFileUsedIndex: fileUsedIndex,
@@ -961,6 +989,16 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
       error: error.message,
     });
   }
+});
+app.get("/debuger", tokenVerify, async (req, res) => {
+  try {
+    const { name, email } = req.user;
+    const debug_base = await StoreCad.findOne({ email: email });
+    if (!debug_base) {
+      return res.status(500).json({ er: "ERRROR", nome: name, Email: email });
+    }
+    return res.status(200).json({ s: "Sucess" });
+  } catch (error) {}
 });
 // Iniciar servidor
 app.listen(PORT, () => {
