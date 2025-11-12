@@ -11,6 +11,11 @@
       type="image/x-icon"
     />
   </head>
+  <style>
+    body{
+      background-image: linear-gradient(to bottom, #0d0d0d, #0d0d0d, #0d0d0d,#042326);
+    }
+  </style>
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
       const body = document.querySelector("body");
@@ -32,11 +37,62 @@
           const data = await request.json();
           const html = data.htmlPage;
           const name = data.StoreName;
+          const service = data.serviceName;
+          console.log(service)
+          let simpleArray = [];
           document.title = name;
           console.log(
             data.htmlPage + "|||||||||||||||||||||||||||||" + data.returner
           );
-          body.appendChild(render(html));
+          
+            body.appendChild(render(html));
+            const servicesDiv = document.querySelectorAll('.Service');
+            const selected = document.querySelector('.selectedIndicator');
+            const button = document.querySelector('.selectedIndicator button')
+            servicesDiv.forEach((el, i) => {
+              
+                el.addEventListener('click', () => {
+                  el.classList.toggle('servicesSelected');
+                  if (simpleArray.includes(service[i])){
+                    let index = simpleArray.indexOf(service[i]);
+                    if (index > -1){
+                      let removeElements = simpleArray.slice(index,1)
+                      console.log(removeElements[0] + 'Suceful')
+                    }
+                  }else{
+                    simpleArray.push(service[i])
+                  }
+                  
+                  if (service.length != 0){
+                    selected.style.opacity = '1'
+                  }else{
+                    selected.style.opacity = '0'
+                    
+                  }
+                  
+                })
+                
+            })
+            button.addEventListener('click', async () => {
+                const req = await fetch('/api/selected', {
+                    method: 'POST',
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      services: simpleArray
+                    })
+                  })
+                  if (req.ok){
+                    const data = await req.json();
+                  const servicesname = data.returner;
+                  const array = data.array;
+                  const returnStoreName = JSON.stringify(servicesname);
+                  const arrayRtn = JSON.stringify(array)
+                  console.log(`Deu tudo certo, ${returnStoreName}, ${arrayRtn}`)
+                  }
+                  
+            })
            document.querySelector('#back').addEventListener('click', () => {
             window.history.back();
         });
@@ -49,6 +105,6 @@
     });
   </script>
   <body>
-    <!--<div id="loading"></div>-->
+    
   </body>
 </html>

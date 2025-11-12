@@ -259,11 +259,12 @@ async function createPostRoute(storeName) {
       const servicesData = await ServicesCad.find({
         storeName: storeName,
       }).lean();
-      //if (!servicesData || servicesData.length == 0) {
-      //return res.status(404).json({ error: "Services not found" });
-      //}
+      if (!servicesData || servicesData.length == 0) {
+        return res.status(404).json({ error: "Services not found" });
+      }
       let htmlArray = [];
       let count = 0;
+      const serviceName = servicesData.map(doc => doc.serviceName).flat()
       const imgPath = storeData.storeImagePath;
       for (let i = 0; i < servicesData.length; i++) {
         const servicesDoc = servicesData[i];
@@ -282,7 +283,11 @@ async function createPostRoute(storeName) {
               <p>${desc[j]}</p>
               <h2>${prices[j]}</h2>
             </div>
-            
+            <div class="scheduleButton">
+              <button class="scheduleBtn">
+                Schedule now
+              </button>
+                   </div>
         </div>`;
           count++;
           htmlArray.push(structure);
@@ -311,7 +316,7 @@ async function createPostRoute(storeName) {
               
               <div class="functionDays"><div class="placeholder">Closed on days:</div><div class="until">${storeData.closedDays}</div></div>
               </div>
-              
+              <button class="servicesBtn">Chat with us</button>
             </div>
           </div>
           
@@ -321,12 +326,14 @@ async function createPostRoute(storeName) {
       ${returnS}
       
     </section>
+    <footer class="selectedIndicator"><button>Next<strong class="consoleWrite"> >></strong></button></footer>
         `;
       return res.status(200).json({
         htmlPage: htmlBasePageModel3,
         services: servicesData,
         store: storeData,
         StoreName: storeName,
+        serviceName: serviceName,
         returner: returnS,
       });
     } catch (error) {
@@ -869,13 +876,11 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
     const findStore = await StoreCad.findOne({ email: email });
     if (!findStore) {
       console.log(name, email);
-      return res
-        .status(400)
-        .json({
-          message: "Loja não encontrada para o usuário autenticado",
-          name: name,
-          email: email,
-        });
+      return res.status(400).json({
+        message: "Loja não encontrada para o usuário autenticado",
+        name: name,
+        email: email,
+      });
     }
 
     const toArray = (v) => (Array.isArray(v) ? v : v !== undefined ? [v] : []);
@@ -942,7 +947,7 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
           height: processed.height,
           sizeBytes: processed.sizeBytes,
         };
-        fileCursor++
+        fileCursor++;
         imagePaths.push(saved.relPath);
         imageMeta.push(imageInfo);
       } catch (imgErr) {
@@ -990,6 +995,21 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
     });
   }
 });
+app.post("/api/selected", tokenVerify, (req, res) => {
+    const {services} = req.body;
+    let isArray = Array.isArray(services);
+    if (!isArray){
+      const notArrayStructure = `<div>${services}</div>`;
+      return res.json({returner: services, array: notArrayStructure})
+    }else{
+      for (let i = 0; i < array.length; i++) {
+        const element = array[i];
+        
+      }
+      return res.json({returner: services, array: arrayStructure})
+    }
+    
+})
 app.get("/debuger", tokenVerify, async (req, res) => {
   try {
     const { name, email } = req.user;

@@ -1185,7 +1185,7 @@ main.infoContent {
 .storeGrandSect{
   margin: 8vh 2.5vw 0 1.5vw;
   width: 96vw;
-  height: 65vh;
+  height: 75vh;
   display: flex;
   align-items: center;
   background-color: var(--cor06);
@@ -1273,7 +1273,7 @@ main.infoContent {
   width: 14vw;
   height: 6vh;
   margin-left: 0.5vw;
-  margin-top: 2vh;
+  margin-top: 3vh;
   background-color: var(--cor08);
   border: 2px solid var(--cor00);
   font-family: var(--fontRoboto);
@@ -1334,7 +1334,7 @@ main.infoContent {
 }
 .services-content{
   display: flex;
-  margin-top: 15vh;
+  margin-top: 5vh;
   justify-content: center;
 }
 .Service:hover{
@@ -1345,4 +1345,60 @@ main.infoContent {
 .more img{
   width: 32px;
   height: 32px;
+}
+.scheduleBtn{
+  width: 10vw;
+  border: 1px solid var(--cor01Esvoaçada);
+  border-radius: 5px;
+  height: 5vh;
+  background-color: var(--cor00);
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  transition: 0.7s all;
+}
+.scheduleBtn:hover{
+  background-color: var(--cor04);
+  transform: translate(-3px, -3px);
+}
+.servicesSelected{
+  border: 2px solid var(--cor08);
+  transform: translateY(-3px);
+  box-shadow: 0px 0px 10px var(--cor07);
+}
+.servicesSelected:hover{
+  background-color: var(--cor00);
+  
+  transform: translate(-5px, -5px);
+}
+.selectedIndicator{
+  opacity: 0;
+  position: sticky;
+  bottom: 5vh;
+  left: 84vw;
+  width: 10vw;
+  transition: 0.7s all;
+}
+.selectedIndicator button{
+  width: 10vw;
+  height: 6vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--cor03);
+  border: 1px solid var(--cor01Esvoaçada);
+  border-radius: 5px;
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  transition: 0.7s all;
+}
+.selectedIndicator .consoleWrite{
+  transition: 0.7s all;
+  margin-left: 6px;
+  font-family: var(--fontJetBrains);
+}
+.selectedIndicator button:hover{
+  background-color: var(--cor00);
+}
+.selectedIndicator button:hover .consoleWrite{
+  transform: translate(3px, 0);
 }
