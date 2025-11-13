@@ -15,6 +15,9 @@ import ServicesCad from "./ServiceCadSchema.js";
 import multer from "multer";
 import sharp from "sharp";
 import fs from "fs/promises";
+import HoursStorage from "./HourSchema.js";
+import { count } from "console";
+import HourSchema from "./HourSchema.js";
 
 dotenv.config();
 
@@ -250,21 +253,23 @@ async function createPostRoute(storeName) {
     res.sendFile(path.join(__dirname, "public", "base.html"));
   });
   app.get(`/api/store/${storeName}`, async (req, res) => {
+    const realStoreName = storeName.replaceAll("_", "/");
+    const trueName = realStoreName.replaceAll("/", " ");
     try {
-      const storeData = await StoreCad.findOne({ storeName: storeName });
+      const storeData = await StoreCad.findOne({ storeName: realStoreName });
       if (!storeData) {
         return res.status(404).json({ error: "Not found" });
       }
 
       const servicesData = await ServicesCad.find({
-        storeName: storeName,
+        storeName: realStoreName,
       }).lean();
       if (!servicesData || servicesData.length == 0) {
         return res.status(404).json({ error: "Services not found" });
       }
       let htmlArray = [];
       let count = 0;
-      const serviceName = servicesData.map(doc => doc.serviceName).flat()
+      const serviceName = servicesData.map((doc) => doc.serviceName).flat();
       const imgPath = storeData.storeImagePath;
       for (let i = 0; i < servicesData.length; i++) {
         const servicesDoc = servicesData[i];
@@ -301,13 +306,13 @@ async function createPostRoute(storeName) {
             <img src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF" alt="">
         </button>
     </header>
-    <div class="nbToStore"></div>
+    
     <section class="all-stores-info">
       <section class="storeGrandSect">
           <div class="storeData">
             <div class="imgData"><img src="${imgPath}" alt=""></div>
             <div class="infoData">
-              <h1>${storeName}</h1>
+              <h1>${trueName}</h1>
               <p><strong class="consoleWrite">>_</strong>${storeData.description}</p>
               <div class="hours">
                 <div class="openAt">${storeData.openHours}</div>
@@ -326,13 +331,13 @@ async function createPostRoute(storeName) {
       ${returnS}
       
     </section>
-    <footer class="selectedIndicator"><button>Next<strong class="consoleWrite"> >></strong></button></footer>
+    <footer class="selectedIndicator"><span class="counter">Selected services: </span><button>Next<strong class="consoleWrite"> >></strong></button></footer>
         `;
       return res.status(200).json({
         htmlPage: htmlBasePageModel3,
         services: servicesData,
         store: storeData,
-        StoreName: storeName,
+        StoreName: trueName,
         serviceName: serviceName,
         returner: returnS,
       });
@@ -684,11 +689,20 @@ app.post("/return/data", tokenVerify, async (req, res) => {
       const htmlStructure = `<div class="store">
                         <div class="juntos">
                             <div id="img">
-                                <img src="${findAllStores[counter].storeImagePath}" alt="">
+                                <img src="${
+                                  findAllStores[counter].storeImagePath
+                                }" alt="">
                             </div>
                             <div id="storeinfos">
-                                <p id="storename"><strong class="GreenCard">&lt;/</strong>${findAllStores[counter].storeName}<strong class="GreenCard">/></strong></p>
-                                <p id="storeDescription">${findAllStores[counter].description}</p>
+                                <p id="storename"><strong class="GreenCard">&lt;/</strong>${findAllStores[
+                                  counter
+                                ].storeName.replaceAll(
+                                  "/",
+                                  " "
+                                )}<strong class="GreenCard">/></strong></p>
+                                <p id="storeDescription">${
+                                  findAllStores[counter].description
+                                }</p>
                             </div>
                         </div>
                         <div id="moreinfos">
@@ -738,15 +752,18 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
       closedHours,
       closedDays,
       openHours,
+      functionary1,
+      functionary2,
+      functionary3,
     } = req.body;
-
+    const functionarys = [functionary1, functionary2, functionary3];
     // Validação básica
     if (!storeName || !address || !cnpj || !phone || !storeEmail) {
       return res.status(400).json({
         error: "Campos obrigatórios faltando",
       });
     }
-
+    const storeNamer = storeName.replaceAll(" ", "/");
     // Verificar duplicação
     const existingStore = await StoreCad.findOne({ storeName });
     if (existingStore) {
@@ -806,11 +823,12 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
       closedDays: closedDays || "",
       openHours: openHours || "",
       model: 0,
-      storeName: storeName,
+      storeName: storeNamer,
       address: address,
       cnpj: cnpj,
       phone: phone,
       storeEmail: storeEmail,
+      functionary: functionarys,
       storeImagePath: imageInfo?.path ?? null,
       storeImageMeta: imageInfo ?? null,
     });
@@ -843,12 +861,13 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
 });
 app.post("/store/page", async (req, res) => {
   const { storeName } = req.body;
+  const storeNamer = storeName.replaceAll("/", "_");
   try {
-    await createPostRoute(storeName);
+    await createPostRoute(storeNamer);
     return res.status(200).json({
       message: "Rota criada com sucesso!", // ERRO: "mensage" → "message"
-      redirect: `/store/${storeName}`,
-      redirectTwo: `/api/store/${storeName}`,
+      redirect: `/store/${storeNamer}`,
+      redirectTwo: `/api/store/${storeNamer}`,
     });
   } catch (error) {
     return res.status(500).json({ error: "Erro ao criar a rota." });
@@ -882,7 +901,7 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
         email: email,
       });
     }
-
+    const cadName = findStore.serviceName.replaceAll(" ", "/");
     const toArray = (v) => (Array.isArray(v) ? v : v !== undefined ? [v] : []);
 
     const serviceNames = toArray(
@@ -995,21 +1014,76 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
     });
   }
 });
-app.post("/api/selected", tokenVerify, (req, res) => {
-    const {services} = req.body;
-    let isArray = Array.isArray(services);
-    if (!isArray){
-      const notArrayStructure = `<div>${services}</div>`;
-      return res.json({returner: services, array: notArrayStructure})
-    }else{
-      for (let i = 0; i < array.length; i++) {
-        const element = array[i];
-        
-      }
-      return res.json({returner: services, array: arrayStructure})
+app.get("/stores/home", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "storecad.html"));
+});
+app.post("/api/selected", tokenVerify, async (req, res) => {
+  const { services, storeName } = req.body;
+  let servicesArray = [];
+
+  let counter = 0;
+  for (let i = 0; i < services.length; i++) {
+    const baseStructureOfServices = `<br><div>${services[counter]}</div>`;
+    counter++;
+    servicesArray.push(baseStructureOfServices);
+  }
+  console.log(storeName);
+  const cstoreName = storeName.replaceAll(" ", "/");
+  const findInDB = await StoreCad.findOne({ storeName: cstoreName }).lean();
+  if (!findInDB) {
+    return res
+      .status(404)
+      .json({
+        mensage: "ERRROR 404, store not found or error in my code, also :(",
+      });
+  }
+  const nameOfFunctionarys = findInDB.functionary;
+  let c = 0;
+  let functionarysArray = [];
+  for (let i = 0; i < nameOfFunctionarys.length; i++) {
+    const moreBase = `<br><div>${nameOfFunctionarys[c]}</div>`;
+    c++;
+    functionarysArray.push(moreBase);
+  }
+  const hours = await HoursStorage.findOne({ storeName: cstoreName }).lean();
+  if (!hours) {
+    return res
+      .status(404)
+      .json({ mensage: "ERROR 404, HOURS NOT FOUND (┬┬﹏┬┬)" });
+  }
+  const hoursTobeDiv = hours.hour;
+  let cc = 0;
+  let hoursArray = [];
+  for (let i = 0; i < hoursTobeDiv.length; i++) {
+    const outlierBase = `<br><div>${hoursTobeDiv[cc]}</div>`;
+    cc++;
+    hoursArray.push(outlierBase);
+  }
+  return res.json({
+    returner: services,
+    arrayServices: servicesArray,
+    name: storeName,
+    functionary: nameOfFunctionarys,
+    functionaryArray: functionarysArray,
+    hoursArray: hoursArray,
+  });
+});
+async function extrairHoras(req, res) {
+  try {
+    const hours = await HoursStorage.find().lean();
+    if (!hours || hours.length === 0) {
+      return res.status(404).json({ message: "Nenhum horário encontrado" });
+    } else {
+      return res.json(hours);
     }
-    
-})
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Erro ao buscar horários", error: error.message });
+  }
+}
+app.get("/api/hours", tokenVerify, extrairHoras);
+
 app.get("/debuger", tokenVerify, async (req, res) => {
   try {
     const { name, email } = req.user;
@@ -1020,6 +1094,61 @@ app.get("/debuger", tokenVerify, async (req, res) => {
     return res.status(200).json({ s: "Sucess" });
   } catch (error) {}
 });
+function isValidHour(h) {
+  return /^([01]\d|2[0-3]):[0-5]\d$/.test(h);
+}
+
+app.post("/horarioCad", tokenVerify, async (req, res) => {
+  try {
+    const { name, email } = req.user;
+    const { hideHour, hour, storeName } = req.body;
+    const realStoreName = storeName.replaceAll(" ", "/");
+    console.log(realStoreName);
+    const store = await StoreCad.findOne({ storeName: realStoreName }).lean();
+    if (!store) {
+      return res.status(404).json({ message: "Loja não encontrada" });
+    }
+
+    // hour pode ser string ou array
+    const raw = hour;
+    const hours = Array.isArray(raw) ? raw : raw ? [raw] : [];
+
+    // Normaliza, remove vazios, valida e deduplica
+    const normalized = hours.map((h) => String(h).trim()).filter(Boolean);
+    const invalid = normalized.filter((h) => !isValidHour(h));
+    if (invalid.length) {
+      return res
+        .status(400)
+        .json({ message: "Horário(s) inválido(s)", invalid });
+    }
+    const uniqueHours = [...new Set(normalized)];
+
+    // Salva como array no model HoursStorage
+    const created = await HoursStorage.create({
+      storeName: store.storeName,
+      storeEmail: store.storeEmail,
+      phone: store.phone,
+      hour: uniqueHours,
+    });
+
+    return res.status(201).json({
+      message: "Horários cadastrados com sucesso",
+      store: {
+        storeName: store.storeName,
+        storeEmail: store.storeEmail,
+        phone: store.phone,
+      },
+      hours: created.hour,
+      hideHour,
+      id: created._id,
+      createdAt: created.createdAt,
+    });
+  } catch (error) {
+    console.error("Erro em /horarioCad:", error);
+    return res.status(500).json({ message: "Erro no servidor" });
+  }
+});
+
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);

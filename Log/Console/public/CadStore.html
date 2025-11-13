@@ -10,16 +10,18 @@
     <h1>Cadastro da Loja</h1>
     <form id="storeForm" enctype="multipart/form-data">
   <!-- Campos de texto -->
-  <input type="text" name="storeName" id="storeName" required>
-  <input type="text" name="address" id="address" required>
-  <input type="text" name="cnpj" id="cnpj" required>
-  <input type="text" name="phone" id="phone" required>
-  <input type="email" name="storeEmail" id="storeEmail" required>
-  <textarea name="description" id="description"></textarea>
-  <input type="text" name="openHours" id="openHours">
-  <input type="text" name="closedHours" id="closedHours">
-  <input type="text" name="closedDays" id="closedDays">
-  
+  <input type="text" name="storeName" id="storeName" placeholder="Store name (e.g., Console Barber Shop)" required>
+<input type="text" name="address" id="address" placeholder="Full address (e.g., 123 Main St, City, State)" required>
+<input type="text" name="cnpj" id="cnpj" placeholder="CNPJ (e.g., 00.000.000/0000-00)" required>
+<input type="text" name="phone" id="phone" placeholder="Phone number (e.g., +55 31 99999-9999)" required>
+<input type="email" name="storeEmail" id="storeEmail" placeholder="Store email (e.g., contact@store.com)" required>
+<textarea name="description" id="description" placeholder="Brief description of your store and services offered..."></textarea>
+<input type="text" name="openHours" id="openHours" placeholder="Opening time (e.g., 08:00)">
+<input type="text" name="closedHours" id="closedHours" placeholder="Closing time (e.g., 18:00)">
+<input type="text" name="closedDays" id="closedDays" placeholder="Closed days (e.g., Sunday, Monday)">
+<input type="text" name="functionary1" id="functionarys" placeholder="Employee 1 name (optional)">
+<input type="text" name="functionary2" id="functionarys" placeholder="Employee 2 name (optional)">
+<input type="text" name="functionary3" id="functionarys" placeholder="Employee 3 name (optional)">
   <!-- Input de arquivo - NOME DEVE SER "storeImage" -->
   <input type="file" name="storeImage" id="storeImage" accept="image/*">
   

@@ -12,6 +12,7 @@ const StoreCadSchema = new mongoose.Schema({
     cnpj: String,
     phone: String,
     storeEmail: String,
+    functionary: Array,
     storeImagePath: {type: String, default: []},
     storeImageMeta: {type: [mongoose.Schema.Types.Mixed], default: []}
 })

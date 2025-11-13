@@ -1179,8 +1179,9 @@ main.infoContent {
   min-height: 80vh;
   background-image: linear-gradient(to bottom, var(--cor04), var(--cor06));
   display: flex;
+  background-repeat: none;
   flex-direction: column;
-  
+  margin-top: 0;
 }
 .storeGrandSect{
   margin: 8vh 2.5vw 0 1.5vw;
@@ -1335,6 +1336,9 @@ main.infoContent {
 .services-content{
   display: flex;
   margin-top: 5vh;
+  width: 100vw;
+  min-height: 60vh;
+  flex-wrap: wrap;
   justify-content: center;
 }
 .Service:hover{
@@ -1372,6 +1376,7 @@ main.infoContent {
 }
 .selectedIndicator{
   opacity: 0;
+  
   position: sticky;
   bottom: 5vh;
   left: 84vw;
@@ -1390,6 +1395,7 @@ main.infoContent {
   color: var(--cor05);
   font-family: var(--fontRoboto);
   transition: 0.7s all;
+  margin-top: 1vh;
 }
 .selectedIndicator .consoleWrite{
   transition: 0.7s all;
@@ -1401,4 +1407,27 @@ main.infoContent {
 }
 .selectedIndicator button:hover .consoleWrite{
   transform: translate(3px, 0);
+}
+.counter{
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  font-size: 0.8em;
+}
+.itenSelected{
+  width: 44px;
+  height: 44px;
+  background-color: var(--cor04);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.itenSelected:hover{
+  transform: translate(-1px, -1px);
+}
+.content{
+  width: 94vw;
+  min-height: 92vh;
+  display: flex;
+  background-image: linear-gradient(to bottom, var(--cor04), var(--cor06));
 }
