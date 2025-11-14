@@ -339,7 +339,8 @@ async function createPostRoute(storeName) {
         store: storeData,
         StoreName: trueName,
         serviceName: serviceName,
-        returner: returnS,
+        closedDays: storeData.closedDays,
+        returner: returnS
       });
     } catch (error) {
       return res.status(500).json({ error: "Server error" });
@@ -1085,15 +1086,65 @@ app.post("/api/selected", tokenVerify, async (req, res) => {
     <div class="renderedHours">${hoursJoin}</div>
     
   </section>
-  <footer class="selectedIndicatorA"  id="finished"><button>Finish<strong class="consoleWrite"> >></strong></button></footer>`;
+  <footer class="selectedIndicatorA"  id="finished"><button>Next<strong class="consoleWrite"> >></strong></button></footer>`;
 
   return res.json({
     returner: services,
     name: storeName,
     code: code,
     functionarysName: nameOfFunctionarys,
-    hours: hoursTobeDiv
+    hours: hoursTobeDiv,
   });
+});
+app.get("/render/days", tokenVerify, (req, res) => {
+  const now = new Date();
+  const calendar = [];
+  let data = null;
+  const weekDays = [
+    "Domingo",
+    "Segunda",
+    "Terça",
+    "Quarta",
+    "Quinta",
+    "Sexta",
+    "Sabado"
+  ];
+  const months = [
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+  ];
+  
+  for (let i = 0; i < 30; i++) {
+   data = new Date(now);
+    data.setDate(now.getDate() + i);
+    calendar.push({
+      nomeDia: weekDays[data.getDay()],
+      dia: data.getDate(),
+      mes: months[data.getMonth()],
+      ano: data.getFullYear(),
+      dataCompleta: data.toLocaleDateString("pt-BR"),
+    });
+  }
+  return res
+    .status(200)
+    .json({
+      calendario: calendar,
+      nomeDia: weekDays[data.getDay()],
+      dia: data.getDate(),
+      mes: months[data.getMonth()],
+      ano: data.getFullYear(),
+      dataCompleta: data.toLocaleDateString("pt-BR"),
+    });
 });
 async function extrairHoras(req, res) {
   try {

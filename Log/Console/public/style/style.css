@@ -30,6 +30,7 @@
 * {
   margin: 0;
   padding: 0;
+  transition: 0.7s all;
   scroll-behavior: smooth;
   scrollbar-width: thin;
 }
@@ -1566,15 +1567,16 @@ main.infoContent {
 }
 .renderedHours{
   margin-left: 2vw;
-  height: 65vh;
+  max-height: 75vh;
   display: flex;
   border-left: 1px solid var(--cor01Esvoaçada);
   flex-wrap: wrap;
   align-items: center;
+  padding-left: 30px;
 }
 .ourhours{
   transition: 0.7s all;
-  margin-left: 2vw;
+  margin: 5vh 1vw;
   width: 10vw;
   height: 6vh;
   display: flex;
@@ -1628,4 +1630,62 @@ main.infoContent {
 }
 .selectedIndicatorA button:hover .consoleWrite{
   transform: translate(3px, 0);
+}
+.calendar{
+  
+  width: 100vw;
+  margin: 5vh 2.5vw;
+  height: 78vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  padding: 40px;
+}
+.DavidJoneDay{
+      width: 4vw;
+    height: 3vw;
+    margin: 1vw;
+    border: 1px solid var(--cor01Esvoaçada);
+    background-color: var(--cor00);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cor05);
+    font-family: var(--fontJetBrains);
+    font-size: 0.9em;
+    border-radius: 5px;
+}
+.linerDays{
+  display: flex;
+  width: 85vw;
+  height: 15vh;
+  background-color: var(--cor03);
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid var(--cor01Esvoaçada);
+}
+.backer img{
+  width: 32px;
+  height: 32px;
+}
+.nexter img{
+  width: 32px;
+  height: 32px;
+  rotate: 180deg;
+}
+.backer{
+  margin-right: 2vw;
+}
+.nexter{
+  margin-left: 2vw;
+}
+.backer:hover, .nexter:hover{
+    transform: translate(0, -3px);
+}
+.scroll{
+  display: flex;
+  align-items: center;
 }
