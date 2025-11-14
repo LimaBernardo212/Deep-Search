@@ -57,7 +57,7 @@
           const button = document.querySelector(".selectedIndicator button");
           const services_content = document.querySelector(".services-content");
           const counterOfSelected = document.querySelector(".counter");
-
+          
           servicesDiv.forEach((el, i) => {
             el.addEventListener("click", () => {
               el.classList.toggle("servicesSelected");
@@ -95,11 +95,10 @@
                 if (req.ok) {
                   const data = await req.json();
                   const servicesname = data.returner;
-                  const arrayServices = data.arrayServices;
-                  const arrayFunctionary = data.functionaryArray;
-                  const arrayHours = data.hoursArray;
-                  const namer = data.name;
-
+                  const namer = data.storeName;
+                  const code = data.code;
+                  const functionarysName = data.functionarysName;
+                  const hour = data.hours;
                   const jsonData = JSON.stringify(data);
                   console.log(`Deu tudo certo, ${jsonData}`);
 
@@ -113,34 +112,52 @@
                       }, 500);
                     });
                     setTimeout(() => {
-                      const isArrayS = Array.isArray(arrayServices);
-                      const isArrayF = Array.isArray(arrayFunctionary);
-                      const isArrayH = Array.isArray(arrayHours);
-                      if (!isArrayS) {
-                        services_content.appendChild(render(arrayServices));
-                      } else {
-                        arrayServices.forEach((el, i) => {
-                          services_content.appendChild(
-                            render(arrayServices[i])
-                          );
-                        });
-                      }
-                      if (!isArrayF) {
-                        services_content.appendChild(render(arrayFunctionary));
-                      } else {
-                        arrayFunctionary.forEach((el, i) => {
-                          services_content.appendChild(
-                            render(arrayFunctionary[i])
-                          );
-                        });
-                      }
-                      if (!isArrayH) {
-                        services_content.appendChild(render(arrayHours));
-                      } else {
-                        arrayHours.forEach((el, i) => {
-                          services_content.appendChild(render(arrayHours[i]));
+                      services_content.appendChild(render(code))
+                      const functionarys = document.querySelectorAll('.functionaryBaseDiv');
+                      const finished = document.querySelector('.selectedIndicatorA')
+                      let arrayn = []
+                      functionarys.forEach((el, i) => {
+                        el.addEventListener('click', () => {
+                          functionarys.forEach(f => f.classList.remove('clientSelect'))
+                        arrayn.splice(0);
+
+                        el.classList.add('clientSelect')
+                        arrayn.push(functionarysName[i])
+                        console.log(arrayn, arrayn.length)
+                         if (arrayn.length > 0 && arrayH.length > 0){
+                        
+                        
+                          finished.style.opacity = '1';
+                        
+                        finished.addEventListener('click', () => {
+                          finished.style.opacity = '0'
                         })
-                      }
+                      } 
+                        })
+                      })
+                      const hours = document.querySelectorAll('.ourhours');
+                      let arrayH = []
+                      hours.forEach((el, i) => {
+                        el.addEventListener('click', () => {
+                          hours.forEach(h => h.classList.remove('hourSelect'));
+                          arrayH.splice(0)
+
+                          el.classList.add('hourSelect')
+                          arrayH.push(hour[i])
+                          console.log(arrayH)
+                           if (arrayn.length > 0 && arrayH.length > 0){
+                        
+                        
+                          finished.style.opacity = '1';
+                        
+                        finished.addEventListener('click', () => {
+                          finished.style.opacity = '0'
+                        })
+                      } 
+                        })
+                      })
+                      
+                     
                     }, 1000);
                   }, 500);
                 }

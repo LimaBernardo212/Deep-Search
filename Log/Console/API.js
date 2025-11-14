@@ -1020,28 +1020,42 @@ app.get("/stores/home", (req, res) => {
 app.post("/api/selected", tokenVerify, async (req, res) => {
   const { services, storeName } = req.body;
   let servicesArray = [];
-
-  let counter = 0;
-  for (let i = 0; i < services.length; i++) {
-    const baseStructureOfServices = `<br><div>${services[counter]}</div>`;
-    counter++;
-    servicesArray.push(baseStructureOfServices);
-  }
-  console.log(storeName);
   const cstoreName = storeName.replaceAll(" ", "/");
-  const findInDB = await StoreCad.findOne({ storeName: cstoreName }).lean();
-  if (!findInDB) {
+  let counter = 0;
+  const imageFinder = await ServicesCad.findOne({ storeName: cstoreName });
+  if (imageFinder) {
+    const imagePath = imageFinder.serviceImagePath;
+    for (let i = 0; i < services.length; i++) {
+      const baseStructureOfServices = `<br><div class="unionring"><img src="${imagePath[counter]}" class="imageSelected"><div class="OnSelectedServices"><p class="counterParagrafh">${services[counter]}</p></div></div>`;
+      counter++;
+      servicesArray.push(baseStructureOfServices);
+    }
+    console.log(storeName);
+  } else {
     return res
       .status(404)
-      .json({
-        mensage: "ERRROR 404, store not found or error in my code, also :(",
-      });
+      .json({ error: "Error 404, serviceImageNotFound :):(:>:<" });
+  }
+  const findInDB = await StoreCad.findOne({ storeName: cstoreName }).lean();
+  if (!findInDB) {
+    return res.status(404).json({
+      mensage: "ERRROR 404, store not found or error in my code, also :(",
+    });
   }
   const nameOfFunctionarys = findInDB.functionary;
   let c = 0;
   let functionarysArray = [];
   for (let i = 0; i < nameOfFunctionarys.length; i++) {
-    const moreBase = `<br><div>${nameOfFunctionarys[c]}</div>`;
+    const moreBase = `<br><div class="functionaryBaseDiv"><div class="uniondivers">
+      <div class="imageFunctionary"><img src="/img/().png"></div><div class="nameOfFunctionary">
+        <p>${nameOfFunctionarys[c]}</p>
+      </div>
+    </div><div class="functionaryMore">
+    <button>
+        <img src="https://img.icons8.com/?size=100&id=85501&format=png&color=FFFFFF" alt="">
+    </button>
+          </div>
+                            </div>`;
     c++;
     functionarysArray.push(moreBase);
   }
@@ -1055,17 +1069,30 @@ app.post("/api/selected", tokenVerify, async (req, res) => {
   let cc = 0;
   let hoursArray = [];
   for (let i = 0; i < hoursTobeDiv.length; i++) {
-    const outlierBase = `<br><div>${hoursTobeDiv[cc]}</div>`;
+    const outlierBase = `<br><div class="ourhours">${hoursTobeDiv[cc]}</div>`;
     cc++;
     hoursArray.push(outlierBase);
   }
+  const hoursJoin = hoursArray.join("");
+  const functionaryJoin = functionarysArray.join("");
+  const servicesJoin = servicesArray.join("");
+  const code = `<section class="hoursSistem">
+    <div class="informationsRedered">
+    <div class="renderedLabel">Your Selected <strong class="GreenCard">Services</strong><strong class="pointer">|</strong></div>
+      <div class="renderedServices">${servicesJoin}</div>
+      <div class="renderedLabel"><strong class="consoleWrite">>></strong>Now choose a professional partner to <strong class="GreenCard">proceed</strong>.</div><div class="renderedFunctionarys">${functionaryJoin}</div> 
+    </div>
+    <div class="renderedHours">${hoursJoin}</div>
+    
+  </section>
+  <footer class="selectedIndicatorA"  id="finished"><button>Finish<strong class="consoleWrite"> >></strong></button></footer>`;
+
   return res.json({
     returner: services,
-    arrayServices: servicesArray,
     name: storeName,
-    functionary: nameOfFunctionarys,
-    functionaryArray: functionarysArray,
-    hoursArray: hoursArray,
+    code: code,
+    functionarysName: nameOfFunctionarys,
+    hours: hoursTobeDiv
   });
 });
 async function extrairHoras(req, res) {
