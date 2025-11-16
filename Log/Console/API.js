@@ -18,7 +18,7 @@ import fs from "fs/promises";
 import HoursStorage from "./HourSchema.js";
 import { count } from "console";
 import HourSchema from "./HourSchema.js";
-
+import scheduleSchema from "./scheduleSchema.js";
 dotenv.config();
 
 const app = express();
@@ -1226,7 +1226,26 @@ app.post("/horarioCad", tokenVerify, async (req, res) => {
     return res.status(500).json({ message: "Erro no servidor" });
   }
 });
+app.post('/schedule', tokenVerify , async (req, res) => {
+  const {name, email} = req.user;
+  const {choiceFunctionary, choiceHour, choiceDay, services} = req.body;
+  try {
+    const cadSchedule = await scheduleSchema.create({
+    name: name,
+    email: email,
+    functionary: choiceFunctionary.join(', '),
+    hour: choiceHour.join(', '),
+    day: choiceDay.join(', ')
+  })
+  if (!cadSchedule){
+    return res.status(500).json({error: 'error in DB'})
+  }
+  return res.status(200).json({sucess: "Sucess"})
+  } catch (error) {
+    return res.status(500).json({error: 'Error in the server'})
+  } 
 
+})
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);

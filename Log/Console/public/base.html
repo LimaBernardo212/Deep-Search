@@ -11,6 +11,7 @@
       type="image/x-icon"
     />
   </head>
+
   <style>
     body {
       background-image: linear-gradient(
@@ -22,290 +23,398 @@
       );
     }
   </style>
+
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
-  const body = document.querySelector("body");
-  function render(el) {
-    const element = document.createElement("div");
-    element.classList.add("all");
-    element.innerHTML = el;
-    return element;
-  }
-  const url = window.location.pathname;
-  try {
-    const request = await fetch(`/api${url}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (request.ok) {
-      const data = await request.json();
-      const html = data.htmlPage;
-      const name = data.StoreName;
-      const service = data.serviceName;
-      const closedDays = data.closedDays;
-      console.log(service);
-      let simpleArray = [];
-      document.title = name;
-      console.log(
-        data.htmlPage + "|||||||||||||||||||||||||||||" + data.returner
-      );
+      const body = document.querySelector("body");
 
-      body.appendChild(render(html));
-      const servicesDiv = document.querySelectorAll(".Service");
-      const selected = document.querySelector(".selectedIndicator");
-      const button = document.querySelector(".selectedIndicator button");
-      const services_content = document.querySelector(".services-content");
-      const counterOfSelected = document.querySelector(".counter");
-      
-      servicesDiv.forEach((el, i) => {
-        el.addEventListener("click", () => {
-          el.classList.toggle("servicesSelected");
-          if (simpleArray.includes(service[i])) {
-            let index = simpleArray.indexOf(service[i]);
-            if (index != -1) {
-              let removeElements = simpleArray.splice(index, 1);
-              console.log(removeElements[0] + "Suceful");
-            }
-          } else {
-            simpleArray.push(service[i]);
-          }
+      function render(el) {
+        const element = document.createElement("div");
+        element.classList.add("all");
+        element.innerHTML = el;
+        return element;
+      }
 
-          if (simpleArray.length != 0) {
-            counterOfSelected.innerHTML = `Services Selected: ${simpleArray.length}`;
-            selected.style.opacity = 1;
-          } else {
-            selected.style.opacity = 0;
-          }
+      const url = window.location.pathname;
+
+      try {
+        const request = await fetch(`/api${url}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
         });
-      });
-      
-      button.addEventListener("click", async () => {
-        try {
-          if (simpleArray.length != 0) {
-            const req = await fetch("/api/selected", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                services: simpleArray,
-                storeName: name,
-              }),
+
+        if (request.ok) {
+          const data = await request.json();
+          const html = data.htmlPage;
+          const name = data.StoreName;
+          const service = data.serviceName;
+          const closedDays = data.closedDays;
+
+          let simpleArray = [];
+          document.title = name;
+
+          body.appendChild(render(html));
+
+          const servicesDiv = document.querySelectorAll(".Service");
+          const selected = document.querySelector(".selectedIndicator");
+          const button = document.querySelector(".selectedIndicator button");
+          const services_content = document.querySelector(".services-content");
+          const counterOfSelected = document.querySelector(".counter");
+
+          servicesDiv.forEach((el, i) => {
+            el.addEventListener("click", () => {
+              el.classList.toggle("servicesSelected");
+
+              if (simpleArray.includes(service[i])) {
+                let index = simpleArray.indexOf(service[i]);
+                if (index != -1) simpleArray.splice(index, 1);
+              } else {
+                simpleArray.push(service[i]);
+              }
+
+              if (simpleArray.length != 0) {
+                counterOfSelected.innerHTML = `Services Selected: ${simpleArray.length}`;
+                selected.style.opacity = 1;
+              } else {
+                selected.style.opacity = 0;
+              }
             });
-            if (req.ok) {
-              const data = await req.json();
-              const servicesname = data.returner;
-              const namer = data.storeName;
-              const code = data.code;
-              const functionarysName = data.functionarysName;
-              const hour = data.hours;
-              const jsonData = JSON.stringify(data);
-              console.log(`Deu tudo certo, ${jsonData}`);
+          });
 
-              setTimeout(() => {
-                servicesDiv.forEach((el) => {
-                  el.style.opacity = "0";
-                  selected.style.opacity = 0;
-                  setTimeout(() => {
-                    el.style.display = "none";
-                    selected.style.display = "none";
-                  }, 500);
+          button.addEventListener("click", async () => {
+            try {
+              if (simpleArray.length != 0) {
+                const req = await fetch("/api/selected", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    services: simpleArray,
+                    storeName: name,
+                  }),
                 });
-                
-                setTimeout(() => {
-                  services_content.appendChild(render(code));
-                  
-                  const hoursSistem = document.querySelector('.hoursSistem');
-                  const functionarys = document.querySelectorAll('.functionaryBaseDiv');
-                  const finished = document.querySelector('.selectedIndicatorA');
-                  const hours = document.querySelectorAll('.ourhours');
-                  
-                  let arrayn = [];
-                  let arrayH = [];
-                  let finishedClickAdded = false;
-                  
-                  functionarys.forEach((el, i) => {
-                    el.addEventListener('click', () => {
-                      functionarys.forEach(f => f.classList.remove('clientSelect'));
-                      arrayn.splice(0);
 
-                      el.classList.add('clientSelect');
-                      arrayn.push(functionarysName[i]);
-                      console.log(arrayn);
-                      
-                      if (arrayn.length > 0 && arrayH.length > 0) {
-                        finished.style.opacity = '1';
-                        
-                        if (!finishedClickAdded) {
-                          finishedClickAdded = true;
-                          
-                          finished.addEventListener('click', async() => {
-                            const fetcher = await fetch('/render/days', {
-                              method: 'GET',
-                              headers: {
-                                "Content-Type": "application/json",
-                              }
-                            });
-                            
-                            if (fetcher.ok) {
-                              const data = await fetcher.json();
-                              const calendar = data.calendario;
-                              
-                              hoursSistem.style.opacity = '0';
-                              finished.style.opacity = '0';
-                              
-                              setTimeout(() => {
-                                hoursSistem.style.display = 'none';
-                                finished.style.display = 'none';
-                              }, 500);
-                              
-                              let codeArray = [];
-                              
-                              const closedDaysArray = typeof closedDays === 'string' 
-                                ? closedDays.split(',').map(d => d.trim()) 
-                                : closedDays;
-                              
-                              for (let i = 0; i < calendar.length; i++) {
-                                let dia = calendar[i].dia;
-                                let mes = calendar[i].mes;
-                                let nomeDia = calendar[i].nomeDia;
-                                
-                                if (!closedDaysArray.includes(nomeDia)) {
-                                  let code = `<div class="DavidJoneDay">${dia}/${mes}</div>`;
-                                  codeArray.push(code);
-                                }
-                              }
-                              
-                              let codeHtml = `<section class="calendar">
-                                ${codeArray.join('')}
-                              </section>`;
-                              
-                              services_content.appendChild(render(codeHtml));
-                            } else {
-                              console.log('DEU ERRADO :(');
-                            }
-                          });
-                        }
-                      }
+                if (req.ok) {
+                  const data = await req.json();
+                  const servicesname = data.returner;
+                  const namer = data.storeName;
+                  const code = data.code;
+                  const functionarysName = data.functionarysName;
+                  const hour = data.hours;
+
+                  setTimeout(() => {
+                    servicesDiv.forEach((el) => {
+                      el.style.opacity = "0";
+                      selected.style.opacity = 0;
+
+                      setTimeout(() => {
+                        el.style.display = "none";
+                        selected.style.display = "none";
+                      }, 500);
                     });
-                  });
-                  
-                  hours.forEach((el, i) => {
-                    el.addEventListener('click', () => {
-                      hours.forEach(h => h.classList.remove('hourSelect'));
-                      arrayH.splice(0);
 
-                      el.classList.add('hourSelect');
-                      arrayH.push(hour[i]);
-                      console.log(arrayH);
-                      
-                      if (arrayn.length > 0 && arrayH.length > 0) {
-                        finished.style.opacity = '1';
-                        
-                        if (!finishedClickAdded) {
-                          finishedClickAdded = true;
-                          
-                          finished.addEventListener('click', async() => {
-                            const fetcher = await fetch('/render/days', {
-                              method: 'GET',
-                              headers: {
-                                "Content-Type": "application/json",
-                              }
+                    setTimeout(() => {
+                      services_content.appendChild(render(code));
+
+                      const hoursSistem =
+                        document.querySelector(".hoursSistem");
+                      const functionarys = document.querySelectorAll(
+                        ".functionaryBaseDiv"
+                      );
+                      const finished = document.querySelector(
+                        ".selectedIndicatorA"
+                      );
+                      const hours = document.querySelectorAll(".ourhours");
+
+                      let arrayn = [];
+                      let arrayH = [];
+
+                      functionarys.forEach((el, i) => {
+                        el.addEventListener("click", async () => {
+                          functionarys.forEach((f) =>
+                            f.classList.remove("clientSelect")
+                          );
+
+                          arrayn.splice(0);
+                          el.classList.add("clientSelect");
+                          arrayn.push(functionarysName[i]);
+
+                          if (arrayH.length > 0 && arrayn.length > 0) {
+                            const fetcher = await fetch("/render/days", {
+                              method: "GET",
+                              headers: { "Content-Type": "application/json" },
                             });
-                            
+
                             if (fetcher.ok) {
                               const data = await fetcher.json();
                               const calendar = data.calendario;
-                              
-                              hoursSistem.style.opacity = '0';
-                              finished.style.opacity = '0';
-                              
+                              const oldCalendar =
+                                document.querySelector(".calendar");
+                              if (oldCalendar) {
+                                oldCalendar.remove();
+                              }
+                              hoursSistem.style.opacity = "0";
+                              finished.style.opacity = "0";
+
                               setTimeout(() => {
-                                hoursSistem.style.display = 'none';
-                                finished.style.display = 'none';
+                                hoursSistem.style.display = "none";
+                                finished.style.display = "none";
                               }, 500);
-                              
+
                               let codeArray = [];
-                              
-                              const closedDaysArray = typeof closedDays === 'string' 
-                                ? closedDays.split(',').map(d => d.trim()) 
-                                : closedDays;
-                              
+                              const closedDaysArray =
+                                typeof closedDays === "string"
+                                  ? closedDays.split(",").map((d) => d.trim())
+                                  : closedDays;
+
                               for (let i = 0; i < calendar.length; i++) {
                                 let dia = calendar[i].dia;
                                 let mes = calendar[i].mes;
                                 let nomeDia = calendar[i].nomeDia;
-                                
+
                                 if (!closedDaysArray.includes(nomeDia)) {
-                                  let code = `<div class="day">
-                                    
-                                    <div class="DavidJoneDay">${dia}/${mes}</div>
-                                  </div>`;
+                                  let code = `
+                                    <div class="day">
+                                      <div class="DavidJoneDay" data-dia="${dia}" data-mes="${mes}">${dia}/${mes}</div>
+                                    </div>
+                                  `;
                                   codeArray.push(code);
                                 }
                               }
-                              
-                              let codeHtml = `<section class="calendar">
-                                <div class="backer"><img src="https://img.icons8.com/?size=100&id=85099&format=png&color=FFFFFF"></div>
-                                <div class="linerDays"><div class="scroll">${codeArray.join('')}</div></div>
-                                <div class="nexter"><img src="https://img.icons8.com/?size=100&id=85099&format=png&color=FFFFFF"></div>
-                              </section>`;
-                              
+
+                              let codeHtml = `
+                                <section class="calendar">
+                                  <div class="txtCalendar">
+                                    And finally, select a
+                                    <strong class="GreenCard">day</strong><strong class="pointer">.</strong>
+                                  </div>
+
+                                  <div class="calendarLine">
+                                    <div class="backer">
+                                      <img src="https://img.icons8.com/?size=100&id=85099&format=png&color=FFFFFF">
+                                    </div>
+
+                                    <div class="linerDays">
+                                      <div class="scroll">${codeArray.join(
+                                        ""
+                                      )}</div>
+                                    </div>
+
+                                    <div class="nexter">
+                                      <img src="https://img.icons8.com/?size=100&id=85099&format=png&color=FFFFFF">
+                                    </div>
+                                  </div>
+                                </section>
+                              `;
+
                               services_content.appendChild(render(codeHtml));
+
                               let currentP = 0;
-                              const backer = document.querySelector('.backer');
-                              const david = document.querySelectorAll('.DavidJoneDay');
-                              const linerDays = document.querySelector('.linerDays')
-                              const nexter = document.querySelector('.nexter')
-                              const scroll = document.querySelector('.scroll')
+                              const backer = document.querySelector(".backer");
+                              const scroll = document.querySelector(".scroll");
+                              const nexter = document.querySelector(".nexter");
+                              const david =
+                                document.querySelectorAll(".DavidJoneDay");
+
+                              let arrayD = [];
+
                               backer.addEventListener("click", () => {
-                                
-                                  currentP += 5
-                                  if (currentP > 50){
-                                    currentP = 50
-                                  }
-                                scroll.style.transform = `translateX(${currentP}vw)`
-                                console.log(currentP)
-                                
-                              })
-                              nexter.addEventListener('click', () => {
-                               
-                                  currentP -= 5
-                                if (currentP < -50){
-                                    currentP = -50
-                                  }
-                                scroll.style.transform = `translateX(${currentP}vw)`
-                                console.log(currentP)
-                                
-                              })
-                            } else {
-                              console.log('DEU ERRADO :(');
+                                currentP += 5;
+                                if (currentP > 50) currentP = 50;
+                                scroll.style.transform = `translateX(${currentP}vw)`;
+                              });
+
+                              nexter.addEventListener("click", () => {
+                                currentP -= 5;
+                                if (currentP < -50) currentP = -50;
+                                scroll.style.transform = `translateX(${currentP}vw)`;
+                              });
+
+                              david.forEach((el, i) => {
+                                el.addEventListener("click", async () => {
+                                  david.forEach((d) =>
+                                    d.classList.remove("davidISelect")
+                                  );
+                                  arrayD.splice(0);
+                                  const dia = el.getAttribute("data-dia");
+                                  const mes = el.getAttribute("data-mes");
+                                  el.classList.add("davidISelect");
+                                  arrayD.push(`${dia}/${mes}`);
+
+                                  console.log(arrayD);
+
+                                  const req = await fetch(`/schedule`, {
+                                    method: "POST",
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({
+                                      choiceFunctionary: arrayn,
+                                      choiceHour: arrayH,
+                                      choiceDay: arrayD,
+                                      services: simpleArray
+                                    }),
+                                  });
+                                });
+                              });
                             }
-                          });
-                        }
-                      }
-                    });
-                  });
-                  
-                }, 1000);
-              }, 500);
+                          }
+                        });
+                      });
+
+                      hours.forEach((el, i) => {
+                        el.addEventListener("click", async () => {
+                          hours.forEach((h) =>
+                            h.classList.remove("hourSelect")
+                          );
+                          arrayH.splice(0);
+
+                          el.classList.add("hourSelect");
+                          arrayH.push(hour[i]);
+
+                          if (arrayH.length > 0 && arrayn.length > 0) {
+                            const fetcher = await fetch("/render/days", {
+                              method: "GET",
+                              headers: { "Content-Type": "application/json" },
+                            });
+
+                            if (fetcher.ok) {
+                              const data = await fetcher.json();
+                              const calendar = data.calendario;
+                              const oldCalendar =
+                                document.querySelector(".calendar");
+                              if (oldCalendar) {
+                                oldCalendar.remove();
+                              }
+                              hoursSistem.style.opacity = "0";
+                              finished.style.opacity = "0";
+
+                              setTimeout(() => {
+                                hoursSistem.style.display = "none";
+                                finished.style.display = "none";
+                              }, 500);
+
+                              let codeArray = [];
+                              const closedDaysArray =
+                                typeof closedDays === "string"
+                                  ? closedDays.split(",").map((d) => d.trim())
+                                  : closedDays;
+
+                              for (let i = 0; i < calendar.length; i++) {
+                                let dia = calendar[i].dia;
+                                let mes = calendar[i].mes;
+                                let nomeDia = calendar[i].nomeDia;
+
+                                if (!closedDaysArray.includes(nomeDia)) {
+                                  let code = `
+                                    <div class="day">
+                                      <div class="DavidJoneDay" data-dia="${dia}" data-mes="${mes}">${dia}/${mes}</div>
+                                    </div>
+                                  `;
+                                  codeArray.push(code);
+                                }
+                              }
+
+                              let codeHtml = `
+                                <section class="calendar">
+                                  <div class="txtCalendar">
+                                    And finally, select a
+                                    <strong class="GreenCard">day</strong><strong class="pointer">.</strong>
+                                  </div>
+
+                                  <div class="calendarLine">
+                                    <div class="backer">
+                                      <img src="https://img.icons8.com/?size=100&id=85099&format=png&color=FFFFFF">
+                                    </div>
+
+                                    <div class="linerDays">
+                                      <div class="scroll">${codeArray.join(
+                                        ""
+                                      )}</div>
+                                    </div>
+
+                                    <div class="nexter">
+                                      <img src="https://img.icons8.com/?size=100&id=85099&format=png&color=FFFFFF">
+                                    </div>
+                                  </div>
+                                </section>
+                              `;
+
+                              services_content.appendChild(render(codeHtml));
+
+                              let currentP = 0;
+                              const backer = document.querySelector(".backer");
+                              const scroll = document.querySelector(".scroll");
+                              const nexter = document.querySelector(".nexter");
+                              const david =
+                                document.querySelectorAll(".DavidJoneDay");
+
+                              let arrayD = [];
+
+                              backer.addEventListener("click", () => {
+                                currentP += 5;
+                                if (currentP > 50) currentP = 50;
+                                scroll.style.transform = `translateX(${currentP}vw)`;
+                              });
+
+                              nexter.addEventListener("click", () => {
+                                currentP -= 5;
+                                if (currentP < -50) currentP = -50;
+                                scroll.style.transform = `translateX(${currentP}vw)`;
+                              });
+
+                              david.forEach((el, i) => {
+                                el.addEventListener("click", async () => {
+                                  david.forEach((d) =>
+                                    d.classList.remove("davidISelect")
+                                  );
+                                  arrayD.splice(0);
+                                  const dia = el.getAttribute("data-dia");
+                                  const mes = el.getAttribute("data-mes");
+                                  el.classList.add("davidISelect");
+                                  arrayD.push(`${dia}/${mes}`);
+
+                                  console.log(arrayD);
+
+                                  const req = await fetch(`/schedule`, {
+                                    method: "POST",
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({
+                                      choiceFunctionary: arrayn,
+                                      choiceHour: arrayH,
+                                      choiceDay: arrayD,
+                                      services: simpleArray
+                                    }),
+                                  });
+                                });
+                              });
+                            }
+                          }
+                        });
+                      });
+                    }, 1000);
+                  }, 500);
+                }
+              }
+            } catch (error) {
+              console.error(error);
             }
-          }
-        } catch (error) {
-          console.error(error);
+          });
+
+          document
+            .querySelector("#back")
+            .addEventListener("click", () => window.history.back());
         }
-      });
-      
-      document.querySelector("#back").addEventListener("click", () => {
-        window.history.back();
-      });
-    }
-  } catch (error) {
-    console.log("Error");
-  }
-});
+      } catch (error) {
+        console.log("Error");
+      }
+    });
   </script>
+
   <body></body>
 </html>

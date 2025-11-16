@@ -1639,6 +1639,7 @@ main.infoContent {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   border-radius: 20px;
   padding: 40px;
 }
@@ -1655,6 +1656,9 @@ main.infoContent {
     font-family: var(--fontJetBrains);
     font-size: 0.9em;
     border-radius: 5px;
+}.DavidJoneDay:hover{
+  transform: translate(-3px, -3px);
+  background-color: var(--cor02);
 }
 .linerDays{
   display: flex;
@@ -1688,4 +1692,16 @@ main.infoContent {
 .scroll{
   display: flex;
   align-items: center;
+}
+.calendarLine{
+  display: flex;
+  align-items: center;
+}
+.txtCalendar{
+  font-family: var(--fontRoboto);
+  color: var(--cor05);
+  margin-bottom: 2vh;
+}
+.davidISelect{
+  border: 1px solid var(--cor08);
 }
