@@ -255,9 +255,15 @@
                                       choiceFunctionary: arrayn,
                                       choiceHour: arrayH,
                                       choiceDay: arrayD,
-                                      services: simpleArray
+                                      services: simpleArray,
+                                      storeName: name
                                     }),
                                   });
+                                  if (req.ok){
+                                    const data = await req.json();
+                                    const redirect = data.redirect;
+                                    window.location.href = redirect
+                                  }
                                 });
                               });
                             }
@@ -388,9 +394,15 @@
                                       choiceFunctionary: arrayn,
                                       choiceHour: arrayH,
                                       choiceDay: arrayD,
-                                      services: simpleArray
+                                      services: simpleArray,
+                                      storeName: name
                                     }),
                                   });
+                                  if (req.ok){
+                                    const data = await req.json();
+                                    const redirect = data.redirect;
+                                    window.location.href = redirect
+                                  }
                                 });
                               });
                             }

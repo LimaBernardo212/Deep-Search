@@ -103,6 +103,11 @@
     const loading = document.querySelector("#loading");
     const storecontent = document.querySelector(".store-content");
     const projects = document.querySelector("#documents");
+    const schedule = document.querySelector("#schedule")
+    schedule.addEventListener('click', () => {
+      console.log('Sensacional d+ serio muito top')
+      window.location.href = '/schedule/home';
+    })
     function createStores(el) {
       const element = document.createElement("div");
       element.classList.add("storeRow");

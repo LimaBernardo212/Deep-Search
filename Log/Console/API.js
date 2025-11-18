@@ -340,7 +340,7 @@ async function createPostRoute(storeName) {
         StoreName: trueName,
         serviceName: serviceName,
         closedDays: storeData.closedDays,
-        returner: returnS
+        returner: returnS,
       });
     } catch (error) {
       return res.status(500).json({ error: "Server error" });
@@ -1107,7 +1107,7 @@ app.get("/render/days", tokenVerify, (req, res) => {
     "Quarta",
     "Quinta",
     "Sexta",
-    "Sabado"
+    "Sabado",
   ];
   const months = [
     "01",
@@ -1123,9 +1123,9 @@ app.get("/render/days", tokenVerify, (req, res) => {
     "11",
     "12",
   ];
-  
+
   for (let i = 0; i < 30; i++) {
-   data = new Date(now);
+    data = new Date(now);
     data.setDate(now.getDate() + i);
     calendar.push({
       nomeDia: weekDays[data.getDay()],
@@ -1135,16 +1135,14 @@ app.get("/render/days", tokenVerify, (req, res) => {
       dataCompleta: data.toLocaleDateString("pt-BR"),
     });
   }
-  return res
-    .status(200)
-    .json({
-      calendario: calendar,
-      nomeDia: weekDays[data.getDay()],
-      dia: data.getDate(),
-      mes: months[data.getMonth()],
-      ano: data.getFullYear(),
-      dataCompleta: data.toLocaleDateString("pt-BR"),
-    });
+  return res.status(200).json({
+    calendario: calendar,
+    nomeDia: weekDays[data.getDay()],
+    dia: data.getDate(),
+    mes: months[data.getMonth()],
+    ano: data.getFullYear(),
+    dataCompleta: data.toLocaleDateString("pt-BR"),
+  });
 });
 async function extrairHoras(req, res) {
   try {
@@ -1226,26 +1224,72 @@ app.post("/horarioCad", tokenVerify, async (req, res) => {
     return res.status(500).json({ message: "Erro no servidor" });
   }
 });
-app.post('/schedule', tokenVerify , async (req, res) => {
-  const {name, email} = req.user;
-  const {choiceFunctionary, choiceHour, choiceDay, services} = req.body;
+app.post("/schedule", tokenVerify, async (req, res) => {
+  const { name, email } = req.user;
+  const { choiceFunctionary, choiceHour, choiceDay, services, storeName } =
+    req.body;
   try {
     const cadSchedule = await scheduleSchema.create({
-    name: name,
-    email: email,
-    functionary: choiceFunctionary.join(', '),
-    hour: choiceHour.join(', '),
-    day: choiceDay.join(', ')
-  })
-  if (!cadSchedule){
-    return res.status(500).json({error: 'error in DB'})
-  }
-  return res.status(200).json({sucess: "Sucess"})
+      name: name,
+      email: email,
+      functionary: choiceFunctionary.join(", "),
+      hour: choiceHour.join(", "),
+      services: services,
+      day: choiceDay.join(", "),
+      storeName: storeName,
+    });
+    if (!cadSchedule) {
+      return res.status(500).json({ error: "error in DB" });
+    }
+    return res
+      .status(200)
+      .json({ sucess: "Sucess", redirect: "/schedule/home" });
   } catch (error) {
-    return res.status(500).json({error: 'Error in the server'})
-  } 
+    return res.status(500).json({ error: "Error in the server" });
+  }
+});
+app.get("/schedule/home", tokenVerify, (req, res) => {
+  return res.sendFile(path.join(__dirname, "public", "schedule.html"));
+});
+app.get("/return/data/schedule", tokenVerify, async (req, res) => {
+  const { name, email } = req.user;
+  const schedules = await scheduleSchema
+    .find({ name: name, email: email })
+    .lean();
+  if (!schedules) {
+    return res
+      .status(404)
+      .json({
+        msg: "Nenhum dado encontrado",
+        htmlDataError: "<div>EU SINTO O SHADOW NO MEU CU</div>",
+      });
+  }
+  
+  let agendamentos = [];
+  let cS = []
+  for (let i = 0; i < schedules.length; i++) {
+    let schedule = schedules[i];
+    const services = await ServicesCad.findOne({
+    storeName: schedule.storeName,
+  }).lean();
+  if (!services) {
+    return res.status(404).json({ msg: "error" });
+  }
+  const Userservice = schedule.services
 
-})
+    for (let j = 0; j < Userservice.length; j++) {
+      const serviceName = Userservice[j]
+      const indexOfService = services.serviceName.indexOf(serviceName);
+      if (indexOfService !== -1){
+        const imagePath = services.serviceImagePath[indexOfService];
+        let html = `<div> <img src="${imagePath}">${serviceName}</div>`
+        cS.push(html)
+      }
+    }
+  }
+  console.log(cS);
+  return res.status(201).json({ok: 'ok', push: cS})
+});
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);

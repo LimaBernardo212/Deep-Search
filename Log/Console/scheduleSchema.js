@@ -4,7 +4,8 @@ const scheduleSchema = new mongoose.Schema({
     email: String,
     functionary: String,
     hour: String,
-    services: String,
-    day: String
+    services: Array,
+    day: String,
+    storeName: String
 })
 export default mongoose.model("schedules", scheduleSchema)
