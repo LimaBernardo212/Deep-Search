@@ -75,6 +75,7 @@
       </aside>
       <main class="infoContent">
         <div id="loading"></div>
+        
         <div class="content">
           <div class="your-schedules"></div>
         </div>
@@ -93,6 +94,7 @@
       return element;
     }
     window.addEventListener('load', async () => {
+      const schedule = document.querySelector(".your-schedules")
         const req = await fetch('/return/data/schedule', {
             method: "GET",
             headers: {
@@ -101,8 +103,20 @@
         })
         if (req.ok){
           const data = await req.json();
-          const push = JSON.stringify(data.push);
-          console.log(push)
+          const push = data.push;
+          const content = document.querySelector('.content')
+          const load = document.querySelector('#loading')
+          
+         
+            schedule.appendChild(createdatas(push))
+          load.style.opacity = '0'
+          setTimeout(() => {
+            load.style.display = 'none'
+            content.style.display = 'flex';
+          }, 300);
+          
+            content.style.opacity = '1'
+          
         }else{
           console.log('errororkonvgvhbhbg')
         }

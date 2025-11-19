@@ -1241,54 +1241,94 @@ app.post("/schedule", tokenVerify, async (req, res) => {
     if (!cadSchedule) {
       return res.status(500).json({ error: "error in DB" });
     }
-    return res
-      .status(200)
-      .json({ sucess: "Sucess", redirect: "/schedule/home" });
+    return res.status(200).json({
+      sucess: "Sucess",
+      redirect: "/schedule/home",
+    });
   } catch (error) {
     return res.status(500).json({ error: "Error in the server" });
   }
 });
+
 app.get("/schedule/home", tokenVerify, (req, res) => {
   return res.sendFile(path.join(__dirname, "public", "schedule.html"));
 });
+
 app.get("/return/data/schedule", tokenVerify, async (req, res) => {
   const { name, email } = req.user;
   const schedules = await scheduleSchema
     .find({ name: name, email: email })
     .lean();
   if (!schedules) {
-    return res
-      .status(404)
-      .json({
-        msg: "Nenhum dado encontrado",
-        htmlDataError: "<div>EU SINTO O SHADOW NO MEU CU</div>",
-      });
+    return res.status(404).json({
+      msg: "Nenhum dado encontrado",
+      htmlDataError: "<div>EU SINTO O SHADOW NO MEU CU</div>",
+    });
   }
-  
-  let agendamentos = [];
-  let cS = []
+  console.log(schedules);
+
+  let dS = [];
   for (let i = 0; i < schedules.length; i++) {
     let schedule = schedules[i];
+    let cS = [];
+    let DBStoreName = schedule.storeName.replaceAll(" ", "-");
     const services = await ServicesCad.findOne({
-    storeName: schedule.storeName,
-  }).lean();
-  if (!services) {
-    return res.status(404).json({ msg: "error" });
-  }
-  const Userservice = schedule.services
+      storeName: DBStoreName,
+    }).lean();
+    console.log(services);
+    if (!services) {
+      return res.status(404).json({ msg: "error" });
+    }
+    const Userservice = schedule.services;
 
     for (let j = 0; j < Userservice.length; j++) {
-      const serviceName = Userservice[j]
+      const serviceName = Userservice[j];
       const indexOfService = services.serviceName.indexOf(serviceName);
-      if (indexOfService !== -1){
+      if (indexOfService !== -1) {
         const imagePath = services.serviceImagePath[indexOfService];
-        let html = `<div> <img src="${imagePath}">${serviceName}</div>`
-        cS.push(html)
+        let html = `
+          <div class="servicesInTheRiver">
+            <div class="imageInTheRiver">
+              <img src="${imagePath}">
+            </div>
+            <div class="serviceNameInTheRiver">${serviceName}</div>
+          </div>`;
+        cS.push(html);
       }
     }
+
+    const storeName = schedule.storeName.replaceAll("-", " ");
+    const day = schedule.day;
+    const hour = schedule.hour;
+    const functionary = schedule.functionary;
+    let htmlD = `
+      <div class="schedule-content">
+        <div class="schedule-Dam">
+          ${cS.join(" ")}
+        </div>
+        <div class="schedule-data">
+          
+            <div class="schedule-StoreName">${storeName}</div>
+            
+            <div class="schedule-Fun">Professional: ${functionary}</div>
+            <div class="schedule-union">
+              <div class="schedule-Day">On: <strong class="dayEHour">${day}</strong></div><div class="schedule-Hour">At: <strong class="dayEHour">${hour}</strong></div>
+            </div>
+          
+        </div>
+        <div class="delete">
+        <img src="https://img.icons8.com/?size=100&id=87397&format=png&color=BF4338"></div>
+      </div>`;
+    dS.push(htmlD);
   }
-  console.log(cS);
-  return res.status(201).json({ok: 'ok', push: cS})
+  let htmlFULL = `<div class="schedule-some-div">
+    <div class="TitlesOfSchedules">
+    <h1>Your <strong class="GreenCard">Schedules</strong><strong class="pointer">/</strong></h1>
+    <p><strong class="consoleWrite">>></strong>All the data for all your independent store bookings is here.</p>
+    </div>
+    <button class="apoitmentBtn"><img src="https://img.icons8.com/?size=100&id=116296&format=png&color=FFFFFF">Schedule Now</button>
+  </div><div class="schedule-union">${dS.join(" ")}</div>`;
+  return res.status(201).json({ ok: "ok", push: htmlFULL });
 });
 // Iniciar servidor
 app.listen(PORT, () => {

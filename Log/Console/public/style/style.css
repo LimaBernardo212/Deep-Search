@@ -1038,6 +1038,7 @@ main.infoContent {
 .content{
     display: none;
     opacity: 0;
+    margin: 0;
     width: 96vw;
     display: flex;
     flex-direction: column;
@@ -1704,4 +1705,200 @@ main.infoContent {
 }
 .davidISelect{
   border: 1px solid var(--cor08);
+}
+.your-schedules{
+  width: 96vw;
+  min-height: 92vh;
+  margin-top: 10vh;
+  display: flex;
+  
+}
+
+.imageInTheRiver img{
+  width: 32px;
+  height: 32px;
+  border-radius: 40%;
+}
+.imageInTheRiver:hover img{
+  filter: grayscale(1);
+  transform: translate(-3px, -3px);
+}
+.imageInTheRiver:hover ~ .serviceNameInTheRiver{
+  opacity: 1;
+  transform: translateY(-48px);
+}
+.imageInTheRiver{
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  color: var(--cor02);
+  font-weight: thin;
+  font-family: var(--fontSpace);
+  margin: 0.5vw;
+  position: relative;
+}
+.servicesInTheRiver{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.serviceNameInTheRiver{
+  opacity: 0;
+  transform: translateY(-32px);
+  position: absolute;
+  background-color: var(--cor03);
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  padding: 7px;
+  border-radius: 10px;
+  border: 1px solid var(--cor01Esvoaçada);
+  font-size: 0.8em;
+  max-width: none;
+}
+.schedule-Dam{
+  opacity: 0;
+  display: flex;
+  align-items: center;
+}
+.schedule-data{
+  min-width: 20vw;
+  min-height: 20vh;
+  display: flex;
+  
+  flex-direction: column;
+  justify-content: center;
+  background-color: var(--cor03);
+  border: 1px solid var(--cor01Esvoaçada);
+  border-radius: 20px;
+  margin:  0.5vw 2vw;
+}
+.schedule-content:hover .schedule-Dam{
+  opacity: 1;
+}
+.schedule-content:hover .delete{
+  opacity: 1;
+}
+.schedule-content:hover{
+  transform: translate(-3px, -3px);
+}
+.schedule-data:hover{
+  background-color: var(--cor04);
+}
+.schedule-union{
+  display: flex;
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  gap: 1vw;
+  margin-left: 6vw;
+  font-size: 0.8em;
+  margin-top: 2vh;
+  margin-bottom: 3vh;
+}
+
+
+
+.schedule-content{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.delete{
+  opacity: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1.5vh;
+  border: 1px solid transparent;
+  border-radius: 50%;
+}
+.delete img{
+  width: 24px;
+  height: 24px;
+}
+.schedule-StoreName{
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  font-size: 1em;
+  margin-bottom: 2vh;
+  margin-left: 2vw;
+}
+.schedule-Fun{
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  font-size: 0.8em;
+  margin-bottom: 1vh;
+  margin-left: 2.5vw;
+}
+.delete:hover{
+  background-color: var(--cor03);
+  border: 1px solid var(--cor01Esvoaçada);
+}
+.dayEHour{
+  color: var(--cor08);
+  font-family: var(--fontSpace);
+}
+.texts h1{
+  color: var(--cor05);
+  margin-top: 5vh;
+  font-size: 1em;
+  font-family: var(--fontRoboto);
+}
+.TitlesOfSchedules{
+  width: 90vw;
+  border-radius: 20px;
+  margin: 5vh 1.7vw;
+  height: 20vh;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  background-color: var(--cor03);
+  border: 1px solid var(--cor01Esvoaçada);
+}
+.TitlesOfSchedules h1{
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  margin-bottom: 2vh;
+  margin-left: 5vw;
+}
+.TitlesOfSchedules p{
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  margin-left: 6vw;
+  
+}
+.createNew{
+  width: 92vw;
+  margin:  15vh 1vw;
+  border-top: 1px solid var(--cor01Esvoaçada);
+}
+
+.schedule-some-div{
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 3vh;
+}
+.apoitmentBtn{
+  width: 15vw;
+  height: 7vh;
+  background-color: var(--cor00);
+  border: 1px solid var(--cor01Esvoaçada);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  justify-content: center;
+  gap: 1vw;
+  margin-left: 8vw;
+}
+.apoitmentBtn:hover{
+  background-color: var(--cor03);
+  transform: translate(-3px, -3px);
+}
+.apoitmentBtn img{
+  width: 28px;
+  height: 28px;
 }
