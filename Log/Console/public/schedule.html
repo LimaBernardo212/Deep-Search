@@ -95,13 +95,13 @@
         </div>
 
         <div class="divAndYourLabel">
-          <div id="API" class="itens" title="API">
+          <div id="more" class="itens" title="more">
             <img
-              src="https://img.icons8.com/?size=100&id=85950&format=png&color=FFFFFF"
+              src="https://img.icons8.com/?size=100&id=85501&format=png&color=FFFFFF"
               alt=""
             />
           </div>
-          <p>API</p>
+          
         </div>
       </aside>
       <main class="infoContent">
@@ -140,6 +140,8 @@
         const load = document.querySelector("#loading");
 
         schedule.appendChild(createdatas(push));
+
+        
         load.style.opacity = "0";
         setTimeout(() => {
           load.style.display = "none";
@@ -149,6 +151,13 @@
         content.style.opacity = "1";
         const apoitBtn = document.querySelectorAll(".delete");
         const datasSchedule = document.querySelectorAll(".schedule-data")
+        const plus = document.querySelector(".central-plus");
+        if (plus){
+          plus.addEventListener("click", () => {
+            window.location.href = "/home.html"
+            
+          })
+        }
         schedule.addEventListener("click", async (e) => {
           const deleter = e.target.closest(".delete")
           
@@ -181,6 +190,9 @@
             const redirect = data.redirect;
             window.location.href = redirect
           }
+
+          
+          
         } catch (error) {
           console.log("FATAL ERRORORR MDS HAAAAAAAAAAAAAAA QUE DROGAAAAAAAAAAAA")
         }

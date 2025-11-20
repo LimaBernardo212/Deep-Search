@@ -36,7 +36,7 @@
                     <p> <strong class="consoleWrite">>></strong> If you need services to manage your business's schedules, projects, and treatments, Log offers all of this and much more in the future.<strong class="pointer">|</strong></p>
                 </div>
                 <div class="apelativeButton">
-                    <button class="ApexButton" type="button">
+                    <button class="ApexButton" id="startNow" type="button">
                         Get Started Now
                     </button>
                     <a href="" class="lm">Learn More >></a>
@@ -248,7 +248,10 @@
     loginButton.addEventListener('click', () => {
         window.location.href = "Login.html"
     })
-    
+    const startNowBtn = document.querySelector("#startNow");
+    startNowBtn.addEventListener("click", () => {
+        window.location.href = 'Login.html'
+    })
     
 </script>
 </html>

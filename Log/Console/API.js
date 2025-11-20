@@ -321,13 +321,13 @@ async function createPostRoute(storeName) {
               
               <div class="functionDays"><div class="placeholder">Closed on days:</div><div class="until">${storeData.closedDays}</div></div>
               </div>
-              <button class="servicesBtn">Chat with us</button>
+              <button class="servicesBtn">Schedule Now</button>
             </div>
           </div>
           
       </section>
       <!--SOMOS DIFERENTES DIVS-->
-      <section class="services-content">
+      <section class="services-content" id="forScrollPreguiçosos">
       ${returnS}
       
     </section>
@@ -414,13 +414,13 @@ app.post("/api/login", async (req, res) => {
         .json({ error: "Por favor, preencha todos os campos." });
     }
 
-    const usuario = await User.findOne({ Email: email });
+    const usuario = await User.findOne({  nome: name, Email: email });
 
     if (usuario) {
       const senhaValida = await bcrypt.compare(password, usuario.password);
 
       if (!senhaValida) {
-        return res.status(401).json({ error: "Credenciais inválidas" });
+        return res.status(401).json({ error: "Credenciais inválidas, tente login com Google" });
       }
 
       const payload = {
@@ -1018,7 +1018,7 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
 app.get("/stores/home", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "storecad.html"));
 });
-app.post("/api/selected", tokenVerify, async (req, res) => {
+app.post("/api/selected/fun", tokenVerify, async (req, res) => {
   const { services, storeName } = req.body;
   let servicesArray = [];
   const cstoreName = storeName.replaceAll(" ", "/");
@@ -1047,7 +1047,7 @@ app.post("/api/selected", tokenVerify, async (req, res) => {
   let c = 0;
   let functionarysArray = [];
   for (let i = 0; i < nameOfFunctionarys.length; i++) {
-    const moreBase = `<br><div class="functionaryBaseDiv"><div class="uniondivers">
+    const moreBase = `<br><div class="functionaryBaseDiv" name-of="${nameOfFunctionarys[c]}"><div class="uniondivers">
       <div class="imageFunctionary"><img src="/img/().png"></div><div class="nameOfFunctionary">
         <p>${nameOfFunctionarys[c]}</p>
       </div>
@@ -1060,6 +1060,31 @@ app.post("/api/selected", tokenVerify, async (req, res) => {
     c++;
     functionarysArray.push(moreBase);
   }
+
+  const functionaryJoin = functionarysArray.join("");
+  const servicesJoin = servicesArray.join("");
+  const code = `<section class="hoursSistem">
+    <div class="informationsRedered">
+    <div class="renderedLabel">Your Selected <strong class="GreenCard">Services</strong><strong class="pointer">|</strong></div>
+      <div class="renderedServices">${servicesJoin}</div>
+      <div class="renderedLabel"><strong class="consoleWrite">>></strong>Now choose a professional partner to <strong class="GreenCard">proceed</strong>.</div><div class="renderedFunctionarys">${functionaryJoin}</div> 
+    </div>
+  </section>
+  <footer class="selectedIndicatorA"  id="finished"><button>Next<strong class="consoleWrite"> >></strong></button></footer>`;
+
+  return res.json({
+    returner: services,
+    name: storeName,
+    code: code,
+    functionarysName: nameOfFunctionarys,
+  });
+});
+app.post("/api/selected/hours", tokenVerify, async (req, res) => {
+  const {name, email} = req.user;
+  const {storeName, functionary, day} = req.body;
+  const cstoreName = storeName.replaceAll(" ", "/");
+  try {
+    
   const hours = await HoursStorage.findOne({ storeName: cstoreName }).lean();
   if (!hours) {
     return res
@@ -1069,33 +1094,30 @@ app.post("/api/selected", tokenVerify, async (req, res) => {
   const hoursTobeDiv = hours.hour;
   let cc = 0;
   let hoursArray = [];
-  for (let i = 0; i < hoursTobeDiv.length; i++) {
-    const outlierBase = `<br><div class="ourhours">${hoursTobeDiv[cc]}</div>`;
-    cc++;
-    hoursArray.push(outlierBase);
-  }
-  const hoursJoin = hoursArray.join("");
-  const functionaryJoin = functionarysArray.join("");
-  const servicesJoin = servicesArray.join("");
-  const code = `<section class="hoursSistem">
-    <div class="informationsRedered">
-    <div class="renderedLabel">Your Selected <strong class="GreenCard">Services</strong><strong class="pointer">|</strong></div>
-      <div class="renderedServices">${servicesJoin}</div>
-      <div class="renderedLabel"><strong class="consoleWrite">>></strong>Now choose a professional partner to <strong class="GreenCard">proceed</strong>.</div><div class="renderedFunctionarys">${functionaryJoin}</div> 
-    </div>
-    <div class="renderedHours">${hoursJoin}</div>
+  const reqScheudle = await scheduleSchema.find({ storeName: cstoreName, functionary: functionary, day: day})
+  const scheduledHours = reqScheudle.map(schedule => schedule.hour);
+  
     
-  </section>
-  <footer class="selectedIndicatorA"  id="finished"><button>Next<strong class="consoleWrite"> >></strong></button></footer>`;
+    for (let i = 0; i < hoursTobeDiv.length; i++) {
+      
+      if (!scheduledHours.includes(hoursTobeDiv[i])){
+        const outlierBase = `<br><div class="ourhours" data-hour="${hoursTobeDiv[i]}">${hoursTobeDiv[i]}</div>`;
+        hoursArray.push(outlierBase);
+      }
+      }
+  
+  console.log(hoursArray)
+  let html = `<div class="renderedHours"><div class="calendarOfHours">${hoursArray.join(" ")}</div></div><footer class="selectedIndicatorB"  id="finished"><button>Finish<strong class="consoleWrite"> >></strong></button></footer>`
 
-  return res.json({
-    returner: services,
-    name: storeName,
-    code: code,
-    functionarysName: nameOfFunctionarys,
-    hours: hoursTobeDiv,
-  });
-});
+  return res.status(200).json({
+    ok: "ok",
+    render: html
+  })
+
+  } catch (error) {
+    
+  }
+})
 app.get("/render/days", tokenVerify, (req, res) => {
   const now = new Date();
   const calendar = [];
@@ -1259,50 +1281,71 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
   const schedules = await scheduleSchema
     .find({ name: name, email: email })
     .lean();
-  if (!schedules || schedules.lenght ==+ 0) {
+  if (!schedules || schedules.length == 0) {
     return res.status(200).json({
       msg: "Nenhum dado encontrado",
-      push: "<div>EU SINTO O SHADOW NO MEU CU</div>",
+      push: `
+      <div class="notAllowed">
+  <div class="call-action">
+    <h1 class="call-h1">
+      No Appointment <strong class="GreenCard">found</strong><strong class="pointer">,</strong>
+    </h1>
+    <p class="call-p">Discover partner stores and schedule your favorite services.</p>
+  </div>
+
+  <div class="central-plus">
+    <div class="label-plus">
+      <p>
+        Schedule <strong class="GreenCard">Now</strong>
+      </p>
+    </div>
+    <div class="img-plus">
+      <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF">
+    </div>
+  </div>
+</div>
+      `,
     });
-  }
-  else{
+  } else {
     console.log(schedules);
 
-  let dS = [];
-  for (let i = 0; i < schedules.length; i++) {
-    let schedule = schedules[i];
-    let cS = [];
-    let DBStoreName = schedule.storeName.replaceAll(" ", "-");
-    const services = await ServicesCad.findOne({
-      storeName: DBStoreName,
-    }).lean();
-    console.log(services);
-    if (!services) {
-      return res.status(404).json({ msg: "error" });
-    }
-    const Userservice = schedule.services;
-
-    for (let j = 0; j < Userservice.length; j++) {
-      const serviceName = Userservice[j];
-      const indexOfService = services.serviceName.indexOf(serviceName);
-      if (indexOfService !== -1) {
-        const imagePath = services.serviceImagePath[indexOfService];
-        let html = `
-          <p>${serviceName}`;
-        cS.push(html);
+    let dS = [];
+    for (let i = 0; i < schedules.length; i++) {
+      let schedule = schedules[i];
+      let cS = [];
+      let DBStoreName = schedule.storeName.replaceAll(" ", "-");
+      const services = await ServicesCad.findOne({
+        storeName: DBStoreName,
+      }).lean();
+      console.log(services);
+      if (!services) {
+        return res.status(404).json({ msg: "error" });
       }
-    }
+      const Userservice = schedule.services;
 
-    const storeName = schedule.storeName.replaceAll("-", " ");
-    const day = schedule.day;
-    const hour = schedule.hour;
-    const functionary = schedule.functionary;
-    const randomSymbol = [">_", ">>", "//"]
-    let random = Math.floor(Math.random() * 3)
-    let htmlD = `
+      for (let j = 0; j < Userservice.length; j++) {
+        const serviceName = Userservice[j];
+        const indexOfService = services.serviceName.indexOf(serviceName);
+        if (indexOfService !== -1) {
+          const imagePath = services.serviceImagePath[indexOfService];
+          let html = `
+          <p>${serviceName}`;
+          cS.push(html);
+        }
+      }
+
+      const storeName = schedule.storeName.replaceAll("-", " ");
+      const day = schedule.day;
+      const hour = schedule.hour;
+      const functionary = schedule.functionary;
+      const randomSymbol = [">_", ">>", "//"];
+      let random = Math.floor(Math.random() * 3);
+      let htmlD = `
     <div class="schedule-content">
       <div class="schedule-data" data-dia="${day}" data-hour="${hour}" data-storeName="${storeName}" data-functionary="${functionary}">
-        <div class="schedule-StoreName" ><strong class="consoleWrite">${randomSymbol[random]}</strong>${storeName}</div>
+        <div class="schedule-StoreName" ><strong class="consoleWrite">${
+          randomSymbol[random]
+        }</strong>${storeName}</div>
 
         <div class="schedule-Fun"><strong class="GreenCard" style="margin-bottom: 10px;">Professional:</strong> ${functionary}</div>
         <div class="schedule-Dam">
@@ -1333,47 +1376,56 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
       </div>
     </div>
       `;
-    dS.push(htmlD);
-  }
-  let htmlFULL = `<div class="schedule-some-div">
+      dS.push(htmlD);
+    }
+    let htmlFULL = `<div class="schedule-some-div">
     
     
-  </div><div class="schedule-union">${dS.join(" ")}</div>`;
-  return res.status(201).json({ ok: "ok", push: htmlFULL });
+  </div><div class="schedule-union">${dS.join(" ")}<div class="central-plus">
+          <div class="label-plus">
+          <p>
+          Schedule <strong class="GreenCard">Now</strong>
+          </p>
+          </div>
+          <div class="img-plus">
+            <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF">
+          </div>
+        </div></div>`;
+    return res.status(201).json({ ok: "ok", push: htmlFULL });
   }
 });
 app.delete("/delete/schedules", tokenVerify, async (req, res) => {
-  const {name, email} = req.user;
-  const {dia, hora, loja, funcionario} = req.body;
+  const { name, email } = req.user;
+  const { dia, hora, loja, funcionario } = req.body;
 
   try {
-    const realName = loja.replaceAll(" ", "-")
+    const realName = loja.replaceAll(" ", "-");
     const deleter = await scheduleSchema.findOneAndDelete({
       name: name,
       email: email,
       functionary: funcionario,
       hour: hora,
       day: dia,
-      storeName: realName
-    })
-    if (!deleter){
+      storeName: realName,
+    });
+    if (!deleter) {
       return res.status(404).json({
-        error: "Error 404, n encontrado"
-      })
+        error: "Error 404, n encontrado",
+      });
     }
     return res.status(201).json({
-      s: 'Sucess',
-      redirect: "/reload"
-    })
+      s: "Sucess",
+      redirect: "/reload",
+    });
   } catch (error) {
     return res.status(500).json({
-      error: 'Error 500, server error man, que merda'
-    })
+      error: "Error 500, server error man, que merda",
+    });
   }
-})
+});
 app.get("/reload", (req, res) => {
-  return res.redirect('/schedule/home')
-})
+  return res.redirect("/schedule/home");
+});
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);

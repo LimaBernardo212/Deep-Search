@@ -4,54 +4,55 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Log : Home</title>
+
     <link rel="stylesheet" href="/style/style.css" />
     <link
       rel="shortcut icon"
       href="/favicons/favicon-32x32.png"
       type="image/x-icon"
     />
-  </head>
 
-  <style>
-    body {
-      background-image: linear-gradient(
-        to bottom,
-        #0d0d0d,
-        #0d0d0d,
-        #0d0d0d,
-        #042326
-      );
-    }
-  </style>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      const body = document.querySelector("body");
-
-      function render(el) {
-        const element = document.createElement("div");
-        element.classList.add("all");
-        element.innerHTML = el;
-        return element;
+    <style>
+      body {
+        background-image: linear-gradient(
+          to bottom,
+          #0d0d0d,
+          #0d0d0d,
+          #0d0d0d,
+          #042326
+        );
       }
+    </style>
 
-      const url = window.location.pathname;
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const body = document.querySelector("body");
 
-      try {
-        const request = await fetch(`/api${url}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        function render(el) {
+          const element = document.createElement("div");
+          element.classList.add("all");
+          element.innerHTML = el;
+          return element;
+        }
 
-        if (request.ok) {
+        const url = window.location.pathname;
+
+        try {
+          const request = await fetch(`/api${url}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!request.ok) return;
+
           const data = await request.json();
           const html = data.htmlPage;
           const name = data.StoreName;
           const service = data.serviceName;
           const closedDays = data.closedDays;
-
+          
           let simpleArray = [];
           document.title = name;
 
@@ -62,19 +63,22 @@
           const button = document.querySelector(".selectedIndicator button");
           const services_content = document.querySelector(".services-content");
           const counterOfSelected = document.querySelector(".counter");
-
+          const servicesBtn = document.querySelector('.servicesBtn')
+          servicesBtn.addEventListener("click", () => {
+            window.location.href = '#forScrollPreguiçosos'
+          })
           servicesDiv.forEach((el, i) => {
             el.addEventListener("click", () => {
               el.classList.toggle("servicesSelected");
 
               if (simpleArray.includes(service[i])) {
-                let index = simpleArray.indexOf(service[i]);
-                if (index != -1) simpleArray.splice(index, 1);
+                const index = simpleArray.indexOf(service[i]);
+                if (index !== -1) simpleArray.splice(index, 1);
               } else {
                 simpleArray.push(service[i]);
               }
 
-              if (simpleArray.length != 0) {
+              if (simpleArray.length !== 0) {
                 counterOfSelected.innerHTML = `Services Selected: ${simpleArray.length}`;
                 selected.style.opacity = 1;
               } else {
@@ -85,348 +89,236 @@
 
           button.addEventListener("click", async () => {
             try {
-              if (simpleArray.length != 0) {
-                const req = await fetch("/api/selected", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    services: simpleArray,
-                    storeName: name,
-                  }),
-                });
+              const fetcher = await fetch("/render/days", {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+              });
 
-                if (req.ok) {
-                  const data = await req.json();
-                  const servicesname = data.returner;
-                  const namer = data.storeName;
-                  const code = data.code;
-                  const functionarysName = data.functionarysName;
-                  const hour = data.hours;
+              if (!fetcher.ok) return;
 
-                  setTimeout(() => {
-                    servicesDiv.forEach((el) => {
-                      el.style.opacity = "0";
-                      selected.style.opacity = 0;
+              const data = await fetcher.json();
+              const calendar = data.calendario;
+            
+              const oldCalendar = document.querySelector(".calendar");
+              if (oldCalendar) oldCalendar.remove();
+              const div = document.createElement('div')
+              div.classList.add('daySistem');
+              servicesDiv.forEach((el) => {
+                el.style.opacity = '0'
+                setTimeout(() => {
+                  el.remove()
+                }, 500);
+              })
+              services_content.appendChild(div);
+              const daySistem = document.querySelector('.daySistem')
+              daySistem.style.opacity = "0";
+              selected.style.opacity = "0";
 
-                      setTimeout(() => {
-                        el.style.display = "none";
-                        selected.style.display = "none";
-                      }, 500);
-                    });
+              setTimeout(() => {
+                daySistem.style.display = "none";
+                selected.style.display = "none";
+              }, 500);
 
-                    setTimeout(() => {
-                      services_content.appendChild(render(code));
+              let codeArray = [];
+              const closedDaysArray =
+                typeof closedDays === "string"
+                  ? closedDays.split(",").map((d) => d.trim())
+                  : closedDays;
 
-                      const hoursSistem =
-                        document.querySelector(".hoursSistem");
-                      const functionarys = document.querySelectorAll(
-                        ".functionaryBaseDiv"
-                      );
-                      const finished = document.querySelector(
-                        ".selectedIndicatorA"
-                      );
-                      const hours = document.querySelectorAll(".ourhours");
+              for (let i = 0; i < calendar.length; i++) {
+                const dia = calendar[i].dia;
+                const mes = calendar[i].mes;
+                const nomeDia = calendar[i].nomeDia;
 
-                      let arrayn = [];
-                      let arrayH = [];
-
-                      functionarys.forEach((el, i) => {
-                        el.addEventListener("click", async () => {
-                          functionarys.forEach((f) =>
-                            f.classList.remove("clientSelect")
-                          );
-
-                          arrayn.splice(0);
-                          el.classList.add("clientSelect");
-                          arrayn.push(functionarysName[i]);
-
-                          if (arrayH.length > 0 && arrayn.length > 0) {
-                            const fetcher = await fetch("/render/days", {
-                              method: "GET",
-                              headers: { "Content-Type": "application/json" },
-                            });
-
-                            if (fetcher.ok) {
-                              const data = await fetcher.json();
-                              const calendar = data.calendario;
-                              const oldCalendar =
-                                document.querySelector(".calendar");
-                              if (oldCalendar) {
-                                oldCalendar.remove();
-                              }
-                              hoursSistem.style.opacity = "0";
-                              finished.style.opacity = "0";
-
-                              setTimeout(() => {
-                                hoursSistem.style.display = "none";
-                                finished.style.display = "none";
-                              }, 500);
-
-                              let codeArray = [];
-                              const closedDaysArray =
-                                typeof closedDays === "string"
-                                  ? closedDays.split(",").map((d) => d.trim())
-                                  : closedDays;
-
-                              for (let i = 0; i < calendar.length; i++) {
-                                let dia = calendar[i].dia;
-                                let mes = calendar[i].mes;
-                                let nomeDia = calendar[i].nomeDia;
-
-                                if (!closedDaysArray.includes(nomeDia)) {
-                                  let code = `
-                                    <div class="day">
-                                      <div class="DavidJoneDay" data-dia="${dia}" data-mes="${mes}">${dia}/${mes}</div>
-                                    </div>
-                                  `;
-                                  codeArray.push(code);
-                                }
-                              }
-
-                              let codeHtml = `
-                                <section class="calendar">
-                                  <div class="txtCalendar">
-                                    And finally, select a
-                                    <strong class="GreenCard">day</strong><strong class="pointer">.</strong>
-                                  </div>
-
-                                  <div class="calendarLine">
-                                    <div class="backer">
-                                      <img src="https://img.icons8.com/?size=100&id=85099&format=png&color=FFFFFF">
-                                    </div>
-
-                                    <div class="linerDays">
-                                      <div class="scroll">${codeArray.join(
-                                        ""
-                                      )}</div>
-                                    </div>
-
-                                    <div class="nexter">
-                                      <img src="https://img.icons8.com/?size=100&id=85099&format=png&color=FFFFFF">
-                                    </div>
-                                  </div>
-                                </section>
-                              `;
-
-                              services_content.appendChild(render(codeHtml));
-
-                              let currentP = 0;
-                              const backer = document.querySelector(".backer");
-                              const scroll = document.querySelector(".scroll");
-                              const nexter = document.querySelector(".nexter");
-                              const david =
-                                document.querySelectorAll(".DavidJoneDay");
-
-                              let arrayD = [];
-
-                              backer.addEventListener("click", () => {
-                                currentP += 5;
-                                if (currentP > 50) currentP = 50;
-                                scroll.style.transform = `translateX(${currentP}vw)`;
-                              });
-
-                              nexter.addEventListener("click", () => {
-                                currentP -= 5;
-                                if (currentP < -50) currentP = -50;
-                                scroll.style.transform = `translateX(${currentP}vw)`;
-                              });
-
-                              david.forEach((el, i) => {
-                                el.addEventListener("click", async () => {
-                                  david.forEach((d) =>
-                                    d.classList.remove("davidISelect")
-                                  );
-                                  arrayD.splice(0);
-                                  const dia = el.getAttribute("data-dia");
-                                  const mes = el.getAttribute("data-mes");
-                                  el.classList.add("davidISelect");
-                                  arrayD.push(`${dia}/${mes}`);
-
-                                  console.log(arrayD);
-
-                                  const req = await fetch(`/schedule`, {
-                                    method: "POST",
-                                    headers: {
-                                      "Content-Type": "application/json",
-                                    },
-                                    body: JSON.stringify({
-                                      choiceFunctionary: arrayn,
-                                      choiceHour: arrayH,
-                                      choiceDay: arrayD,
-                                      services: simpleArray,
-                                      storeName: name
-                                    }),
-                                  });
-                                  if (req.ok){
-                                    const data = await req.json();
-                                    const redirect = data.redirect;
-                                    window.location.href = redirect
-                                  }
-                                });
-                              });
-                            }
-                          }
-                        });
-                      });
-
-                      hours.forEach((el, i) => {
-                        el.addEventListener("click", async () => {
-                          hours.forEach((h) =>
-                            h.classList.remove("hourSelect")
-                          );
-                          arrayH.splice(0);
-
-                          el.classList.add("hourSelect");
-                          arrayH.push(hour[i]);
-
-                          if (arrayH.length > 0 && arrayn.length > 0) {
-                            const fetcher = await fetch("/render/days", {
-                              method: "GET",
-                              headers: { "Content-Type": "application/json" },
-                            });
-
-                            if (fetcher.ok) {
-                              const data = await fetcher.json();
-                              const calendar = data.calendario;
-                              const oldCalendar =
-                                document.querySelector(".calendar");
-                              if (oldCalendar) {
-                                oldCalendar.remove();
-                              }
-                              hoursSistem.style.opacity = "0";
-                              finished.style.opacity = "0";
-
-                              setTimeout(() => {
-                                hoursSistem.style.display = "none";
-                                finished.style.display = "none";
-                              }, 500);
-
-                              let codeArray = [];
-                              const closedDaysArray =
-                                typeof closedDays === "string"
-                                  ? closedDays.split(",").map((d) => d.trim())
-                                  : closedDays;
-
-                              for (let i = 0; i < calendar.length; i++) {
-                                let dia = calendar[i].dia;
-                                let mes = calendar[i].mes;
-                                let nomeDia = calendar[i].nomeDia;
-
-                                if (!closedDaysArray.includes(nomeDia)) {
-                                  let code = `
-                                    <div class="day">
-                                      <div class="DavidJoneDay" data-dia="${dia}" data-mes="${mes}">${dia}/${mes}</div>
-                                    </div>
-                                  `;
-                                  codeArray.push(code);
-                                }
-                              }
-
-                              let codeHtml = `
-                                <section class="calendar">
-                                  <div class="txtCalendar">
-                                    And finally, select a
-                                    <strong class="GreenCard">day</strong><strong class="pointer">.</strong>
-                                  </div>
-
-                                  <div class="calendarLine">
-                                    <div class="backer">
-                                      <img src="https://img.icons8.com/?size=100&id=85099&format=png&color=FFFFFF">
-                                    </div>
-
-                                    <div class="linerDays">
-                                      <div class="scroll">${codeArray.join(
-                                        ""
-                                      )}</div>
-                                    </div>
-
-                                    <div class="nexter">
-                                      <img src="https://img.icons8.com/?size=100&id=85099&format=png&color=FFFFFF">
-                                    </div>
-                                  </div>
-                                </section>
-                              `;
-
-                              services_content.appendChild(render(codeHtml));
-
-                              let currentP = 0;
-                              const backer = document.querySelector(".backer");
-                              const scroll = document.querySelector(".scroll");
-                              const nexter = document.querySelector(".nexter");
-                              const david =
-                                document.querySelectorAll(".DavidJoneDay");
-
-                              let arrayD = [];
-
-                              backer.addEventListener("click", () => {
-                                currentP += 5;
-                                if (currentP > 50) currentP = 50;
-                                scroll.style.transform = `translateX(${currentP}vw)`;
-                              });
-
-                              nexter.addEventListener("click", () => {
-                                currentP -= 5;
-                                if (currentP < -50) currentP = -50;
-                                scroll.style.transform = `translateX(${currentP}vw)`;
-                              });
-
-                              david.forEach((el, i) => {
-                                el.addEventListener("click", async () => {
-                                  david.forEach((d) =>
-                                    d.classList.remove("davidISelect")
-                                  );
-                                  arrayD.splice(0);
-                                  const dia = el.getAttribute("data-dia");
-                                  const mes = el.getAttribute("data-mes");
-                                  el.classList.add("davidISelect");
-                                  arrayD.push(`${dia}/${mes}`);
-
-                                  console.log(arrayD);
-
-                                  const req = await fetch(`/schedule`, {
-                                    method: "POST",
-                                    headers: {
-                                      "Content-Type": "application/json",
-                                    },
-                                    body: JSON.stringify({
-                                      choiceFunctionary: arrayn,
-                                      choiceHour: arrayH,
-                                      choiceDay: arrayD,
-                                      services: simpleArray,
-                                      storeName: name
-                                    }),
-                                  });
-                                  if (req.ok){
-                                    const data = await req.json();
-                                    const redirect = data.redirect;
-                                    window.location.href = redirect
-                                  }
-                                });
-                              });
-                            }
-                          }
-                        });
-                      });
-                    }, 1000);
-                  }, 500);
+                if (!closedDaysArray.includes(nomeDia)) {
+                  let code = `
+                    <div class="day">
+                      <div class="DavidJoneDay"
+                           data-dia="${dia}"
+                           data-mes="${mes}">
+                        ${dia}/${mes}
+                      </div>
+                    </div>`;
+                  codeArray.push(code);
                 }
               }
+
+              const codeHtml = `
+                <section class="calendar">
+                  <div class="txtCalendar">
+                    Now, select a
+                    <strong class="GreenCard">day</strong><strong class="pointer">.</strong>
+                  </div>
+
+                  <div class="calendarLine">
+                    <div class="backer">
+                      <img src="https://img.icons8.com/?size=100&id=85099&format=png&color=FFFFFF">
+                    </div>
+
+                    <div class="linerDays">
+                      <div class="scroll">${codeArray.join("")}</div>
+                    </div>
+
+                    <div class="nexter">
+                      <img src="https://img.icons8.com/?size=100&id=85099&format=png&color=FFFFFF">
+                    </div>
+                  </div>
+                </section>
+                <button class="nxtBtn"> Next <strong class="consoleWrite"> >></strong></button>`;
+
+              services_content.appendChild(render(codeHtml));
+
+              let currentP = 0;
+              const backer = document.querySelector(".backer");
+              const scroll = document.querySelector(".scroll");
+              const nexter = document.querySelector(".nexter");
+              const david = document.querySelectorAll(".DavidJoneDay");
+
+              let arrayD = [];
+
+              backer.addEventListener("click", () => {
+                currentP += 5;
+                if (currentP > 50) currentP = 50;
+                scroll.style.transform = `translateX(${currentP}vw)`;
+              });
+
+              nexter.addEventListener("click", () => {
+                currentP -= 5;
+                if (currentP < -50) currentP = -50;
+                scroll.style.transform = `translateX(${currentP}vw)`;
+              });
+              const nextBtn = document.querySelector(".nxtBtn")
+              david.forEach((el) => {
+                el.addEventListener("click", () => {
+                  david.forEach((d) => d.classList.remove("davidISelect"));
+                  arrayD.splice(0);
+
+                  const dia = el.getAttribute("data-dia");
+                  const mes = el.getAttribute("data-mes");
+
+                  el.classList.add("davidISelect");
+                  arrayD.push(`${dia}/${mes}`);
+
+                  console.log(arrayD);
+                  nextBtn.style.opacity = '1'
+                });
+              });
+              nextBtn.addEventListener("click", async () => {
+                  const req = await fetch("/api/selected/fun", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      services: simpleArray,
+                      storeName: name
+                    })
+                  })
+                  if (req.ok){
+                    const calendar = document.querySelector(".calendar")
+                    calendar.style.opacity = '0'
+                    nextBtn.style.opacity = '0'
+                    setTimeout(() => {
+                      nextBtn.style.display = 'none'
+                      calendar.remove()
+                    }, 500);
+                    const data = await req.json();
+                    const codeHtml = data.code;
+
+                    services_content.appendChild(render(codeHtml))
+
+                    const fun = document.querySelectorAll('.functionaryBaseDiv');
+                    let arrayF = []
+                    const indicatorA = document.querySelector('.selectedIndicatorA')
+                    fun.forEach((el, i) => {
+                      el.addEventListener("click", () => {
+                        fun.forEach((f) => {
+                          f.classList.remove('clientSelect')
+                        })
+                        arrayF.splice(0)
+                        const nameOf = el.getAttribute("name-of");
+                  
+
+                  el.classList.add("clientSelect");
+                  arrayF.push(`${nameOf}`);
+
+                  console.log(arrayF);
+                 indicatorA.style.opacity = '1'
+                      })
+                    })
+                    indicatorA.addEventListener("click", async () => {
+                      const req = await fetch("/api/selected/hours", {
+                        method: "POST",
+                        headers: {
+                           "Content-Type": "application/json" 
+                        },
+                        body: JSON.stringify({
+                          storeName: name,
+                          functionary: arrayF.join(""),
+                          day: arrayD.join("")
+                        })
+                        
+                      })
+                      if (req.ok){
+                        const data = await req.json();
+                        const htmlPager = data.render;
+                        const hoursSistem = document.querySelector('.hoursSistem');
+                        indicatorA.style.opacity = '0'
+                        hoursSistem.style.opacity = '0';
+                        setTimeout(() => {
+                          indicatorA.style.display = 'none'
+                          hoursSistem.remove()
+                        }, 500);
+                        services_content.appendChild(render(htmlPager))
+
+                        const ourHours = document.querySelectorAll('.ourhours');
+                        const indicatorB = document.querySelector('.selectedIndicatorB')
+                        let arrayO = []
+                        ourHours.forEach((el, i ) => {
+                          el.addEventListener("click", () => {
+                            ourHours.forEach(o => o.classList.remove('hourSelect'))
+                          
+                          arrayO.splice(0)
+                          const dataHour = el.getAttribute("data-hour");
+                  
+
+                  el.classList.add("hourSelect");
+                  arrayO.push(`${dataHour}`);
+                  indicatorB.style.opacity = '1'
+                  console.log(arrayO);
+                 })
+                        })
+                        indicatorB.addEventListener('click', async () => {
+                          const req = await fetch('/schedule', {
+                            method: "POST",
+                            headers: {"Content-Type": "application/json"},
+                            body: JSON.stringify({
+                              choiceFunctionary: arrayF,
+                              choiceHour: arrayO,
+                              choiceDay: arrayD,
+                              services: simpleArray,
+                              storeName: name
+                            })
+                          })
+                          if (req.ok){
+                            const data = await req.json();
+                            const urlForRedirect = data.redirect;
+                            window.location.href = urlForRedirect
+                          }
+                        })
+                      }
+                    })
+                  }
+              })
+
             } catch (error) {
               console.error(error);
             }
           });
-
-          document
-            .querySelector("#back")
-            .addEventListener("click", () => window.history.back());
+        } catch (err) {
+          console.error(err);
         }
-      } catch (error) {
-        console.log("Error");
-      }
-    });
-  </script>
+      });
+    </script>
+  </head>
 
   <body></body>
 </html>
