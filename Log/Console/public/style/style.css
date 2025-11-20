@@ -19,6 +19,7 @@
   --fullWhite: white;
   --cor11: #8c2f2f;
   --cor12:#bf4338;
+  --cor13: #f5a623;
   --fontJetBrains: "JetBrains Mono", monospace;
   --fontRoboto: "Roboto", sans-serif;
   --fontInconsolata: "Inconsolata", monospace;
@@ -980,11 +981,14 @@ body {
   top: 8vh;
   left: 0;
   background-color: var(--cor03);
-  width: 4vw;
+  width: 6vw;
   display: flex;
   flex-direction: column;
   align-items: center;
   height: 92vh;
+}
+.divAndYourLabel:hover{
+  transform: translate(-3px, -3px);
 }
 .itens {
   margin-top: 5vh;
@@ -993,9 +997,7 @@ body {
 .itens img {
   width: 28px;
 }
-.itens:hover {
-  transform: translate(-3px, -3px);
-}
+
 #loading {
   width: 5vw;
   height: 5vw;
@@ -1711,194 +1713,130 @@ main.infoContent {
   min-height: 92vh;
   margin-top: 10vh;
   display: flex;
-  
-}
-
-.imageInTheRiver img{
-  width: 32px;
-  height: 32px;
-  border-radius: 40%;
-}
-.imageInTheRiver:hover img{
-  filter: grayscale(1);
-  transform: translate(-3px, -3px);
-}
-.imageInTheRiver:hover ~ .serviceNameInTheRiver{
-  opacity: 1;
-  transform: translateY(-48px);
-}
-.imageInTheRiver{
-  width: 44px;
-  height: 44px;
-  align-items: center;
-  justify-content: center;
-  color: var(--cor02);
-  font-weight: thin;
-  font-family: var(--fontSpace);
-  margin: 0.5vw;
-  position: relative;
-}
-.servicesInTheRiver{
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.serviceNameInTheRiver{
-  opacity: 0;
-  transform: translateY(-32px);
-  position: absolute;
-  background-color: var(--cor03);
-  color: var(--cor05);
-  font-family: var(--fontRoboto);
-  padding: 7px;
-  border-radius: 10px;
-  border: 1px solid var(--cor01Esvoaçada);
-  font-size: 0.8em;
-  max-width: none;
-}
-.schedule-Dam{
-  opacity: 0;
-  display: flex;
-  align-items: center;
+  flex-wrap: wrap;
 }
 .schedule-data{
-  min-width: 20vw;
-  min-height: 20vh;
+
   display: flex;
-  
   flex-direction: column;
   justify-content: center;
-  background-color: var(--cor03);
-  border: 1px solid var(--cor01Esvoaçada);
-  border-radius: 20px;
-  margin:  0.5vw 2vw;
+  
+  margin:  0.5vw 1vw;
 }
-.schedule-content:hover .schedule-Dam{
-  opacity: 1;
+
+.schedule-StoreName{
+  margin: 4vh 2vh 2vh 2vh;
+  font-size: 1.3em;
 }
-.schedule-content:hover .delete{
-  opacity: 1;
-}
-.schedule-content:hover{
+.schedule-StoreName:hover{
   transform: translate(-3px, -3px);
 }
-.schedule-data:hover{
-  background-color: var(--cor04);
+.schedule-Fun{
+  margin: 0 3vh 2vh 3vh;
+}
+.schedule-content{
+  background-color: var(--cor00);
+  border: 1px solid var(--cor01Esvoaçada);
+  border-radius: 20px;
+  width: 40vw;
+  height: 48vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.schedule-Dam{
+  margin-left: 4vw;
+  margin-bottom: 3vh;
+}
+.schedule-Dam .jsonWrite{
+  margin-left: 3vw;
+}
+.schedule-Dam .GreenCard{
+  margin-bottom: 1vh;
 }
 .schedule-union{
   display: flex;
   color: var(--cor05);
   font-family: var(--fontRoboto);
   gap: 1vw;
+  flex-wrap: wrap;
   margin-left: 6vw;
-  font-size: 0.8em;
-  margin-top: 2vh;
+  margin-top: 1vh;
   margin-bottom: 3vh;
 }
-
-
-
-.schedule-content{
+.jsonWrite{
+  font-weight: bolder;
+  color: var(--cor13);
+  font-size: 1em;
+  font-family: var(--fontInconsolata);
+}
+.schedule-services img{
+  width: 32px;
+}
+.schedule-services{
+  margin: 2vh 3vw -3vh 3vw;
+}
+.schedule-services p {
+  display: block;
+  margin: 2vh;
+}
+.lateralInfos{
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
+  height: 43vh;
 }
 .delete{
-  opacity: 0;
-  width: 48px;
-  height: 48px;
+  opacity: 1;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 1.5vh;
-  border: 1px solid transparent;
-  border-radius: 50%;
+  border-radius: 7px;
+  margin-right: -5vh;
+  border: 1px solid var(--cor01Esvoaçada);
 }
-.delete img{
-  width: 24px;
-  height: 24px;
-}
-.schedule-StoreName{
-  color: var(--cor05);
-  font-family: var(--fontRoboto);
-  font-size: 1em;
-  margin-bottom: 2vh;
-  margin-left: 2vw;
-}
-.schedule-Fun{
-  color: var(--cor05);
-  font-family: var(--fontRoboto);
-  font-size: 0.8em;
-  margin-bottom: 1vh;
-  margin-left: 2.5vw;
+.schedule-content:hover{
+  background-color: var(--cor03);
 }
 .delete:hover{
-  background-color: var(--cor03);
-  border: 1px solid var(--cor01Esvoaçada);
-}
-.dayEHour{
-  color: var(--cor08);
-  font-family: var(--fontSpace);
-}
-.texts h1{
-  color: var(--cor05);
-  margin-top: 5vh;
-  font-size: 1em;
-  font-family: var(--fontRoboto);
-}
-.TitlesOfSchedules{
-  width: 90vw;
-  border-radius: 20px;
-  margin: 5vh 1.7vw;
-  height: 20vh;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  background-color: var(--cor03);
-  border: 1px solid var(--cor01Esvoaçada);
-}
-.TitlesOfSchedules h1{
-  color: var(--cor05);
-  font-family: var(--fontRoboto);
-  margin-bottom: 2vh;
-  margin-left: 5vw;
-}
-.TitlesOfSchedules p{
-  color: var(--cor05);
-  font-family: var(--fontRoboto);
-  margin-left: 6vw;
-  
-}
-.createNew{
-  width: 92vw;
-  margin:  15vh 1vw;
-  border-top: 1px solid var(--cor01Esvoaçada);
+  background-color: var(--cor04);
 }
 
-.schedule-some-div{
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 3vh;
+.delete img{
+  width: 24px;
 }
-.apoitmentBtn{
-  width: 15vw;
-  height: 7vh;
-  background-color: var(--cor00);
+.schedule-dayEHour{
+  width: 6vw;
+  height: 6vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
   border: 1px solid var(--cor01Esvoaçada);
   border-radius: 10px;
+  margin-right: 1vw;
+}
+.schedule-Day{
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--cor01Esvoaçada);
+}
+.schedule-dayEHour:hover{
+  background-color: var(--cor04);
+  color: var(--cor08);
+}
+.divAndYourLabel{
   display: flex;
+  flex-direction: column;
   align-items: center;
-  color: var(--cor05);
-  font-family: var(--fontRoboto);
   justify-content: center;
-  gap: 1vw;
-  margin-left: 8vw;
 }
-.apoitmentBtn:hover{
-  background-color: var(--cor03);
-  transform: translate(-3px, -3px);
-}
-.apoitmentBtn img{
-  width: 28px;
-  height: 28px;
+.divAndYourLabel p{
+  color: var(--cor05);
+  font-family: var(--fontInconsolata);
+  margin-top: 0.5vw;
+  font-size: 0.9em;
 }

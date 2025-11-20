@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/style/style.css">
-    <link rel="shortcut icon" href="/favicons/favicon-32x32.png" type="image/x-icon">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
     <title>Your Schedules</title>
-</head>
-<body>
+  </head>
+  <body>
     <header class="homenav">
       <div class="consoleImg">
         <img src="/img/().png" alt="" />
@@ -30,99 +34,163 @@
     </header>
     <section class="userPOV">
       <aside class="leftBar">
-        <div id="home" class=" itens" title="Home">
-          <img
-            src="https://img.icons8.com/?size=100&id=86527&format=png&color=FFFFFF"
-            alt=""
-          />
+        <div class="divAndYourLabel">
+          <div id="home" class="itens" title="Home">
+            <img
+              src="https://img.icons8.com/?size=100&id=86527&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Home</p>
         </div>
-        <div id="schedule" class="itenSelected itens" title="Your Schedules">
-          <img
-            src="https://img.icons8.com/?size=100&id=116296&format=png&color=FFFFFF"
-            alt=""
-          />
+
+        <div class="divAndYourLabel">
+          <div id="schedule" class="itenSelected itens" title="Your Schedules">
+            <img
+              src="https://img.icons8.com/?size=100&id=116296&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Schedules</p>
         </div>
-        <div id="treatments" class="itens" title="Your Treatments">
-          <img
-            src="https://img.icons8.com/?size=100&id=86312&format=png&color=FFFFFF"
-            alt=""
-          />
+
+        <div class="divAndYourLabel">
+          <div id="treatments" class="itens" title="Your Treatments">
+            <img
+              src="https://img.icons8.com/?size=100&id=86312&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Treatments</p>
         </div>
-        <div id="plansinapp" class="itens" title="Yours Plans in Stores">
-          <img
-            src="https://img.icons8.com/?size=100&id=86440&format=png&color=FFFFFF"
-            alt=""
-          />
+
+        <div class="divAndYourLabel">
+          <div id="plansinapp" class="itens" title="Yours Plans in Stores">
+            <img
+              src="https://img.icons8.com/?size=100&id=86440&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Plans</p>
         </div>
-        <div id="projects" class="itens" title="Your Project">
-          <img
-            src="https://img.icons8.com/?size=100&id=85615&format=png&color=FFFFFF"
-            alt=""
-          />
+
+        <div class="divAndYourLabel">
+          <div id="projects" class="itens" title="Your Project">
+            <img
+              src="https://img.icons8.com/?size=100&id=85615&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Projects</p>
         </div>
-        <div id="documents" class="itens" title="Documents">
-          <img
-            src="https://img.icons8.com/?size=100&id=83153&format=png&color=FFFFFF"
-            alt=""
-          />
+
+        <div class="divAndYourLabel">
+          <div id="documents" class="itens" title="Documents">
+            <img
+              src="https://img.icons8.com/?size=100&id=83153&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Documents</p>
         </div>
-        <div id="API" class="itens" title="API">
-          <img
-            src="https://img.icons8.com/?size=100&id=85950&format=png&color=FFFFFF"
-            alt=""
-          />
+
+        <div class="divAndYourLabel">
+          <div id="API" class="itens" title="API">
+            <img
+              src="https://img.icons8.com/?size=100&id=85950&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>API</p>
         </div>
       </aside>
       <main class="infoContent">
         <div id="loading"></div>
-        
+
         <div class="content">
           <div class="your-schedules"></div>
         </div>
       </main>
     </section>
-</body>
-<script>
-    const home = document.querySelector('#home')
+    
+  </body>
+  <script>
+    const home = document.querySelector("#home");
     home.addEventListener("click", () => {
-        window.location.href = '/home.html';
-    })
+      window.location.href = "/home.html";
+    });
     function createdatas(el) {
       const element = document.createElement("div");
       element.classList.add("scheduleData");
       element.innerHTML = el;
       return element;
     }
-    window.addEventListener('load', async () => {
-      const schedule = document.querySelector(".your-schedules")
-        const req = await fetch('/return/data/schedule', {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        })
-        if (req.ok){
-          const data = await req.json();
-          const push = data.push;
-          const content = document.querySelector('.content')
-          const load = document.querySelector('#loading')
+    window.addEventListener("load", async () => {
+      const schedule = document.querySelector(".your-schedules");
+      const req = await fetch("/return/data/schedule", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (req.ok) {
+        const data = await req.json();
+        const push = data.push;
+        const content = document.querySelector(".content");
+        const load = document.querySelector("#loading");
+
+        schedule.appendChild(createdatas(push));
+        load.style.opacity = "0";
+        setTimeout(() => {
+          load.style.display = "none";
+          content.style.display = "flex";
+        }, 300);
+
+        content.style.opacity = "1";
+        const apoitBtn = document.querySelectorAll(".delete");
+        const datasSchedule = document.querySelectorAll(".schedule-data")
+        schedule.addEventListener("click", async (e) => {
+          const deleter = e.target.closest(".delete")
           
-         
-            schedule.appendChild(createdatas(push))
-          load.style.opacity = '0'
-          setTimeout(() => {
-            load.style.display = 'none'
-            content.style.display = 'flex';
-          }, 300);
-          
-            content.style.opacity = '1'
-          const apoitBtn = document.querySelector('.apoitmentBtn');
-          apoitBtn.addEventListener("click", () => {
-            window.location.href = "/home.html"
+          if (!deleter) return;
+
+          const scheduleC = deleter.closest(".schedule-content")
+          const Sdata = scheduleC.querySelector(".schedule-data")
+
+          const dia = Sdata.getAttribute("data-dia");
+        const hora = Sdata.getAttribute("data-hour");
+        const loja = Sdata.getAttribute("data-storename");
+        const funcionario = Sdata.getAttribute("data-functionary");
+
+        console.log(`Fui clickado, meus dados são: ${dia}, ${hora}, ${loja}, ${funcionario}`)
+        try {
+          const req = await fetch("/delete/schedules", {
+            method: "DELETE",
+            headers:{
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              dia: dia,
+              hora: hora,
+              loja: loja,
+              funcionario: funcionario
+            })
           })
-        }else{
-          console.log('errororkonvgvhbhbg')
+          if (req.ok){
+            const data = await req.json();
+            const redirect = data.redirect;
+            window.location.href = redirect
+          }
+        } catch (error) {
+          console.log("FATAL ERRORORR MDS HAAAAAAAAAAAAAAA QUE DROGAAAAAAAAAAAA")
         }
-    })
-</script>
+        })
+          
+          
+        
+      } else {
+        console.log("errororkonvgvhbhbg");
+      }
+    });
+  </script>
 </html>

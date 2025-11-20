@@ -1259,13 +1259,14 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
   const schedules = await scheduleSchema
     .find({ name: name, email: email })
     .lean();
-  if (!schedules) {
-    return res.status(404).json({
+  if (!schedules || schedules.lenght ==+ 0) {
+    return res.status(200).json({
       msg: "Nenhum dado encontrado",
-      htmlDataError: "<div>EU SINTO O SHADOW NO MEU CU</div>",
+      push: "<div>EU SINTO O SHADOW NO MEU CU</div>",
     });
   }
-  console.log(schedules);
+  else{
+    console.log(schedules);
 
   let dS = [];
   for (let i = 0; i < schedules.length; i++) {
@@ -1287,12 +1288,7 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
       if (indexOfService !== -1) {
         const imagePath = services.serviceImagePath[indexOfService];
         let html = `
-          <div class="servicesInTheRiver">
-            <div class="imageInTheRiver">
-              <img src="${imagePath}">
-            </div>
-            <div class="serviceNameInTheRiver">${serviceName}</div>
-          </div>`;
+          <p>${serviceName}`;
         cS.push(html);
       }
     }
@@ -1301,35 +1297,83 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
     const day = schedule.day;
     const hour = schedule.hour;
     const functionary = schedule.functionary;
+    const randomSymbol = [">_", ">>", "//"]
+    let random = Math.floor(Math.random() * 3)
     let htmlD = `
-      <div class="schedule-content">
+    <div class="schedule-content">
+      <div class="schedule-data" data-dia="${day}" data-hour="${hour}" data-storeName="${storeName}" data-functionary="${functionary}">
+        <div class="schedule-StoreName" ><strong class="consoleWrite">${randomSymbol[random]}</strong>${storeName}</div>
+
+        <div class="schedule-Fun"><strong class="GreenCard" style="margin-bottom: 10px;">Professional:</strong> ${functionary}</div>
         <div class="schedule-Dam">
-          ${cS.join(" ")}
+        <strong class="GreenCard">Services:</strong><br><strong class="jsonWrite">{</strong><br>
+          <div class="schedule-services">${cS.join(" ,")}</p></div>
+          <br>
+          <strong class="jsonWrite">}</strong>
         </div>
-        <div class="schedule-data">
           
-            <div class="schedule-StoreName">${storeName}</div>
-            
-            <div class="schedule-Fun">Professional: ${functionary}</div>
-            <div class="schedule-union">
-              <div class="schedule-Day">On: <strong class="dayEHour">${day}</strong></div><div class="schedule-Hour">At: <strong class="dayEHour">${hour}</strong></div>
-            </div>
-          
-        </div>
+        
+
+        
+      </div>
+      <div class="lateralInfos">
         <div class="delete">
-        <img src="https://img.icons8.com/?size=100&id=87397&format=png&color=BF4338"></div>
-      </div>`;
+            <img
+              src="https://img.icons8.com/?size=100&id=83149&format=png&color=FFFFFF"
+            />
+          </div>
+        <div class="schedule-dayEHour">
+              <div class="schedule-Day">
+                 <strong class="dayEHour">${day}</strong>
+              </div>
+              <div class="schedule-Hour">
+                 <strong class="dayEHour">${hour}</strong>
+              </div>
+            </div>
+      </div>
+    </div>
+      `;
     dS.push(htmlD);
   }
   let htmlFULL = `<div class="schedule-some-div">
-    <div class="TitlesOfSchedules">
-    <h1>Your <strong class="GreenCard">Schedules</strong><strong class="pointer">/</strong></h1>
-    <p><strong class="consoleWrite">>></strong>All the data for all your independent store bookings is here.</p>
-    </div>
-    <button class="apoitmentBtn"><img src="https://img.icons8.com/?size=100&id=116296&format=png&color=FFFFFF">Schedule Now</button>
+    
+    
   </div><div class="schedule-union">${dS.join(" ")}</div>`;
   return res.status(201).json({ ok: "ok", push: htmlFULL });
+  }
 });
+app.delete("/delete/schedules", tokenVerify, async (req, res) => {
+  const {name, email} = req.user;
+  const {dia, hora, loja, funcionario} = req.body;
+
+  try {
+    const realName = loja.replaceAll(" ", "-")
+    const deleter = await scheduleSchema.findOneAndDelete({
+      name: name,
+      email: email,
+      functionary: funcionario,
+      hour: hora,
+      day: dia,
+      storeName: realName
+    })
+    if (!deleter){
+      return res.status(404).json({
+        error: "Error 404, n encontrado"
+      })
+    }
+    return res.status(201).json({
+      s: 'Sucess',
+      redirect: "/reload"
+    })
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Error 500, server error man, que merda'
+    })
+  }
+})
+app.get("/reload", (req, res) => {
+  return res.redirect('/schedule/home')
+})
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
