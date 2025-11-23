@@ -116,6 +116,15 @@
   </body>
   <script>
     const home = document.querySelector("#home");
+
+    const more = document.querySelector(".moreIten");
+    const contenter = document.querySelector(".more-content");
+    
+    more.addEventListener("click", () => {
+      console.log(more); // Deve mostrar o elemento
+console.log(contenter);
+      window.location.href = "/more"
+    })
     home.addEventListener("click", () => {
       window.location.href = "/home.html";
     });
