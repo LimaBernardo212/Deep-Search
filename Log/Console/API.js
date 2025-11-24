@@ -1426,6 +1426,46 @@ app.delete("/delete/schedules", tokenVerify, async (req, res) => {
 app.get("/reload", (req, res) => {
   return res.redirect("/schedule/home");
 });
+app.get("/more", tokenVerify, (req, res) => {
+  return res.sendFile(path.join(__dirname, "public", "account.html"))
+})
+app.put("/update/user", tokenVerify, async (req, res) => {
+  const {name, email} = req.user;
+  const {new_name, new_email} = req.body;
+
+  try {
+    const updater = await User.findOneAndUpdate({
+    nome: name,
+    Email: email 
+  }, {
+    nome: new_name,
+    Email: new_email
+  }, {new: true})
+  if (!updater){
+    return res.status(404).json({err: "Foi impossivel encontrar e atualizar os dados :("})
+  }
+const updaterPayload = {
+        id: updater._id.toString(),
+        name:updater.nome,
+        email:  updater.Email,
+        itsNew: false,
+      };
+
+      const updateToken = jwt.sign(updaterPayload, JWT_SECRET, {
+        expiresIn: "30d",
+      });
+
+      res.cookie("authToken", updateToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      });
+      return res.status(200).json({sucess: 'Hello, world!', payload: updaterPayload})
+  } catch (error) {
+    return res.status(500).json({errno: error})
+  }
+})
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);

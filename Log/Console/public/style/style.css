@@ -21,6 +21,7 @@
   --cor11: #8c2f2f;
   --cor12:#bf4338;
   --cor13: #f5a623;
+  --cor14: #F4D03F;
   --fontJetBrains: "JetBrains Mono", monospace;
   --fontRoboto: "Roboto", sans-serif;
   --fontInconsolata: "Inconsolata", monospace;
@@ -2046,4 +2047,131 @@ border: 1px solid var(--cor01Esvoaçada);
 }
 .moreContentActive{
   opacity: 1;
+}
+
+/*More*/
+
+.USER-POV{
+  width: 100vw;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  background-image: linear-gradient(to bottom, var(--cor06), var(--cor04) );
+}
+.leftOptions{
+  width: 17vw;
+  height: 80vh;
+  position: absolute;
+  top: 15vh;
+  left: 0;
+  background-color: var(--cor00);
+  border-right: 1px solid var(--cor01Esvoaçada);
+}
+.OneOfOption img{
+  width: 24px;
+  margin: 2vh 1vw;
+}
+.OneOfOption{
+  display: flex;
+  width: 15vw;
+  height: 6vh;
+  border-radius: 5px;
+  margin: 2vh 1vw;
+  background-color: var(--cor00);
+  border: 1px solid var(--cor01Esvoaçada);
+  align-items: center;
+  font-family: var(--fontRoboto);
+  font-size: 0.9em;
+ color: var(--cor05);
+}
+.selectedOption{
+  background-color: var(--cor03);
+}
+.OneOfOption:hover{
+  background-color: var(--cor03);
+  transform: translate(-3px,-3px);
+}
+.optionsOpt{
+  margin-top: 3vh;
+}
+.loginData h1{
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  margin: 2vh 8vw;
+}
+.loginData p{
+  color: var(--cor05);
+  font-size: 0.9em;
+  font-family: var(--fontRoboto);
+  margin: 1vh 9.5vw;
+}
+.contenterOfLogins{
+  opacity: 0;
+  width: 83vw;
+  min-height: 60vh;
+  margin-left: 17vw;
+}
+.loginInfos{
+  margin: 4vh 12vw;
+}
+.loginInfoRow{
+  display: flex;
+  align-items: center;
+  color: var(--cor05);
+  margin:2vh 2vw;
+  font-family: var(--fontInconsolata);
+  color: var(--cor10);
+}
+.editer{
+  color: var(--cor14);
+  font-family: var(--fontSpace);
+}
+.loginInfoRow img{
+  width: 24px;
+}
+.jsonSeparate{
+  color: var(--cor05);
+  font-family: var(--fontSpace);
+  transform: translateY(1vh);
+}
+.editer{
+  margin-left: 0.5vw;
+}
+.editer input{
+  background-color: var(--cor00);
+  border: none;
+  border-bottom: 1px solid var(--cor00);
+  height: 4vh;
+  max-width: 20vw;
+  field-sizing: content;
+  min-width: 1vw;
+  margin: 0 0.2vw;
+  color: var(--cor14);
+  caret-color: var(--cor05);
+  border-bottom: 1px solid var(--cor01Esvoaçada);
+  text-align: center;
+  font-family: var(--fontInconsolata);
+}
+.editer input:focus{
+  outline: none;
+}
+.loginInfoRow label{
+  margin-left: 1vw;
+}
+.sendBtn{
+  margin: 2vh 12vw;
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  width: 15vw;
+  height: 6vh;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  border: 1px solid var(--cor01Esvoaçada);
+}
+.sendBtn:hover{
+  transform: translate(-3px, -3px);
+  background-color: var(--cor03);
 }

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+    <title>Log: More</title>
+</head>
+<body>
+    <header class="nbu">
+        <button class="nButton" id="back">
+            <img src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF" alt="">
+        </button>
+    </header>
+    <section class="USER-POV">
+        <aside class="leftOptions">
+            <div class="optionsOpt">
+                <div class="OneOfOption selectedOption">
+                    <img src="https://img.icons8.com/?size=100&id=102918&format=png&color=FFFFFF" alt="">
+                    <span>User Settings</span>
+                </div>
+                <div class="OneOfOption">
+                    <img src="https://img.icons8.com/?size=100&id=86134&format=png&color=FFFFFF" alt="">
+                    <span>Stores</span>
+                </div>
+                <div class="OneOfOption">
+                    <img src="https://img.icons8.com/?size=100&id=103604&format=png&color=FFFFFF" alt="">
+                    <span>Privacy and security</span>
+                </div>
+                <div class="OneOfOption">
+                    <img src="https://img.icons8.com/?size=100&id=90003&format=png&color=FFFFFF" alt="">
+                    <span>Terms and Conditions</span>
+                </div>
+            </div>
+        </aside>
+        <section class="moreContenter">
+            <div id="loading"></div>
+            <div class="contenterOfLogins">
+                <div class="loginData">
+                   <h1> <strong class="consoleWrite">//</strong>Welcome to your <strong class="GreenCard">profile</strong></h1>
+                   <p>Access and manage your account information, update your registration details, and logOut<strong class="pointer">.</strong></p>
+                </div>
+                <div class="loginInfos">
+                    <strong class="jsonWrite">{</strong><br>
+                    <div class="loginInfoRow">
+                        <span>Name:</span>
+                        <div class="editer">"<input type="text" name="new-name" id="new-name" >"</div><strong class="jsonSeparate">,</strong>
+                        <label for="new-name"><img src="https://img.icons8.com/?size=100&id=99821&format=png&color=FFFFFF" alt=""></label>
+                    </div>
+                    <div class="loginInfoRow">
+                        <span>Email:</span>
+                        <div class="editer">"<input type="email" name="new-email" id="new-email" >"</div>
+                        <label for="new-email"><img src="https://img.icons8.com/?size=100&id=99821&format=png&color=FFFFFF" alt=""></label>
+                    </div>
+                    
+                    <br>
+                    <strong class="jsonWrite">}</strong>
+                </div>
+                <div class="sendBtn">
+                    Update data
+                </div>
+            </div>
+        </section>
+    </section>
+</body>
+<script>
+    window.addEventListener('load', async () => {
+        document.querySelector('#back').addEventListener('click', () => {
+    window.history.back();
+});
+        const input_name = document.querySelector("#new-name")
+        const input_email = document.querySelector("#new-email");
+        const loading = document.querySelector("#loading");
+        const  contenter = document.querySelector(".contenterOfLogins")
+        const req = await fetch("/api/me", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        if (req.ok){
+            const data = await req.json();
+            const name = data.name;
+            const email = data.email;
+            input_name.value = name;
+            input_email.value = email;
+            loading.style.opacity = '0';
+            setTimeout(() => {
+                loading.style.display = 'none';
+                contenter.style.opacity = '1'
+            }, 500)
+        }else{
+            window.location.href = '/error500.html'
+        }
+        const sendBtn = document.querySelector(".sendBtn")
+        sendBtn.addEventListener("click", async () => {
+            const new_name = input_name.value;
+            const new_email = input_email.value;
+            console.log(new_name, new_email)
+            const request = await fetch("/update/user", {
+                method: "PUT", 
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    new_name: new_name,
+                    new_email: new_email
+                })
+            })
+            if (request.ok){
+                window.location.reload(true)
+                console.log('OKOKOKOKOKOKOKOKKOKOKOKOKOK!')
+            }
+        })
+    })
+</script>
+</html>
