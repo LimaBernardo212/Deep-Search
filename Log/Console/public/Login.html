@@ -55,7 +55,7 @@
                 </button>
                 <div class="secretForm">
                     <form action="/forgot-password" method="POST">
-                        <input type="email" name="requestemail" id="requestemail" placeholder="Email:" required class="newEmail">
+                        <input type="email" name="request_email" id="request_email" placeholder="Email:" required class="newEmail">
                         
                         <input type="text" name="request_name" id="request_name" placeholder="Name:" required class="newEmail">
                           <button type="submit" class="SubmitButton">Continue</button>
@@ -133,7 +133,7 @@
                     
                     if (result.msg === 'Sucesss' || result.msg === 'SUPER SUCESS') {
                         console.log('SUCESS')
-                        window.location.href = '/api/login/authGoogle'
+                        window.location.href = '/home.html'
                     } else {
                         //alert('Erro: ' + (result.msg || 'Erro desconhecido'));
                     }

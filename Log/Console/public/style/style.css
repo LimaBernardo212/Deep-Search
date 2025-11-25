@@ -2057,12 +2057,13 @@ border: 1px solid var(--cor01Esvoaçada);
   display: flex;
   align-items: center;
   background-image: linear-gradient(to bottom, var(--cor06), var(--cor04) );
+  position: relative;
 }
 .leftOptions{
   width: 17vw;
-  height: 80vh;
+  min-height: 100vh;
   position: absolute;
-  top: 15vh;
+  top: 4vh;
   left: 0;
   background-color: var(--cor00);
   border-right: 1px solid var(--cor01Esvoaçada);
@@ -2110,6 +2111,7 @@ border: 1px solid var(--cor01Esvoaçada);
   width: 83vw;
   min-height: 60vh;
   margin-left: 17vw;
+  margin-top: 10vh;
 }
 .loginInfos{
   margin: 4vh 12vw;
@@ -2174,4 +2176,47 @@ border: 1px solid var(--cor01Esvoaçada);
 .sendBtn:hover{
   transform: translate(-3px, -3px);
   background-color: var(--cor03);
+}
+.forgot-password-div{
+  opacity: 1;
+  width: 73vw;
+  min-height: 30vh;
+  margin-left: 23vw;
+  margin-top: 2vh;
+  margin-bottom: 5vh;
+  border: 1px solid var(--cor01Esvoaçada);
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+}
+.forgot-password-div h1{
+  color: var(--cor05);
+  margin: 0vh 4vw 2vh 4vw;
+  font-family: var(--fontRoboto);
+}
+.forgot-password-div p{
+  color: var(--cor05);
+  margin-left: 5vw;
+  margin-bottom: 3vh;
+  font-family: var(--fontRoboto);
+}
+.requestBtn{
+  width: 15vw;
+  height: 6vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cor05);
+  background-color: var(--cor00);
+  font-family: var(--fontRoboto);
+  border-radius: 7px;
+  margin-left: 6vw;
+  border: 1px solid var(--cor01Esvoaçada);
+}
+.forgot-password-div:hover{
+  background-color: var(--cor03);
+}
+.requestBtn:hover{
+  transform: translate(-3px,-3px);
+  background-color: var(--cor04);
 }

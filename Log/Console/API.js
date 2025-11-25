@@ -495,7 +495,6 @@ app.post("/api/login/authGoogle", async (req, res) => {
         id: googleUsuario._id.toString(),
         nome: googleUsuario.nome,
         Email: googleUsuario.Email,
-        password: "Not shared",
         itsNew: false,
       };
 
@@ -527,7 +526,6 @@ app.post("/api/login/authGoogle", async (req, res) => {
         id: newGoogleUser._id.toString(),
         name: newGoogleUser.nome,
         email: newGoogleUser.Email,
-        password: "Not shared",
         itsNew: true,
       };
 
@@ -587,10 +585,10 @@ function generateCode() {
   return codigo;
 }
 // ✅ ROTA TOTALMENTE CORRIGIDA: Solicitar recuperação de senha
-app.post("/forgot-password", async (req, res, next) => {
-  const { email, name } = req.body;
+app.post("/forgot-password", async (req, res) => {
+  const { request_email, request_name } = req.body;
   try {
-    const finder = await User.findOne({ nome: name, Email: email });
+    const finder = await User.findOne({nome: request_name, Email: request_email });
     if (!finder) {
       return res.status(404).json({ error: "User don't registred in DB" });
     }
@@ -601,14 +599,14 @@ app.post("/forgot-password", async (req, res, next) => {
         .json({ mensage: "Erro in generate the requester code" });
     }
     const registerCode = await coding.create({
-      nome: name,
-      email: email,
+      nome: request_name,
+      email:  request_email,
       code: codet,
     });
     if (!registerCode) {
       return res.status(500).json({ error: "Error in cad. the code" });
     }
-    await enviarEmailRecuperacao(email, codet);
+    await enviarEmailRecuperacao(request_email, codet);
     res.redirect("forgot.html");
   } catch (error) {
     return res.status(500).json({ mensage: "Error in the route :<" });
@@ -666,8 +664,7 @@ app.post("/update-password", async (req, res) => {
       sameSite: "strict",
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
-    return res.status(200).json({ mgs: "SUPERRRR", payload: passwordPayload });
-    //res.redirect('home.html')
+    res.redirect('home.html')
   } catch (error) {
     return res.status(500).json({ error: "ERROR" });
   }

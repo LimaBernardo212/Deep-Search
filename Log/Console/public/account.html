@@ -66,6 +66,16 @@
                     Update data
                 </div>
             </div>
+            <div class="forgot-password-div">
+                <div class="txt">
+                    <h1><strong class="consoleWrite">>></strong>Password <strong class="GreenCard">Change</strong> Request</h1>
+                    <p>To change your <strong class="GreenCard">password</strong>, click the button below to begin the security verification process<strong class="pointer">.</strong></p>
+                    <button class="requestBtn">
+                        Change Password
+                    </button>
+                </div>
+                
+            </div>
         </section>
     </section>
 </body>
@@ -116,6 +126,27 @@
             if (request.ok){
                 window.location.reload(true)
                 console.log('OKOKOKOKOKOKOKOKKOKOKOKOKOK!')
+            }
+        })
+        const requestBtn = document.querySelector('.requestBtn');
+        requestBtn.addEventListener("click", async () => {
+             const new_name = input_name.value;
+            const new_email = input_email.value;
+            const request = await fetch("/forgot-password", {
+                method: "POST", 
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    request_name: new_name,
+                    request_email: new_email
+                })
+            })
+            if (request.ok){
+                console.log("dei a bunda")
+                
+                    window.location.href = '/forgot.html'
+                
             }
         })
     })
