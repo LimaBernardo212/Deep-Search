@@ -588,6 +588,7 @@ function generateCode() {
 app.post("/forgot-password", async (req, res) => {
   const { request_email, request_name } = req.body;
   try {
+    console.log(`${request_name}, ${request_email}`)
     const finder = await User.findOne({nome: request_name, Email: request_email });
     if (!finder) {
       return res.status(404).json({ error: "User don't registred in DB" });
@@ -1013,7 +1014,7 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
   }
 });
 app.get("/stores/home", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "storecad.html"));
+  res.sendFile(path.join(__dirname, "public", "stores.html"));
 });
 app.post("/api/selected/fun", tokenVerify, async (req, res) => {
   const { services, storeName } = req.body;
@@ -1463,7 +1464,40 @@ const updaterPayload = {
     return res.status(500).json({errno: error})
   }
 })
-// Iniciar servidor
+app.get('/conditions', (req, res) => {res.sendFile(path.join(__dirname, "public", "conditions.html"))}) 
+app.get("/privacy",(req, res) => {res.sendFile(path.join(__dirname, "public", "privacy.html"))} )//🤨
+
+app.get("/verify/have/stores", tokenVerify, async (req, res) => {
+  const {name, email} = req.user;
+  try {
+    const finder = await StoreCad.findOne({name: name, email: email})
+  if (!finder){
+    return res.status(200).json({returner: `<div class="notAllowed">
+  <div class="call-action">
+    <h1 class="call-h1">
+      No stores found under your  <strong class="GreenCard">account</strong><strong class="pointer">.</strong>
+    </h1>
+    <p class="call-p">Register your store below to start managing appointments, services, and staff.</p>
+  </div>
+
+  <div class="central-plus">
+    <div class="label-plus">
+      <p>
+        Start your journey <strong class="GreenCard">Now</strong>
+      </p>
+    </div>
+    <div class="img-plus">
+      <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF">
+    </div>
+  </div>
+</div>`})
+  }
+
+  return res.status(200).json({tudoCerto: ":>", finderData: finder})
+  } catch (error) {
+    return res.redirect('/error500.html')
+  }
+})
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
   console.log(`📧 Sistema de recuperação de senha ativo`);

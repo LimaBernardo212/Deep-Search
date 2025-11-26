@@ -21,19 +21,19 @@
     <section class="USER-POV">
         <aside class="leftOptions">
             <div class="optionsOpt">
-                <div class="OneOfOption selectedOption">
+                <div class="OneOfOption selectedOption" id="user">
                     <img src="https://img.icons8.com/?size=100&id=102918&format=png&color=FFFFFF" alt="">
                     <span>User Settings</span>
                 </div>
-                <div class="OneOfOption">
+                <div class="OneOfOption" id="stores">
                     <img src="https://img.icons8.com/?size=100&id=86134&format=png&color=FFFFFF" alt="">
                     <span>Stores</span>
                 </div>
-                <div class="OneOfOption">
+                <div class="OneOfOption" id="privacy"><!--Esse ID ta meio 🤨-->
                     <img src="https://img.icons8.com/?size=100&id=103604&format=png&color=FFFFFF" alt="">
                     <span>Privacy and security</span>
                 </div>
-                <div class="OneOfOption">
+                <div class="OneOfOption" id="conditions">
                     <img src="https://img.icons8.com/?size=100&id=90003&format=png&color=FFFFFF" alt="">
                     <span>Terms and Conditions</span>
                 </div>
@@ -84,6 +84,17 @@
         document.querySelector('#back').addEventListener('click', () => {
     window.history.back();
 });
+const user = document.querySelector('#user');
+const stores = document.querySelector("#stores")
+const conditions = document.querySelector("#conditions");
+const privacy = document.querySelector("#privacy")//🤨
+
+        conditions.addEventListener("click", () => {
+            window.location.href = '/conditions'
+        })
+        privacy.addEventListener("click", () => window.location.href = '/privacy')//🤨
+        stores.addEventListener("click", () => window.location.href = '/stores/home')
+        user.addEventListener("click", () => window.location.href = '/more')
         const input_name = document.querySelector("#new-name")
         const input_email = document.querySelector("#new-email");
         const loading = document.querySelector("#loading");

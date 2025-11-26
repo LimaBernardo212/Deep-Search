@@ -2058,10 +2058,11 @@ border: 1px solid var(--cor01Esvoaçada);
   align-items: center;
   background-image: linear-gradient(to bottom, var(--cor06), var(--cor04) );
   position: relative;
+  
 }
 .leftOptions{
   width: 17vw;
-  min-height: 100vh;
+  min-height: 80vh;
   position: absolute;
   top: 4vh;
   left: 0;
@@ -2219,4 +2220,123 @@ border: 1px solid var(--cor01Esvoaçada);
 .requestBtn:hover{
   transform: translate(-3px,-3px);
   background-color: var(--cor04);
+}
+
+.contentera div{
+  margin: 7vh 19vw;
+  width: 79%;
+  height: 90vh;
+  display: flex;
+  overflow-y: scroll;
+  flex-direction: column;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+  scrollbar-color: var(--cor00);
+}
+
+.contentera p{
+  width: 90%;
+  font-size: 0.95em;
+  color: var(--cor04);
+  font-family: var(--fontRoboto);
+  margin: 2vh 8vw;
+}
+.contentera h1{
+  width: 90%;
+  font-size: 1.9em;
+  margin: 2vh 6vw;
+  color: var(--cor04);
+  font-family: var(--fontRoboto);
+}
+.contentera h2{
+   width: 90%;
+  font-size: 1.5em;
+  margin: 2vh 7vw;
+  color: var(--cor04);
+  font-family: var(--fontRoboto);
+}
+.contentera h3{
+  width: 90%;
+  font-size: 1.5em;
+  margin: 2vh 7vw;
+  color: var(--cor04);
+  font-family: var(--fontRoboto);
+}
+.contentera li{
+  width: 90%;
+  font-size: 0.9em;
+  margin: 0.5vh 9vw;
+  color: var(--cor04);
+  font-family: var(--fontRoboto);
+}
+.nbT {
+  width: 100vw;
+  height: 10vh;
+  background-color: var(--cor01);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.USER-POVT{
+  width: 100vw;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  background-image: linear-gradient(to bottom, var(--cor01), var(--cor05) );
+  position: relative;
+}
+.leftOptionsT{
+  width: 17vw;
+  min-height: 80vh;
+  position: absolute;
+  top: 4vh;
+  left: 0;
+  background-color: var(--cor00);
+  border-right: 1px solid var(--cor06Esvoaçada);
+}
+.OneOfOptionT img{
+  width: 24px;
+  margin: 2vh 1vw;
+}
+.OneOfOptionT{
+  display: flex;
+  width: 15vw;
+  height: 6vh;
+  border-radius: 5px;
+  margin: 2vh 1vw;
+  background-color: var(--cor00);
+  border: 1px solid var(--cor06Esvoaçada);
+  align-items: center;
+  font-family: var(--fontRoboto);
+  font-size: 0.9em;
+ color: var(--cor04);
+}
+.OneOfOptionT:hover{
+  background-color: var(--cor08);
+  transform: translate(-3px,-3px);
+}
+.optionsOpt{
+  margin-top: 3vh;
+}
+.accounter{
+  margin-left: 90vw;
+}
+.accounter img{
+  width: 32px;
+}
+.consoleImge{
+  margin-left: 2vw;
+}
+.consoleImge:hover{
+  transform: translate(-3px, -3px);
+}
+.consoleImge img{
+  width: 32px;
+}
+.your-store-data{
+  width: 96vw;
+  min-height: 92vh;
+  margin-top: 10vh;
+  display: flex;
+  flex-wrap: wrap;
 }
