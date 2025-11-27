@@ -134,7 +134,7 @@ body {
   font-family: var(--fontRoboto);
   color: var(--cor05);
   margin-left: 5vw;
-  max-width: 65vw;
+  max-width: 95vw;
   margin-top: 14vh;
 }
 .consoleWrite {
@@ -153,11 +153,13 @@ body {
   color: var(--cor08);
   border-bottom: 3px solid var(--cor08);
   transition: 1s all;
+  margin-left: 20px;
 }
 .text-content p {
   font-size: 1.2em;
   line-height: 1.5em;
   margin-bottom: 2vh;
+  max-width: 65vw;
 }
 .apelativeButton {
   display: flex;
