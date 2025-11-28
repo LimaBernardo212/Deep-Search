@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log: Store Register</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+
+  <body>
+    <header class="nb">
+      <button class="nButton" id="back">
+        <img
+          src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF"
+          alt=""
+        />
+      </button>
+    </header>
+    <section class="cad-storeContent">
+      <form id="storeForm" enctype="multipart/form-data">
+        <div class="formularyOrder">
+          <div class="query">
+            <div class="break">
+              <input
+                type="text"
+                name="storeName"
+                id="storeName"
+                placeholder="Store name:"
+                required
+                class="normal"
+              />
+              <input
+                type="text"
+                name="address"
+                id="address"
+                placeholder="Full address"
+                required
+                class="normal"
+              />
+              <input
+                type="text"
+                name="cnpj"
+                id="cnpj"
+                placeholder="CNPJ "
+                required
+                class="normal"
+              />
+              
+              
+            </div>
+
+            <div class="break">
+              <input
+                type="email"
+                name="storeEmail"
+                id="storeEmail"
+                placeholder="Store email"
+                required
+                class="normal"
+              />
+              <input
+                type="text"
+                name="phone"
+                id="phone"
+                placeholder="Phone number"
+                required
+                class="normal"
+              />
+              <div class="pinDiv"><input type="text" name="pin" id="pin" placeholder="PIN: (9999)" class="normal"> <img src="https://img.icons8.com/?size=100&id=85505&format=png&color=FFFFFF" alt="" title="Generate randomly"></div>
+              <input
+                type="text"
+                name="closedDays"
+                id="closedDays"
+                placeholder="Closed days"
+                class="ghost"
+              />
+              
+                <input
+                  type="text"
+                  name="openHours"
+                  id="openHours"
+                  placeholder="Opening time(HH:MM)"
+                  class="op-cl"
+                />
+                <input
+                  type="text"
+                  name="closedHours"
+                  id="closedHours"
+                  placeholder="Closing time(HH:MM)"
+                  class="op-cl"
+                />
+
+              
+            </div>
+          </div>
+          <textarea
+            name="description"
+            id="description"
+            placeholder="Brief description of your store and services offered..."
+          ></textarea>
+        </div>
+        <div class="mid">
+          <div class="imager">
+            <span>Drag <strong class="GreenCard">or</strong> Select</span>
+            <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt="">
+            <input
+              type="file"
+              name="storeImage"
+              id="storeImage"
+              accept="image/*"
+            />
+          </div>
+          <button type="submit">Cadastrar Loja</button>
+        </div>
+      </form>
+    </section>
+  </body>
+  <script>
+    const form = document.getElementById("storeForm");
+    const pin = document.querySelector('.pinDiv input');
+    const piner = document.querySelector('.pinDiv img');
+    const pinVal = Math.floor(Math.random() * (99999 - 1000 + 1)) + 1000;
+    pin.value = pinVal;
+    let rotater = 0;
+    piner.addEventListener("click", () => {
+      rotater += 360;
+      piner.style.transform = `rotate(${rotater}deg)`
+      let newPin = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+      pin.value = newPin;
+    })
+    const imager = document.querySelector(".imager")
+    const fileContent = document.querySelector("#storeImage")
+    let selectedFile = null
+
+    imager.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files
+      if (files.length > 0 ){
+        handleFiles(files[0])
+      }
+    }
+    function handleFiles(files){
+      selectedFile = files
+      console.log(selectedFile)
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        imager.innerHTML = `<span>${selectedFile.name}</span>
+            <img src="${e.target.result}" alt="">
+            <input
+              type="file"
+              name="storeImage"
+              id="storeImage"
+              accept="image/*"
+            />`
+      imager.style.backgroundColor = "#262526"
+      }
+      reader.readAsDataURL(files)
+    }
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      // ✅ CRIAR FormData do form completo
+      const formData = new FormData(form);
+
+      // ⚠️ IMPORTANTE: Verificar se o arquivo foi selecionado
+      const fileInput = document.getElementById("storeImage");
+      if (fileInput.files.length === 0) {
+        console.warn("⚠️ Nenhuma imagem selecionada");
+        // Você pode prosseguir ou avisar o usuário
+      } else {
+        console.log("✅ Arquivo selecionado:", fileInput.files[0].name);
+      }
+
+      try {
+        const response = await fetch("/CadNewStore", {
+          method: "POST",
+          body: formData,
+          // ❌ NÃO adicionar Content-Type - o navegador faz automaticamente
+          // ❌ NÃO usar headers: { 'Content-Type': 'multipart/form-data' }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          console.log("✅ Loja cadastrada:", data);
+          alert("Loja cadastrada com sucesso!");
+
+          // Agora criar a página da loja
+          await criarPaginaLoja(data.storeName);
+        } else {
+          console.error("❌ Erro:", data);
+          alert(data.error || "Erro ao cadastrar loja");
+        }
+      } catch (error) {
+        console.error("❌ Erro na requisição:", error);
+        alert("Erro ao cadastrar loja");
+      }
+    });
+  </script>
+</html>

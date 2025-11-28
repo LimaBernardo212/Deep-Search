@@ -81,7 +81,7 @@
               alt=""
             />
           </div>
-          <p><strong class="consoleWrite">>_</strong>Terminal</p>
+          <p>Terminal</p>
         </div>
       </aside>
       
@@ -106,7 +106,7 @@
       const bbk = document.querySelector("#bbk");
       const load = document.querySelector("#loading")
       const content = document.querySelector('.content')
-      const storeData = document.querySelector('.your-store-data')
+      const storeData = document.querySelector('.your-store-data');
       bbk.addEventListener("click", () => {
         window.location.href = "/home.html";
       });
@@ -121,6 +121,11 @@
         storeData.appendChild(render(data.returner))
         load.style.opacity = '0';
         content.style.opacity = '1'
+        const central_plus = document.querySelector(".central-plus");
+        central_plus.addEventListener("click", () => {
+          window.location.href = '/cad/store'
+        })
+        
       }
     })
   </script>

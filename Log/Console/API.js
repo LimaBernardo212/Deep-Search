@@ -1498,6 +1498,9 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
     return res.redirect('/error500.html')
   }
 })
+app.get("/cad/store", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "cad-store.html"))
+})
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
   console.log(`📧 Sistema de recuperação de senha ativo`);
