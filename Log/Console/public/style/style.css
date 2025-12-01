@@ -1094,7 +1094,6 @@ main.infoContent {
 .store{
     width: 75vw;
     display: flex;
-    
     align-items: center;
     margin: 3vh auto;
     justify-content: space-between;
@@ -1106,9 +1105,11 @@ main.infoContent {
     border: 1px solid var(--cor01Esvoaçada);
     
 }
+
 .juntos{
     display: flex;
     align-items: center;
+    max-width: 70vw;
 }
 .store #img img{
     width: 32px;
@@ -1122,9 +1123,20 @@ main.infoContent {
     font-family: var(--fontRoboto);
 }
 #storeDescription{
+    max-width: 70vw;
+    font-size: 0.7em;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+    font-family: var(--fontIBM);
+   
     max-width: 60vw;
     font-size: 0.7em;
     font-family: var(--fontIBM);
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+
 }
 #moreinfos button{
     background-color: var(--cor00);
@@ -1573,7 +1585,6 @@ main.infoContent {
   background-color: var(--cor03);
 }
 .renderedHours{
-  
   height: 100vh;
   width: 100vw;
   display: flex;
@@ -1590,6 +1601,29 @@ border: 1px solid var(--cor01Esvoaçada);
   justify-content: center;
   margin-bottom: 2vh;
   border-radius: 15px;
+}
+.openHours{
+  width: 15vw;
+  height: 10vh;
+  display: flex;
+border: 1px solid var(--cor01Esvoaçada);
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2vh;
+  border-radius: 15px;
+  overflow-y: scroll; scroll-behavior: smooth; scrollbar-width: none;
+  margin-left: 5vw;
+}
+.openingAt{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1vh;
+}
+.openHours .ourhours{
+  margin: 2vh 1vw;
 }
 .ourhours{
   transition: 0.7s all;
@@ -2392,6 +2426,7 @@ border: 1px solid var(--cor01Esvoaçada);
   caret-shape: block;
   font-family: var(--fontRoboto);
 }
+
 .union-op{
   display: flex;
   align-items: center;
@@ -2533,4 +2568,111 @@ border: 1px solid var(--cor01Esvoaçada);
 }
 .imager img{
   width: 64px;
+}
+.cad-storeContent h1#ob{
+  font-family: var(--fontRoboto);
+  color: var(--cor05);
+  margin-left: 5vw;
+  max-width: 95vw;
+  margin-top: 0vh;
+}
+.cad-storeContent p{
+  font-family: var(--fontRoboto);
+  color: var(--cor05);
+  margin-left: 5vw;
+  max-width: 95vw;
+  margin-top: 2vh;
+  font-family: 0.9em;
+}
+.label{
+  font-size: 1em;
+  font-family: var(--fontRoboto);
+  color: var(--cor05);
+  margin: 0 2vh;
+  max-width: 95vw;
+  margin-top: 0vh;
+}
+.selectDay{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1vh;
+}
+.daysForSelect{
+  width: 15vw;
+  height: 50vh;
+  background-color: var(--cor03);
+  border: 1px solid var(--cor01Esvoaçada);
+  border-radius: 20px;
+  display: flex;
+  gap: 1vh;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+.dayOfWeek{
+  display: flex;
+  gap: 2vh;
+  margin: 0vh 2vw;
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  width: 10vw;
+  height: 5vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--cor01Esvoaçada);
+  border-radius: 5px;
+  font-size: 0.9em;
+}
+.dayOfWeek input{
+  opacity: 0;
+  position: absolute;
+}
+.dayOfWeek:hover{
+  background-color: var(--cor04);
+}
+.daySel{
+  border: 1px solid var(--cor08);
+}
+.selectedIndicatorC{
+  opacity: 1;
+
+  position: absolute;
+  bottom: -55vh;
+  left: 87vw;
+  width: 10vw;
+  transition: 0.7s all;
+}
+.selectedIndicatorC button{
+  width: 10vw;
+  height: 6vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--cor03);
+  border: 1px solid var(--cor01Esvoaçada);
+  border-radius: 5px;
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  transition: 0.7s all;
+  margin-top: 1vh;
+}
+.selectedIndicatorC .consoleWrite{
+  transition: 0.7s all;
+  margin-left: 6px;
+  font-family: var(--fontJetBrains);
+}
+.selectedIndicatorC button:hover{
+  background-color: var(--cor00);
+}
+.selectedIndicatorC button:hover .consoleWrite{
+  transform: translate(3px, 0);
+}
+.Caracters{
+  color: var(--cor05);
+  font-size: 0.8em;
+  margin: 2vh 5vw;
+  font-family: var(--fontRoboto);
 }

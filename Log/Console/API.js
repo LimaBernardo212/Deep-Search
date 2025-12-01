@@ -751,11 +751,8 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
       closedHours,
       closedDays,
       openHours,
-      functionary1,
-      functionary2,
-      functionary3,
+      pin
     } = req.body;
-    const functionarys = [functionary1, functionary2, functionary3];
     // Validação básica
     if (!storeName || !address || !cnpj || !phone || !storeEmail) {
       return res.status(400).json({
@@ -821,13 +818,12 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
       closedHours: closedHours || "",
       closedDays: closedDays || "",
       openHours: openHours || "",
-      model: 0,
+      model: pin,
       storeName: storeNamer,
       address: address,
       cnpj: cnpj,
       phone: phone,
       storeEmail: storeEmail,
-      functionary: functionarys,
       storeImagePath: imageInfo?.path ?? null,
       storeImageMeta: imageInfo ?? null,
     });
