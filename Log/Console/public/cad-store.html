@@ -112,7 +112,7 @@
               placeholder="Brief description of your store and services offered...(300 max)"
               maxlength="300"
             ></textarea>
-            <span class="Caracters">Caracters: <strong class="GreenCard">0</strong></span>
+            <span class="Caracters">Caracters: <strong class="GreenCard">0</strong><strong class="consoleWrite">/</strong><strong class="GreenCard">300</strong></span>
           </div>
         </div>
         <div class="mid">
@@ -214,6 +214,10 @@ Closes <strong class="GreenCard">At</strong><strong class="pointer">.</strong></
     const pinVal = Math.floor(Math.random() * (99999 - 1000 + 1)) + 1000;
     pin.value = pinVal;
     let rotater = 0;
+    document.querySelector('#back').addEventListener('click', () => {
+            window.history.back();
+        });
+
     piner.addEventListener("click", () => {
       rotater += 360;
       piner.style.transform = `rotate(${rotater}deg)`
@@ -228,7 +232,7 @@ Closes <strong class="GreenCard">At</strong><strong class="pointer">.</strong></
     const span = document.querySelector('.Caracters')
     txtArea.addEventListener("input", () => {
       let n = txtArea.value.length;
-      span.innerHTML = `Caracters: <strong class="GreenCard">${n}</strong>`
+      span.innerHTML = `Caracters: <strong class="GreenCard">${n}</strong><strong class="consoleWrite">/</strong><strong class="GreenCard">300</strong>`
     })
     imager.addEventListener("dragover", (e) => {
       e.preventDefault()

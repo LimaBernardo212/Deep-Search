@@ -831,13 +831,7 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
     console.log("✅ Loja cadastrada:", newStore._id);
     console.log("📁 Imagem salva em:", imageInfo?.path || "sem imagem");
 
-    return res.status(201).json({
-      message: "Loja cadastrada com sucesso!",
-      storeId: newStore._id,
-      storeName: newStore.storeName,
-      hasImage: !!imageInfo,
-      imagePath: imageInfo?.path || null,
-    });
+    return res.redirect(path.join(__dirname, "public", "/services/register"))
   } catch (error) {
     console.error("❌ Erro ao cadastrar loja:", error);
 
@@ -1489,13 +1483,16 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
 </div>`})
   }
 
-  return res.status(200).json({tudoCerto: ":>", finderData: finder})
+  return res.status(200).json({tudoCerto: ":>", finderData: finder, returner: JSON.stringify(finder)})
   } catch (error) {
     return res.redirect('/error500.html')
   }
 })
 app.get("/cad/store", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "cad-store.html"))
+})
+app.get("/services/register", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "cad-services.html"))
 })
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
