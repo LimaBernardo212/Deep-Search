@@ -831,7 +831,7 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
     console.log("✅ Loja cadastrada:", newStore._id);
     console.log("📁 Imagem salva em:", imageInfo?.path || "sem imagem");
 
-    return res.redirect(path.join(__dirname, "public", "/services/register"))
+    return res.redirect( "/services/register")
   } catch (error) {
     console.error("❌ Erro ao cadastrar loja:", error);
 
@@ -890,7 +890,6 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
         email: email,
       });
     }
-    const cadName = findStore.serviceName.replaceAll(" ", "/");
     const toArray = (v) => (Array.isArray(v) ? v : v !== undefined ? [v] : []);
 
     const serviceNames = toArray(
@@ -990,11 +989,7 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
     console.log(
       `Criados ${created.length} serviço(s). files.length=${files.length}`
     );
-    return res.status(201).json({
-      message: "Serviço(s) cadastrado(s) com sucesso",
-      count: created.length,
-      services: created,
-    });
+    return res.redirect("/hour/register")
   } catch (error) {
     console.error("Erro ao cadastrar serviços:", error);
     return res.status(500).json({
@@ -1187,10 +1182,8 @@ function isValidHour(h) {
 app.post("/horarioCad", tokenVerify, async (req, res) => {
   try {
     const { name, email } = req.user;
-    const { hideHour, hour, storeName } = req.body;
-    const realStoreName = storeName.replaceAll(" ", "/");
-    console.log(realStoreName);
-    const store = await StoreCad.findOne({ storeName: realStoreName }).lean();
+    const { hideHour, hour } = req.body;
+    const store = await StoreCad.findOne({ name: name, email:email }).lean();
     if (!store) {
       return res.status(404).json({ message: "Loja não encontrada" });
     }
@@ -1217,18 +1210,7 @@ app.post("/horarioCad", tokenVerify, async (req, res) => {
       hour: uniqueHours,
     });
 
-    return res.status(201).json({
-      message: "Horários cadastrados com sucesso",
-      store: {
-        storeName: store.storeName,
-        storeEmail: store.storeEmail,
-        phone: store.phone,
-      },
-      hours: created.hour,
-      hideHour,
-      id: created._id,
-      createdAt: created.createdAt,
-    });
+    return res.redirect("/functionary/register")
   } catch (error) {
     console.error("Erro em /horarioCad:", error);
     return res.status(500).json({ message: "Erro no servidor" });
@@ -1493,6 +1475,9 @@ app.get("/cad/store", (req, res) => {
 })
 app.get("/services/register", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "cad-services.html"))
+})
+app.get("/hour/register", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "cad-hours.html"))
 })
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
