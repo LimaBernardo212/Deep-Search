@@ -2897,3 +2897,53 @@ border: 1px solid var(--cor01Esvoaçada);
 .hours-add:hover img{
   transform: rotate(360deg);
 }
+.spawner{
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: 85vw;
+}
+.functionary-base{
+  margin-top: 2vh;
+  display: flex;
+  width: 40vw;
+  height: 35vh;
+  align-items: center;
+}
+.inputer{
+  display: flex;
+  flex-direction: column;
+}
+.inputer input{
+  width: 10vw;
+  height: 4vh;
+  background-color: var(--cor00);
+  border: 1px solid var(--cor01Esvoaçada);
+  padding-left: 15px;
+  border-radius: 5px;
+  margin: 1vh -2vw;
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+}
+.inputer input:focus{
+  outline: none;
+  border-radius: 10px;
+  border: 1px solid var(--cor08);
+}
+.inputer input:focus::placeholder{
+  transition: 0.5s all;
+  opacity: 0;
+}
+.imager-add:hover{
+  background-color: var(--cor03);
+  border: 2px solid var(--cor01Esvoaçada);
+}
+.imager-add:hover img{
+  transform: rotate(360deg);
+}
+.imager #image{
+  opacity: 0;
+  width: 15vw;
+   height: 30vh;
+    position: absolute;
+}

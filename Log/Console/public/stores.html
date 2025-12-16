@@ -106,6 +106,10 @@
       const bbk = document.querySelector("#bbk");
       const load = document.querySelector("#loading")
       const content = document.querySelector('.content')
+      const plans = document.querySelector("#plansinapp");
+      plans.addEventListener("click", () => {
+        window.location.href = "/store/plans"
+      })
       const storeData = document.querySelector('.your-store-data');
       bbk.addEventListener("click", () => {
         window.location.href = "/home.html";

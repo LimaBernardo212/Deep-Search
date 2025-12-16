@@ -9,6 +9,6 @@ const ServiceCadSchema = new mongoose.Schema({
     serviceDesc: Array,
     servicePrice: Array,
     serviceImagePath: { type: Array, default: [] },
-    serviceImageMeta: { type: [mongoose.Schema.Types.Mixed], default: [] },
+    serviceImageMeta: { type: Array, default: [] },
 });
 export default mongoose.model('ServicesCad', ServiceCadSchema);

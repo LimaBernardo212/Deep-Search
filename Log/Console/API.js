@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 import bcrypt from "bcrypt";
 import path from "path";
 import nodemailer from "nodemailer";
-import crypto from "crypto"; // ← Adicione isso
+import crypto, { randomBytes } from "crypto"; // ← Adicione isso
 import { fileURLToPath } from "url";
 import coding from "./codeSchema.js";
 import StoreCad from "./StoreCadschema.js";
@@ -19,14 +19,22 @@ import HoursStorage from "./HourSchema.js";
 import { count } from "console";
 import HourSchema from "./HourSchema.js";
 import scheduleSchema from "./scheduleSchema.js";
+import functionaryCad from "./functionaryCad.js";
+import Stripe from "stripe";
+import ServiceCadSchema from "./ServiceCadSchema.js";
+import PlansSchema from "./BankSchema.js";
+import BankSchema from "./BankSchema.js";
+import { buffer } from "stream/consumers";
 dotenv.config();
 
 const app = express();
 const PORT = 3000;
 const JWT_SECRET = process.env.JWT_SECRET;
+const ENCRIPTION_KEY = process.env.ENCRIPTION_KEY;
+const ALGORITHM = "aes-256-gcm"
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
+const stripe = new Stripe(process.env.SECRET_STRIPE_KEY);
 const UPLOADS_ROOT = path.resolve("uploads");
 const SERVICES_UPLOADS_DIR = path.join(UPLOADS_ROOT, "services");
 const STORES_UPLOADS_DIR = path.join(UPLOADS_ROOT, "stores");
@@ -36,6 +44,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("./public"));
 app.use(cookieParser());
 app.use("/uploads", express.static(UPLOADS_ROOT));
+
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     return res
@@ -348,6 +357,35 @@ async function createPostRoute(storeName) {
   });
   return true;
 }
+function criptografar(datas) {
+  const iv = crypto.randomBytes(16)
+  const cypher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRIPTION_KEY, 'hex'), iv);
+  let encrypted = cypher.update(datas, "utf-8", "hex")
+  encrypted += cypher.final("hex")
+
+  const authTag = cypher.getAuthTag();
+
+  return {
+    encrypted,
+    iv: iv.toString('hex'),
+    authTag: authTag.toString('hex')
+  }
+}
+
+function descriptografar(encryptedata){
+  const decipher = crypto.createDecipheriv(
+    ALGORITHM,
+    Buffer.from(ENCRIPTION_KEY, 'hex'),
+    Buffer.from(encryptedata.iv, 'hex')
+  )
+
+  decipher.setAuthTag(Buffer.from(encryptedata.authTag, 'hex'))
+
+  let decrypted = decipher.update(encryptedata.encrypted, 'hex', 'utf8');
+  decrypted += decipher.final('utf8')
+
+  return decrypted
+}
 async function ensureUploadsDir() {
   try {
     await fs.mkdir(SERVICES_UPLOADS_DIR, { recursive: true });
@@ -414,13 +452,15 @@ app.post("/api/login", async (req, res) => {
         .json({ error: "Por favor, preencha todos os campos." });
     }
 
-    const usuario = await User.findOne({  nome: name, Email: email });
+    const usuario = await User.findOne({ nome: name, Email: email });
 
     if (usuario) {
       const senhaValida = await bcrypt.compare(password, usuario.password);
 
       if (!senhaValida) {
-        return res.status(401).json({ error: "Credenciais inválidas, tente login com Google" });
+        return res
+          .status(401)
+          .json({ error: "Credenciais inválidas, tente login com Google" });
       }
 
       const payload = {
@@ -466,7 +506,9 @@ app.post("/api/login", async (req, res) => {
         maxAge: 30 * 24 * 60 * 60 * 1000,
       });
 
-      res.redirect("/home.html");
+      if (token) {
+        res.redirect("/home.html");
+      }
     }
   } catch (error) {
     console.error("❌ Erro em /api/login:", error);
@@ -493,11 +535,11 @@ app.post("/api/login/authGoogle", async (req, res) => {
 
       const googlePayload = {
         id: googleUsuario._id.toString(),
-        nome: googleUsuario.nome,
-        Email: googleUsuario.Email,
+        name: googleUsuario.nome,
+        email: googleUsuario.Email,
         itsNew: false,
       };
-
+      console.log(googlePayload);
       const googleToken = jwt.sign(googlePayload, JWT_SECRET, {
         expiresIn: "30d",
       });
@@ -588,8 +630,11 @@ function generateCode() {
 app.post("/forgot-password", async (req, res) => {
   const { request_email, request_name } = req.body;
   try {
-    console.log(`${request_name}, ${request_email}`)
-    const finder = await User.findOne({nome: request_name, Email: request_email });
+    console.log(`${request_name}, ${request_email}`);
+    const finder = await User.findOne({
+      nome: request_name,
+      Email: request_email,
+    });
     if (!finder) {
       return res.status(404).json({ error: "User don't registred in DB" });
     }
@@ -601,7 +646,7 @@ app.post("/forgot-password", async (req, res) => {
     }
     const registerCode = await coding.create({
       nome: request_name,
-      email:  request_email,
+      email: request_email,
       code: codet,
     });
     if (!registerCode) {
@@ -665,7 +710,7 @@ app.post("/update-password", async (req, res) => {
       sameSite: "strict",
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
-    res.redirect('home.html')
+    res.redirect("home.html");
   } catch (error) {
     return res.status(500).json({ error: "ERROR" });
   }
@@ -751,7 +796,7 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
       closedHours,
       closedDays,
       openHours,
-      pin
+      pin,
     } = req.body;
     // Validação básica
     if (!storeName || !address || !cnpj || !phone || !storeEmail) {
@@ -831,7 +876,7 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
     console.log("✅ Loja cadastrada:", newStore._id);
     console.log("📁 Imagem salva em:", imageInfo?.path || "sem imagem");
 
-    return res.redirect( "/services/register")
+    return res.redirect("/services/register");
   } catch (error) {
     console.error("❌ Erro ao cadastrar loja:", error);
 
@@ -989,7 +1034,7 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
     console.log(
       `Criados ${created.length} serviço(s). files.length=${files.length}`
     );
-    return res.redirect("/hour/register")
+    return res.redirect("/hour/register");
   } catch (error) {
     console.error("Erro ao cadastrar serviços:", error);
     return res.status(500).json({
@@ -1020,18 +1065,21 @@ app.post("/api/selected/fun", tokenVerify, async (req, res) => {
       .status(404)
       .json({ error: "Error 404, serviceImageNotFound :):(:>:<" });
   }
-  const findInDB = await StoreCad.findOne({ storeName: cstoreName }).lean();
+  const findInDB = await functionaryCad
+    .findOne({ storeName: cstoreName })
+    .lean();
   if (!findInDB) {
     return res.status(404).json({
       mensage: "ERRROR 404, store not found or error in my code, also :(",
     });
   }
-  const nameOfFunctionarys = findInDB.functionary;
+  const nameOfFunctionarys = findInDB.functionarysName;
+  const imagePath = findInDB.functionaryImagePath;
   let c = 0;
   let functionarysArray = [];
   for (let i = 0; i < nameOfFunctionarys.length; i++) {
     const moreBase = `<br><div class="functionaryBaseDiv" name-of="${nameOfFunctionarys[c]}"><div class="uniondivers">
-      <div class="imageFunctionary"><img src="/img/().png"></div><div class="nameOfFunctionary">
+      <div class="imageFunctionary"><img src="${imagePath[c]}"></div><div class="nameOfFunctionary">
         <p>${nameOfFunctionarys[c]}</p>
       </div>
     </div><div class="functionaryMore">
@@ -1063,44 +1111,44 @@ app.post("/api/selected/fun", tokenVerify, async (req, res) => {
   });
 });
 app.post("/api/selected/hours", tokenVerify, async (req, res) => {
-  const {name, email} = req.user;
-  const {storeName, functionary, day} = req.body;
+  const { name, email } = req.user;
+  const { storeName, functionary, day } = req.body;
   const cstoreName = storeName.replaceAll(" ", "/");
   try {
-    
-  const hours = await HoursStorage.findOne({ storeName: cstoreName }).lean();
-  if (!hours) {
-    return res
-      .status(404)
-      .json({ mensage: "ERROR 404, HOURS NOT FOUND (┬┬﹏┬┬)" });
-  }
-  const hoursTobeDiv = hours.hour;
-  let cc = 0;
-  let hoursArray = [];
-  const reqScheudle = await scheduleSchema.find({ storeName: cstoreName, functionary: functionary, day: day})
-  const scheduledHours = reqScheudle.map(schedule => schedule.hour);
-  
-    
+    const hours = await HoursStorage.findOne({ storeName: cstoreName }).lean();
+    if (!hours) {
+      return res
+        .status(404)
+        .json({ mensage: "ERROR 404, HOURS NOT FOUND (┬┬﹏┬┬)" });
+    }
+    const hoursTobeDiv = hours.hour;
+    let cc = 0;
+    let hoursArray = [];
+    const reqScheudle = await scheduleSchema.find({
+      storeName: cstoreName,
+      functionary: functionary,
+      day: day,
+    });
+    const scheduledHours = reqScheudle.map((schedule) => schedule.hour);
+
     for (let i = 0; i < hoursTobeDiv.length; i++) {
-      
-      if (!scheduledHours.includes(hoursTobeDiv[i])){
+      if (!scheduledHours.includes(hoursTobeDiv[i])) {
         const outlierBase = `<br><div class="ourhours" data-hour="${hoursTobeDiv[i]}">${hoursTobeDiv[i]}</div>`;
         hoursArray.push(outlierBase);
       }
-      }
-  
-  console.log(hoursArray)
-  let html = `<div class="renderedHours"><div class="calendarOfHours">${hoursArray.join(" ")}</div></div><footer class="selectedIndicatorB"  id="finished"><button>Finish<strong class="consoleWrite"> >></strong></button></footer>`
+    }
 
-  return res.status(200).json({
-    ok: "ok",
-    render: html
-  })
+    console.log(hoursArray);
+    let html = `<div class="renderedHours"><div class="calendarOfHours">${hoursArray.join(
+      " "
+    )}</div></div><footer class="selectedIndicatorB"  id="finished"><button>Finish<strong class="consoleWrite"> >></strong></button></footer>`;
 
-  } catch (error) {
-    
-  }
-})
+    return res.status(200).json({
+      ok: "ok",
+      render: html,
+    });
+  } catch (error) {}
+});
 app.get("/render/days", tokenVerify, (req, res) => {
   const now = new Date();
   const calendar = [];
@@ -1183,7 +1231,7 @@ app.post("/horarioCad", tokenVerify, async (req, res) => {
   try {
     const { name, email } = req.user;
     const { hideHour, hour } = req.body;
-    const store = await StoreCad.findOne({ name: name, email:email }).lean();
+    const store = await StoreCad.findOne({ name: name, email: email }).lean();
     if (!store) {
       return res.status(404).json({ message: "Loja não encontrada" });
     }
@@ -1210,7 +1258,7 @@ app.post("/horarioCad", tokenVerify, async (req, res) => {
       hour: uniqueHours,
     });
 
-    return res.redirect("/functionary/register")
+    return res.redirect("/functionary/register");
   } catch (error) {
     console.error("Erro em /horarioCad:", error);
     return res.status(500).json({ message: "Erro no servidor" });
@@ -1221,6 +1269,7 @@ app.post("/schedule", tokenVerify, async (req, res) => {
   const { choiceFunctionary, choiceHour, choiceDay, services, storeName } =
     req.body;
   try {
+    const realStoreName = storeName.replaceAll(" ", "/");
     const cadSchedule = await scheduleSchema.create({
       name: name,
       email: email,
@@ -1228,7 +1277,7 @@ app.post("/schedule", tokenVerify, async (req, res) => {
       hour: choiceHour.join(", "),
       services: services,
       day: choiceDay.join(", "),
-      storeName: storeName,
+      storeName: realStoreName,
     });
     if (!cadSchedule) {
       return res.status(500).json({ error: "error in DB" });
@@ -1251,6 +1300,7 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
   const schedules = await scheduleSchema
     .find({ name: name, email: email })
     .lean();
+  console.log("SOU SEUS SCHEDULES : " + schedules);
   if (!schedules || schedules.length == 0) {
     return res.status(200).json({
       msg: "Nenhum dado encontrado",
@@ -1283,11 +1333,11 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
     for (let i = 0; i < schedules.length; i++) {
       let schedule = schedules[i];
       let cS = [];
-      let DBStoreName = schedule.storeName.replaceAll(" ", "-");
+      let DBStoreName = schedule.storeName.replaceAll(" ", "/");
       const services = await ServicesCad.findOne({
         storeName: DBStoreName,
       }).lean();
-      console.log(services);
+      console.log("Sou seus serviços" + services);
       if (!services) {
         return res.status(404).json({ msg: "error" });
       }
@@ -1304,7 +1354,7 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
         }
       }
 
-      const storeName = schedule.storeName.replaceAll("-", " ");
+      const storeName = schedule.storeName.replaceAll("/", " ");
       const day = schedule.day;
       const hour = schedule.hour;
       const functionary = schedule.functionary;
@@ -1369,7 +1419,7 @@ app.delete("/delete/schedules", tokenVerify, async (req, res) => {
   const { dia, hora, loja, funcionario } = req.body;
 
   try {
-    const realName = loja.replaceAll(" ", "-");
+    const realName = loja.replaceAll(" ", "/");
     const deleter = await scheduleSchema.findOneAndDelete({
       name: name,
       email: email,
@@ -1397,54 +1447,67 @@ app.get("/reload", (req, res) => {
   return res.redirect("/schedule/home");
 });
 app.get("/more", tokenVerify, (req, res) => {
-  return res.sendFile(path.join(__dirname, "public", "account.html"))
-})
+  return res.sendFile(path.join(__dirname, "public", "account.html"));
+});
 app.put("/update/user", tokenVerify, async (req, res) => {
-  const {name, email} = req.user;
-  const {new_name, new_email} = req.body;
+  const { name, email } = req.user;
+  const { new_name, new_email } = req.body;
 
   try {
-    const updater = await User.findOneAndUpdate({
-    nome: name,
-    Email: email 
-  }, {
-    nome: new_name,
-    Email: new_email
-  }, {new: true})
-  if (!updater){
-    return res.status(404).json({err: "Foi impossivel encontrar e atualizar os dados :("})
-  }
-const updaterPayload = {
-        id: updater._id.toString(),
-        name:updater.nome,
-        email:  updater.Email,
-        itsNew: false,
-      };
+    const updater = await User.findOneAndUpdate(
+      {
+        nome: name,
+        Email: email,
+      },
+      {
+        nome: new_name,
+        Email: new_email,
+      },
+      { new: true }
+    );
+    if (!updater) {
+      return res
+        .status(404)
+        .json({ err: "Foi impossivel encontrar e atualizar os dados :(" });
+    }
+    const updaterPayload = {
+      id: updater._id.toString(),
+      name: updater.nome,
+      email: updater.Email,
+      itsNew: false,
+    };
 
-      const updateToken = jwt.sign(updaterPayload, JWT_SECRET, {
-        expiresIn: "30d",
-      });
+    const updateToken = jwt.sign(updaterPayload, JWT_SECRET, {
+      expiresIn: "30d",
+    });
 
-      res.cookie("authToken", updateToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-      });
-      return res.status(200).json({sucess: 'Hello, world!', payload: updaterPayload})
+    res.cookie("authToken", updateToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+    return res
+      .status(200)
+      .json({ sucess: "Hello, world!", payload: updaterPayload });
   } catch (error) {
-    return res.status(500).json({errno: error})
+    return res.status(500).json({ errno: error });
   }
-})
-app.get('/conditions', (req, res) => {res.sendFile(path.join(__dirname, "public", "conditions.html"))}) 
-app.get("/privacy",(req, res) => {res.sendFile(path.join(__dirname, "public", "privacy.html"))} )//🤨
+});
+app.get("/conditions", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "conditions.html"));
+});
+app.get("/privacy", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "privacy.html"));
+}); //🤨
 
 app.get("/verify/have/stores", tokenVerify, async (req, res) => {
-  const {name, email} = req.user;
+  const { name, email } = req.user;
   try {
-    const finder = await StoreCad.findOne({name: name, email: email})
-  if (!finder){
-    return res.status(200).json({returner: `<div class="notAllowed">
+    const finder = await StoreCad.findOne({ name: name, email: email });
+    if (!finder) {
+      return res.status(200).json({
+        returner: `<div class="notAllowed">
   <div class="call-action">
     <h1 class="call-h1">
       No stores found under your  <strong class="GreenCard">account</strong><strong class="pointer">.</strong>
@@ -1462,23 +1525,351 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
       <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF">
     </div>
   </div>
-</div>`})
-  }
+</div>`,
+      });
+    }
 
-  return res.status(200).json({tudoCerto: ":>", finderData: finder, returner: JSON.stringify(finder)})
+    return res.status(200).json({
+      tudoCerto: ":>",
+      finderData: finder,
+      returner: JSON.stringify(finder),
+    });
   } catch (error) {
-    return res.redirect('/error500.html')
+    return res.redirect("/error500.html");
   }
-})
+});
 app.get("/cad/store", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "cad-store.html"))
-})
+  res.sendFile(path.join(__dirname, "public", "cad-store.html"));
+});
 app.get("/services/register", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "cad-services.html"))
-})
+  res.sendFile(path.join(__dirname, "public", "cad-services.html"));
+});
 app.get("/hour/register", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "cad-hours.html"))
-})
+  res.sendFile(path.join(__dirname, "public", "cad-hours.html"));
+});
+app.get("/functionary/register", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "cad-functionary.html"));
+});
+app.post("/cadFunctionary", tokenVerify, upload.any(), async (req, res) => {
+  const { name, email } = req.user;
+
+  try {
+    await ensureUploadsDir();
+
+    console.log("Body keys:", Object.keys(req.body));
+    console.log(
+      "Files:",
+      (req.files || []).map((f, idx) => ({
+        idx,
+        fieldname: f.fieldname,
+        originalname: f.originalname,
+        mimetype: f.mimetype,
+        size: f.size,
+      }))
+    );
+
+    const findStore = await StoreCad.findOne({ name: name, email: email });
+    if (!findStore) {
+      console.log(name, email);
+      return res.status(400).json({
+        message: "Loja não encontrada",
+        name: name,
+        email: email,
+      });
+    }
+
+    const toArray = (v) => (Array.isArray(v) ? v : v !== undefined ? [v] : []);
+
+    const functionaryName = toArray(
+      req.body["functionaryName[]"] ?? req.body.functionaryName
+    );
+    const functionaryEmail = toArray(
+      req.body["functionaryEmail[]"] ?? req.body.functionaryEmail
+    );
+
+    const files = req.files || [];
+
+    const total =
+      Math.max(functionaryName.length, functionaryEmail.length) || 0;
+
+    if (total === 0 && !functionaryName.length && !functionaryEmail.length) {
+      return res.status(400).json({ message: "Nenhum funcionário enviado" });
+    }
+
+    const imagePaths = [];
+    const imageMeta = [];
+
+    // ✅ Loop simples igual ao servicesCad
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+
+      try {
+        const processed = await processImageToWebp(file.buffer, {
+          maxWidth: 1024,
+          maxHeight: 1024,
+          quality: 80,
+        });
+
+        const saved = await saveBufferToDisk(
+          processed.buffer,
+          processed.format,
+          "functionary"
+        );
+
+        const imageInfo = {
+          storage: "disk",
+          path: saved.relPath,
+          filename: saved.fileName,
+          format: processed.format,
+          width: processed.width,
+          height: processed.height,
+          sizeBytes: processed.sizeBytes,
+        };
+
+        imagePaths.push(saved.relPath);
+        imageMeta.push(imageInfo);
+      } catch (imgErr) {
+        console.warn("Falha ao processar imagem:", imgErr.message);
+        // Adiciona null para manter índice
+        imagePaths.push(null);
+        imageMeta.push(null);
+      }
+    }
+
+    console.log("imagePaths final:", imagePaths);
+    console.log("imageMeta final:", imageMeta);
+
+    const newFunctionary = await functionaryCad.create({
+      name: name,
+      email: email,
+      storeName: findStore.storeName,
+      storeEmail: findStore.storeEmail,
+      phone: findStore.phone,
+      functionarysName: functionaryName,
+      functionarysEmail: functionaryEmail,
+      functionaryImagePath: imagePaths,
+      functionaryImageMeta: imageMeta,
+    });
+
+    console.log(`Criados funcionários. files.length=${files.length}`);
+
+    // ✅ Redireciona igual ao servicesCad
+    return res.redirect("/pay/plans");
+  } catch (error) {
+    console.error("Erro ao cadastrar funcionários:", error);
+    return res.status(500).json({
+      message: "Erro ao processar o cadastro.",
+      error: error.message,
+    });
+  }
+});
+app.get("/pay/plans", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "plans.html"));
+});
+app.post("/pay/plans/buy", tokenVerify, async (req, res) => {
+  const { name, email } = req.user;
+  const { plan } = req.body;
+  try {
+    const logPlans = {
+      basic: {
+        name: "Basic",
+        price: 2390,
+        description: "",
+      },
+      pro: {
+        name: "Plano Pro",
+        price: 3500,
+        description: "",
+      },
+      superpro: {
+        name: "Plano Super Pro",
+        price: 4767,
+        description: "",
+      },
+    };
+    const selected = logPlans[plan];
+    if (!selected) {
+      return res.status(400).json({ error: "Invalid Plan" });
+    }
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      line_items: [
+        {
+          price_data: {
+            currency: "brl",
+            product_data: {
+              name: selected.name,
+            },
+            unit_amount: selected.price,
+            recurring: {
+              // ✅ OBRIGATÓRIO para subscription
+              interval: "month", // ou 'year', 'week', 'day'
+            },
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: `http://localhost:3000/stores/home?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://localhost:3000/cancel/payment`,
+      customer_email: email,
+      metadata: {
+        userId: req.user.id,
+        planType: plan,
+        userName: name,
+      },
+    });
+    if (!session) {
+      return res.status(400).json({ error: "ERROR in payment :(" });
+    }
+    return res.status(200).json({
+      sessionId: session.id,
+      url: session.url,
+    });
+  } catch (error) {
+    console.error("Erro ao criar sessão:", error);
+    return res.status(500).json({
+      error: "Erro ao processar pagamento",
+      details: error.message,
+    });
+  }
+});
+app.delete("/bad/payer", tokenVerify, async (req, res) => {
+  const { name, email } = req.user;
+  try {
+    const store = await StoreCad.findOne({
+      name: name,
+      email: email,
+    }).lean();
+    if (!store) {
+      return res.status(400).json({ error: "errt" });
+    }
+    const servicesDeleter = await ServicesCad.findOneAndDelete({
+      name: name,
+      email: email,
+    });
+    if (!servicesDeleter) {
+      return res.status(400).json({ error: "err" });
+    }
+    const hourDeleter = await HoursStorage.findOneAndDelete({
+      storeName: store.storeName,
+      storeEmail: store.storeEmail,
+    });
+    if (!hourDeleter) {
+      return res.status(400).json({ error: "erro" });
+    }
+    const funcDeleter = await functionaryCad.findOneAndDelete({
+      name: name,
+      email: email,
+    });
+    if (!funcDeleter) {
+      return res.status(400).json({ error: "erronr" });
+    }
+    const storeDeleter = await StoreCad.findOneAndDelete({
+      name: name,
+      email: email,
+    });
+    if (!storeDeleter) {
+      return res
+        .status(400)
+        .json({ error: "errooooooooooooooooooooooooooooooooooooor" });
+    }
+    return res.status(200).json({ sucess: "SUCESS" });
+  } catch (error) {
+    return res.status(500).json({ error: error });
+  }
+});
+app.get("/store/plans", tokenVerify, async (req, res) => {
+  return res.sendFile(path.join(__dirname, "public", "plansData.html"));
+});
+app.post("/plans/register/bank", tokenVerify, async (req, res) => {
+  const { name, email } = req.user;
+  const {
+    holder_name,
+    holder_type,
+    bank_code,
+    branch_code,
+    account_number,
+    tax_id,
+  } = req.body;
+console.log("📦 Dados recebidos:", {
+      holder_name,
+      holder_type,
+      bank_code,
+      branch_code,
+      account_number,
+      tax_id
+    });
+  try {
+    const account = await stripe.accounts.create({
+      type: "express",
+      country: "BR",
+      email: email,
+      capabilities: {
+        card_payments: { requested: true },
+        transfers: { requested: true },
+      },
+      business_type: holder_type,
+      metadata: {
+        userId: req.user.id,
+        userName: name,
+      },
+    });
+    const externalAccount = await stripe.accounts.createExternalAccount(account.id, {
+      external_account: {
+        object: "bank_account",
+        country: "BR",
+        currency: "brl",
+        account_holder_name: holder_name,
+        account_holder_type: holder_type, // ou 'company'
+        routing_number: `${bank_code}-${branch_code}`,
+        account_number: account_number,
+        // account_type: "checking",
+      },
+    });
+    const registerData = {
+      holder_name: holder_name,
+      holder_type: holder_type,
+      bank_code: `${bank_code}-${branch_code}`,
+      account_number: account_number,
+      stripe_id: account.id,
+    };
+    console.log(registerData)
+    const bankDatas = await BankSchema.findOne({
+      holder_name: registerData.holder_name,
+      stripe_id: registerData.stripe_id,
+    });
+    if (!bankDatas){
+      const criptNumber = criptografar(account_number.toString())
+      const encriptedJson = JSON.stringify(criptNumber)
+      const cadBankDatas = await BankSchema.create({
+        name: name,
+        email: email,
+        holder_name: holder_name,
+        holder_type: holder_type,
+        bank_code: bank_code,
+        branch_code: branch_code,
+        tax_id: tax_id,
+        stripe_id: account.id,
+        account_number: encriptedJson
+
+      })
+      const accountLink = await stripe.accountLinks.create({
+        account: account.id,
+        refresh_url: `http://localhost:3000/reauth`, // URL se expirar
+      return_url: `http://localhost:3000/dashboard`, // URL após completar
+      type: "account_onboarding",
+      })
+      if (cadBankDatas){
+        return res.redirect(accountLink.url)
+
+      }
+    }
+    return res.status(404).json({error: "Usuario ja cadastrado"})
+  } catch (error) {
+    console.error("Erro:", error);
+    return res.status(500).json({ error: error.message });
+  }
+});
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
   console.log(`📧 Sistema de recuperação de senha ativo`);
