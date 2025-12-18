@@ -25,13 +25,15 @@ import ServiceCadSchema from "./ServiceCadSchema.js";
 import PlansSchema from "./BankSchema.js";
 import BankSchema from "./BankSchema.js";
 import { buffer } from "stream/consumers";
+import plansSchema from "./plansSchema.js";
+import userPlansSchema from "./userPlansSchema.js";
 dotenv.config();
 
 const app = express();
 const PORT = 3000;
 const JWT_SECRET = process.env.JWT_SECRET;
 const ENCRIPTION_KEY = process.env.ENCRIPTION_KEY;
-const ALGORITHM = "aes-256-gcm"
+const ALGORITHM = "aes-256-gcm";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const stripe = new Stripe(process.env.SECRET_STRIPE_KEY);
@@ -257,134 +259,39 @@ async function enviarEmailRecuperacao(email, resetToken) {
   // ✅ IMPORTANTE: Retorna a Promise para poder tratar erros
   return await transport.sendMail(emailOptions);
 }
-async function createPostRoute(storeName) {
-  app.get(`/store/${storeName}`, async (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "base.html"));
-  });
-  app.get(`/api/store/${storeName}`, async (req, res) => {
-    const realStoreName = storeName.replaceAll("_", "/");
-    const trueName = realStoreName.replaceAll("/", " ");
-    try {
-      const storeData = await StoreCad.findOne({ storeName: realStoreName });
-      if (!storeData) {
-        return res.status(404).json({ error: "Not found" });
-      }
 
-      const servicesData = await ServicesCad.find({
-        storeName: realStoreName,
-      }).lean();
-      if (!servicesData || servicesData.length == 0) {
-        return res.status(404).json({ error: "Services not found" });
-      }
-      let htmlArray = [];
-      let count = 0;
-      const serviceName = servicesData.map((doc) => doc.serviceName).flat();
-      const imgPath = storeData.storeImagePath;
-      for (let i = 0; i < servicesData.length; i++) {
-        const servicesDoc = servicesData[i];
-        const names = servicesDoc.serviceName;
-        const desc = servicesDoc.serviceDesc;
-        const prices = servicesDoc.servicePrice;
-        const imgPath2 = servicesDoc.serviceImagePath;
-
-        for (let j = 0; j < names.length; j++) {
-          let structure = `
-                <div class="Service">
-                
-            <div class="imageService"><img src="${imgPath2[j]}" alt=""></div>
-            <div class="servicesInfos">
-              <h1>${names[j]}</h1>
-              <p>${desc[j]}</p>
-              <h2>${prices[j]}</h2>
-            </div>
-            <div class="scheduleButton">
-              <button class="scheduleBtn">
-                Schedule now
-              </button>
-                   </div>
-        </div>`;
-          count++;
-          htmlArray.push(structure);
-        }
-      }
-
-      let servicesReturner = htmlArray.join("");
-      let returnS = servicesReturner + "</section>";
-      let htmlBasePageModel3 = `<header class="nb">
-        <button class="nButton" id="back">
-            <img src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF" alt="">
-        </button>
-    </header>
-    
-    <section class="all-stores-info">
-      <section class="storeGrandSect">
-          <div class="storeData">
-            <div class="imgData"><img src="${imgPath}" alt=""></div>
-            <div class="infoData">
-              <h1>${trueName}</h1>
-              <p><strong class="consoleWrite">>_</strong>${storeData.description}</p>
-              <div class="hours">
-                <div class="openAt">${storeData.openHours}</div>
-                <div class="theHourLine"></div>
-                <div class="closeAt">${storeData.closedHours}</div>
-              
-              <div class="functionDays"><div class="placeholder">Closed on days:</div><div class="until">${storeData.closedDays}</div></div>
-              </div>
-              <button class="servicesBtn">Schedule Now</button>
-            </div>
-          </div>
-          
-      </section>
-      <!--SOMOS DIFERENTES DIVS-->
-      <section class="services-content" id="forScrollPreguiçosos">
-      ${returnS}
-      
-    </section>
-    <footer class="selectedIndicator"><span class="counter">Selected services: </span><button>Next<strong class="consoleWrite"> >></strong></button></footer>
-        `;
-      return res.status(200).json({
-        htmlPage: htmlBasePageModel3,
-        services: servicesData,
-        store: storeData,
-        StoreName: trueName,
-        serviceName: serviceName,
-        closedDays: storeData.closedDays,
-        returner: returnS,
-      });
-    } catch (error) {
-      return res.status(500).json({ error: "Server error" });
-    }
-  });
-  return true;
-}
 function criptografar(datas) {
-  const iv = crypto.randomBytes(16)
-  const cypher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRIPTION_KEY, 'hex'), iv);
-  let encrypted = cypher.update(datas, "utf-8", "hex")
-  encrypted += cypher.final("hex")
+  const iv = crypto.randomBytes(16);
+  const cypher = crypto.createCipheriv(
+    ALGORITHM,
+    Buffer.from(ENCRIPTION_KEY, "hex"),
+    iv
+  );
+  let encrypted = cypher.update(datas, "utf-8", "hex");
+  encrypted += cypher.final("hex");
 
   const authTag = cypher.getAuthTag();
 
   return {
     encrypted,
-    iv: iv.toString('hex'),
-    authTag: authTag.toString('hex')
-  }
+    iv: iv.toString("hex"),
+    authTag: authTag.toString("hex"),
+  };
 }
 
-function descriptografar(encryptedata){
+function descriptografar(encryptedata) {
   const decipher = crypto.createDecipheriv(
     ALGORITHM,
-    Buffer.from(ENCRIPTION_KEY, 'hex'),
-    Buffer.from(encryptedata.iv, 'hex')
-  )
+    Buffer.from(ENCRIPTION_KEY, "hex"),
+    Buffer.from(encryptedata.iv, "hex")
+  );
 
-  decipher.setAuthTag(Buffer.from(encryptedata.authTag, 'hex'))
+  decipher.setAuthTag(Buffer.from(encryptedata.authTag, "hex"));
 
-  let decrypted = decipher.update(encryptedata.encrypted, 'hex', 'utf8');
-  decrypted += decipher.final('utf8')
+  let decrypted = decipher.update(encryptedata.encrypted, "hex", "utf8");
+  decrypted += decipher.final("utf8");
 
-  return decrypted
+  return decrypted;
 }
 async function ensureUploadsDir() {
   try {
@@ -895,17 +802,8 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
 });
 app.post("/store/page", async (req, res) => {
   const { storeName } = req.body;
-  const storeNamer = storeName.replaceAll("/", "_");
-  try {
-    await createPostRoute(storeNamer);
-    return res.status(200).json({
-      message: "Rota criada com sucesso!", // ERRO: "mensage" → "message"
-      redirect: `/store/${storeNamer}`,
-      redirectTwo: `/api/store/${storeNamer}`,
-    });
-  } catch (error) {
-    return res.status(500).json({ error: "Erro ao criar a rota." });
-  }
+  const forStoreName = storeName.replaceAll("/", "_");
+  return res.status(200).json({ redirect: `/store/:${forStoreName}` });
 });
 
 app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
@@ -1266,8 +1164,14 @@ app.post("/horarioCad", tokenVerify, async (req, res) => {
 });
 app.post("/schedule", tokenVerify, async (req, res) => {
   const { name, email } = req.user;
-  const { choiceFunctionary, choiceHour, choiceDay, services, storeName } =
-    req.body;
+  const {
+    choiceFunctionary,
+    choiceHour,
+    choiceDay,
+    services,
+    storeName,
+    price,
+  } = req.body;
   try {
     const realStoreName = storeName.replaceAll(" ", "/");
     const cadSchedule = await scheduleSchema.create({
@@ -1278,13 +1182,17 @@ app.post("/schedule", tokenVerify, async (req, res) => {
       services: services,
       day: choiceDay.join(", "),
       storeName: realStoreName,
+      payed: false,
+      totalPrice: price,
+      stripeId: null,
     });
     if (!cadSchedule) {
       return res.status(500).json({ error: "error in DB" });
     }
+    const scheduleId = cadSchedule.id;
     return res.status(200).json({
       sucess: "Sucess",
-      redirect: "/schedule/home",
+      redirect: `/pay/app/${scheduleId}`,
     });
   } catch (error) {
     return res.status(500).json({ error: "Error in the server" });
@@ -1333,11 +1241,12 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
     for (let i = 0; i < schedules.length; i++) {
       let schedule = schedules[i];
       let cS = [];
-      let DBStoreName = schedule.storeName.replaceAll(" ", "/");
       const services = await ServicesCad.findOne({
-        storeName: DBStoreName,
+        storeName: schedule.storeName,
       }).lean();
-      console.log("Sou seus serviços" + services);
+      console.log(
+        "Sou seus serviços" + services + "Sou seu nome:" + schedule.storeName
+      );
       if (!services) {
         return res.status(404).json({ msg: "error" });
       }
@@ -1360,7 +1269,48 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
       const functionary = schedule.functionary;
       const randomSymbol = [">_", ">>", "//"];
       let random = Math.floor(Math.random() * 3);
-      let htmlD = `
+      if (schedule.payed) {
+        let htmlD = `
+        <div class="union">
+          <div class="payed-symbol" title="Previously paid"> <img src="https://img.icons8.com/?size=100&id=122142&format=png&color=FFFFFF"></div>
+              <div class="schedule-content schedule-payed">
+                <div class="schedule-data" data-dia="${day}" data-hour="${hour}" data-storeName="${storeName}" data-functionary="${functionary}">
+          <div class="schedule-StoreName" ><strong class="consoleWrite">${
+            randomSymbol[random]
+          }</strong>${storeName}</div>
+          <div class="schedule-Fun"><strong class="GreenCard" style="margin-bottom: 10px;">Professional:</strong> ${functionary}</div>
+          <div class="schedule-Dam">
+          <strong class="GreenCard">Services:</strong><br><strong class="jsonWrite">{</strong><br>
+            <div class="schedule-services">${cS.join(" ,")}</p></div>
+            <br>
+            <strong class="jsonWrite">}</strong>
+          </div>
+          
+          
+          
+                </div>
+                <div class="lateralInfos">
+          <div class="delete">
+              <img
+                src="https://img.icons8.com/?size=100&id=83149&format=png&color=FFFFFF"
+              />
+            </div>
+          <div class="schedule-dayEHour">
+                <div class="schedule-Day">
+                   <strong class="dayEHour">${day}</strong>
+                </div>
+                <div class="schedule-Hour">
+                   <strong class="dayEHour">${hour}</strong>
+                </div>
+              </div>
+                </div>
+              </div>
+        </div>
+      `;
+        dS.push(htmlD);
+      } else {
+        let htmlD = `
+       
     <div class="schedule-content">
       <div class="schedule-data" data-dia="${day}" data-hour="${hour}" data-storeName="${storeName}" data-functionary="${functionary}">
         <div class="schedule-StoreName" ><strong class="consoleWrite">${
@@ -1396,7 +1346,8 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
       </div>
     </div>
       `;
-      dS.push(htmlD);
+        dS.push(htmlD);
+      }
     }
     let htmlFULL = `<div class="schedule-some-div">
     
@@ -1663,44 +1614,175 @@ app.post("/cadFunctionary", tokenVerify, upload.any(), async (req, res) => {
     });
   }
 });
+app.get(`/store/:storeName`, async (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "base.html"));
+});
+app.get(`/api/store/:storeName`, async (req, res) => {
+  const storeName = req.params.storeName;
+  const realStoreName = storeName.replaceAll("_", "/");
+  const trueName = realStoreName.replaceAll("/", " ");
+  try {
+    const storeData = await StoreCad.findOne({ storeName: realStoreName });
+    if (!storeData) {
+      return res.status(404).json({ error: "Not found" });
+    }
+
+    const servicesData = await ServicesCad.find({
+      storeName: realStoreName,
+    }).lean();
+    const plansData = await plansSchema
+      .findOne({
+        storeName: realStoreName,
+      })
+      .lean();
+    console.log(plansData);
+    if (!servicesData || servicesData.length == 0) {
+      return res.status(404).json({ error: "Services not found" });
+    }
+    let htmlArray = [];
+    let plansArray = [];
+    let priceArray = [];
+    let count = 0;
+    const serviceName = servicesData.map((doc) => doc.serviceName).flat();
+    const imgPath = storeData.storeImagePath;
+    for (let i = 0; i < servicesData.length; i++) {
+      const servicesDoc = servicesData[i];
+      const names = servicesDoc.serviceName;
+      const desc = servicesDoc.serviceDesc;
+      const prices = servicesDoc.servicePrice;
+      const imgPath2 = servicesDoc.serviceImagePath;
+
+      for (let j = 0; j < names.length; j++) {
+        let structure = `
+                <div class="Service">
+                
+            <div class="imageService"><img src="${imgPath2[j]}" alt=""></div>
+            <div class="servicesInfos">
+              <h1>${names[j]}</h1>
+              <p>${desc[j]}</p>
+              <h2>${prices[j]}</h2>
+            </div>
+            <div class="scheduleButton">
+              <button class="scheduleBtn">
+                Schedule now
+              </button>
+                   </div>
+        </div>`;
+        count++;
+        priceArray.push(prices[j]);
+        htmlArray.push(structure);
+      }
+    }
+    if (plansData) {
+      const name = plansData.planOriginalName;
+      const desc = plansData.planDescription;
+      const realName = plansData.planName;
+      const price = plansData.planPrice;
+
+      console.log("EU: \n" + name, desc, realName, price);
+      for (let pd = 0; pd < name.length; pd++) {
+        let structure = `
+        <div class="Basic Plan ${name[pd].replaceAll(
+          " ",
+          "-"
+        )}" style="opacity: 1; margin: 2vw;" data-name="${
+          realName[pd]
+        }" data-price="${price[pd]}">
+          <h1 class="Price"><strong class="GreenCard">$</strong>${
+            price[pd]
+          }</h1>
+          <div class="beneficios">
+            <p><strong class="consoleWrite">>></strong>${desc[pd]}</p>
+            <button style="margin-top: 4vh;">Subscribe Now</button>
+          </div>
+        </div>
+        `;
+        plansArray.push(structure);
+      }
+    } else {
+      let structure = `<div class="Text-Plan" style="opacity: 1">
+        <h1>This store does not offer <strong class="GreenCard">subscription plans</strong>.</h1>
+      </div>`;
+      plansArray.push(structure);
+    }
+    let servicesReturner = htmlArray.join("");
+    let plansReturner = plansArray.join("");
+    let returnS = servicesReturner + "</section>";
+    let htmlBasePageModel3 = `<header class="nb">
+        <button class="nButton" id="back">
+            <img src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF" alt="">
+        </button>
+    </header>
+    
+    <section class="all-stores-info">
+      <section class="storeGrandSect">
+          <div class="storeData">
+            <div class="imgData"><img src="${imgPath}" alt=""></div>
+            <div class="infoData">
+              <h1>${trueName}</h1>
+              <p><strong class="consoleWrite">>_</strong>${storeData.description}</p>
+              <div class="hours">
+                <div class="openAt">${storeData.openHours}</div>
+                <div class="theHourLine"></div>
+                <div class="closeAt">${storeData.closedHours}</div>
+              
+              <div class="functionDays"><div class="placeholder">Closed on days:</div><div class="until">${storeData.closedDays}</div></div>
+              </div>
+              <button class="servicesBtn">Schedule Now</button>
+            </div>
+          </div>
+          
+      </section>
+      <!--SOMOS DIFERENTES DIVS-->
+      <section class="services-content" id="forScrollPreguiçosos">
+      ${returnS}
+      <div class="selectedIndicator"><span class="counter">Selected services: </span><button>Next<strong class="consoleWrite"> >></strong></button></div>
+    </section>
+    <div class="trasition"></div>
+    <section class="Ass-Plan">
+      <div class="Text-Plan" style="opacity: 1">
+        <h1>Choose Your <strong class="GreenCard">Plan</strong></h1>
+      </div>
+      <div class="Plans-content" style="opacity: 1">
+        ${plansReturner}
+      </div>
+    </section>
+        `;
+    console.log(plansReturner);
+    return res.status(200).json({
+      htmlPage: htmlBasePageModel3,
+      services: servicesData,
+      store: storeData,
+      StoreName: trueName,
+      serviceName: serviceName,
+      closedDays: storeData.closedDays,
+      returner: returnS,
+      prices: priceArray,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Server error" });
+  }
+});
 app.get("/pay/plans", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "plans.html"));
 });
 app.post("/pay/plans/buy", tokenVerify, async (req, res) => {
   const { name, email } = req.user;
-  const { plan } = req.body;
+  const { plan, price } = req.body;
   try {
-    const logPlans = {
-      basic: {
-        name: "Basic",
-        price: 2390,
-        description: "",
-      },
-      pro: {
-        name: "Plano Pro",
-        price: 3500,
-        description: "",
-      },
-      superpro: {
-        name: "Plano Super Pro",
-        price: 4767,
-        description: "",
-      },
-    };
-    const selected = logPlans[plan];
-    if (!selected) {
-      return res.status(400).json({ error: "Invalid Plan" });
-    }
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
+      payment_method_types: [
+        "card", // Cartão de crédito/débito
+      ],
       line_items: [
         {
           price_data: {
             currency: "brl",
             product_data: {
-              name: selected.name,
+              name: plan,
             },
-            unit_amount: selected.price,
+            unit_amount: price,
             recurring: {
               // ✅ OBRIGATÓRIO para subscription
               interval: "month", // ou 'year', 'week', 'day'
@@ -1709,18 +1791,21 @@ app.post("/pay/plans/buy", tokenVerify, async (req, res) => {
           quantity: 1,
         },
       ],
-      success_url: `http://localhost:3000/stores/home?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `http://localhost:3000/cad/plan?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `http://localhost:3000/cancel/payment`,
       customer_email: email,
       metadata: {
         userId: req.user.id,
-        planType: plan,
+        planName: plan,
         userName: name,
+        userEmail: email,
+        planPrice: price,
       },
     });
     if (!session) {
       return res.status(400).json({ error: "ERROR in payment :(" });
     }
+
     return res.status(200).json({
       sessionId: session.id,
       url: session.url,
@@ -1730,6 +1815,43 @@ app.post("/pay/plans/buy", tokenVerify, async (req, res) => {
     return res.status(500).json({
       error: "Erro ao processar pagamento",
       details: error.message,
+    });
+  }
+});
+app.get("/cad/plan", async (req, res) => {
+  const sessionId = req.query.session_id;
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const { planName, userName, userEmail, planPrice } = session.metadata;
+
+    if (session.payment_status === 'paid'){
+      const planVerify = await userPlansSchema.findOne({
+      planName: planName,
+      name: userName,
+    });
+    if (planVerify) {
+      return res.status(200).json({
+        error: "ENCONTRADO",
+      });
+    }
+    const planCad = await userPlansSchema.create({
+      name: userName,
+      email: userEmail,
+      planName: planName,
+      planPrice: planPrice,
+      subscriptionId: session.subscription,
+    });
+    if (!planCad) {
+      return res.status(400).json({
+        error: "NO CADASTRO",
+      });
+    }
+    return res.redirect('/my/plan')
+    }
+  } catch (error) {
+    return res.status(500).json({
+      error: "NO SERVIDOR",
     });
   }
 });
@@ -1791,14 +1913,14 @@ app.post("/plans/register/bank", tokenVerify, async (req, res) => {
     account_number,
     tax_id,
   } = req.body;
-console.log("📦 Dados recebidos:", {
-      holder_name,
-      holder_type,
-      bank_code,
-      branch_code,
-      account_number,
-      tax_id
-    });
+  console.log("📦 Dados recebidos:", {
+    holder_name,
+    holder_type,
+    bank_code,
+    branch_code,
+    account_number,
+    tax_id,
+  });
   try {
     const account = await stripe.accounts.create({
       type: "express",
@@ -1814,18 +1936,21 @@ console.log("📦 Dados recebidos:", {
         userName: name,
       },
     });
-    const externalAccount = await stripe.accounts.createExternalAccount(account.id, {
-      external_account: {
-        object: "bank_account",
-        country: "BR",
-        currency: "brl",
-        account_holder_name: holder_name,
-        account_holder_type: holder_type, // ou 'company'
-        routing_number: `${bank_code}-${branch_code}`,
-        account_number: account_number,
-        // account_type: "checking",
-      },
-    });
+    const externalAccount = await stripe.accounts.createExternalAccount(
+      account.id,
+      {
+        external_account: {
+          object: "bank_account",
+          country: "BR",
+          currency: "brl",
+          account_holder_name: holder_name,
+          account_holder_type: holder_type, // ou 'company'
+          routing_number: `${bank_code}-${branch_code}`,
+          account_number: account_number,
+          // account_type: "checking",
+        },
+      }
+    );
     const registerData = {
       holder_name: holder_name,
       holder_type: holder_type,
@@ -1833,14 +1958,14 @@ console.log("📦 Dados recebidos:", {
       account_number: account_number,
       stripe_id: account.id,
     };
-    console.log(registerData)
+    console.log(registerData);
     const bankDatas = await BankSchema.findOne({
       holder_name: registerData.holder_name,
       stripe_id: registerData.stripe_id,
     });
-    if (!bankDatas){
-      const criptNumber = criptografar(account_number.toString())
-      const encriptedJson = JSON.stringify(criptNumber)
+    if (!bankDatas) {
+      const criptNumber = criptografar(account_number.toString());
+      const encriptedJson = JSON.stringify(criptNumber);
       const cadBankDatas = await BankSchema.create({
         name: name,
         email: email,
@@ -1850,24 +1975,337 @@ console.log("📦 Dados recebidos:", {
         branch_code: branch_code,
         tax_id: tax_id,
         stripe_id: account.id,
-        account_number: encriptedJson
+        account_number: encriptedJson,
+      });
 
-      })
       const accountLink = await stripe.accountLinks.create({
         account: account.id,
         refresh_url: `http://localhost:3000/reauth`, // URL se expirar
-      return_url: `http://localhost:3000/dashboard`, // URL após completar
-      type: "account_onboarding",
-      })
-      if (cadBankDatas){
-        return res.redirect(accountLink.url)
+        return_url: `http://localhost:3000/dashboard`, // URL após completar
+        type: "account_onboarding",
+        collect: "eventually_due",
+      });
 
+      if (cadBankDatas) {
+        return res.redirect(accountLink.url);
       }
     }
-    return res.status(404).json({error: "Usuario ja cadastrado"})
+    return res.status(404).json({ error: "Usuario ja cadastrado" });
   } catch (error) {
     console.error("Erro:", error);
     return res.status(500).json({ error: error.message });
+  }
+});
+app.post("/plans/register/plans", tokenVerify, async (req, res) => {
+  const { name, email } = req.user;
+  const { name_product, price_product, description } = req.body;
+  console.log(
+    "All Datas Recived: " + name,
+    email,
+    name_product,
+    price_product,
+    description
+  );
+  try {
+    const findYourStore = await StoreCad.findOne({
+      name: name,
+      email: email,
+    });
+    let storeName = findYourStore.storeName.replaceAll("/", " ");
+    let productInStripeNameArray = [];
+    if (!findYourStore) {
+      return res.status(404).json({ nenhuma: "Loja encontrada no seu nome" });
+    }
+    const stripeId = [];
+    const planCode = findYourStore.model;
+
+    if (Array.isArray(name_product)) {
+      for (let i = 0; i < name_product.length; i++) {
+        const productInStripeName = `${storeName}:${name_product[i]}:${findYourStore.model}`;
+
+        const stripeProduct = await stripe.products.create({
+          name: productInStripeName,
+          description: description[i],
+          metadata: {
+            storeOwner: name,
+            ownerEmail: email,
+          },
+        });
+
+        const stripeProductPrice = await stripe.prices.create({
+          product: stripeProduct.id,
+          unit_amount: price_product[i] * 100,
+          currency: "brl",
+          recurring: {
+            interval: "month",
+          },
+        });
+        stripeId.push(stripeProduct.id);
+        productInStripeNameArray.push(productInStripeName);
+      }
+    } else {
+      const productInStripeName = `${storeName}:${name_product}:${findYourStore.model}`;
+
+      const stripeProduct = await stripe.products.create({
+        name: productInStripeName,
+        description: description,
+        metadata: {
+          storeOwner: name,
+          ownerEmail: email,
+        },
+      });
+
+      const stripeProductPrice = await stripe.prices.create({
+        product: stripeProduct.id,
+        unit_amount: price_product * 100,
+        currency: "brl",
+        recurring: {
+          interval: "month",
+        },
+      });
+      stripeId.push(stripeProduct.id);
+      productInStripeNameArray.push(productInStripeName);
+    }
+    const verify = await plansSchema.findOne({
+      storeName: findYourStore.storeName,
+      planName: productInStripeNameArray,
+    });
+    if (verify) {
+      return res.status(400).json({ error: "Ja existe :(" });
+    }
+    const cadInDB = await plansSchema.create({
+      name: name,
+      email: email,
+      storeName: findYourStore.storeName,
+      planCode: planCode,
+      planName: productInStripeNameArray,
+      planOriginalName: name_product,
+      planPrice: price_product,
+      planDescription: description,
+      planStripeCode: stripeId,
+    });
+    if (!cadInDB) {
+      return res.status(400).json({ error: "No cadastro" });
+    }
+    return res.status(200).json({
+      sucess: "Sucess",
+      name: name,
+      email: email,
+      storeName: findYourStore.storeName,
+      planCode: planCode,
+      planName: productInStripeNameArray,
+      planPrice: price_product,
+      planDescription: description,
+      planStripeCode: stripeId,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "No servidor", msg: error });
+  }
+});
+app.get("/pay/app/:scheduleId", tokenVerify, async (req, res) => {
+  return res.sendFile(path.join(__dirname, "public", "paywithapp.html"));
+});
+app.post("/pay/schedule", tokenVerify, async (req, res) => {
+  const { name, email } = req.user;
+  const { id } = req.body;
+  const findSchema = await scheduleSchema.findById(id);
+  if (!findSchema) {
+    return res.status(404).json({ erro: "SCHEDULE N ENCONTRADO" });
+  }
+  const price = findSchema.totalPrice;
+  const description = "Pay via App";
+  const product_name = `Pay Via App : ${JSON.stringify(
+    criptografar(generateCode())
+  )}`;
+
+  try {
+    const stripeProduct = await stripe.products.create({
+      name: product_name,
+      description: description,
+      metadata: {
+        storeOwner: name,
+        ownerEmail: email,
+      },
+    });
+    const stripeProductPrice = await stripe.prices.create({
+      product: stripeProduct.id,
+      unit_amount: price,
+      currency: "brl",
+    });
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      payment_method_types: [
+        "card", // Cartão de crédito/débito
+        "boleto", // Boleto (Brasil)
+        //"pix", // PIX (Brasil) 🔥
+      ],
+      //expires_at: Math.floor(Date.now() / 1000) + (60 * 60 * 2),
+      line_items: [
+        {
+          price_data: {
+            currency: "brl",
+            product_data: {
+              name: product_name,
+            },
+            unit_amount: price,
+          },
+          quantity: 1,
+        },
+      ],
+      payment_method_options: {
+        boleto: {
+          expires_after_days: 3,
+        },
+      },
+      success_url: `http://localhost:3000/schedule/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://localhost:3000/cancel/payment`,
+      customer_email: email,
+      metadata: {
+        userId: req.user.id,
+        userName: name,
+        scheduleId: id,
+      },
+      locale: "pt-BR", // ✅ Interface em português
+      billing_address_collection: "required", // ✅ Obrigatório para boleto
+    });
+    if (!session) {
+      return res.status(400).json({ error: "ERROR in payment :(" });
+    }
+    const updateStripeId = await scheduleSchema.findByIdAndUpdate(id, {
+      stripeId: session.id,
+    });
+    if (!updateStripeId) {
+      return res.status(400).json({ error: "erro ao atualizar stripeId" });
+    }
+    return res.status(200).json({
+      checkoutUrl: session.url, // ✅ URL para redirecionar
+      sessionId: session.id,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "erro no servidor", msg: error });
+  }
+});
+app.get("/schedule/success", async (req, res) => {
+  const session_id = req.query.session_id;
+  try {
+    const status = await stripe.checkout.sessions.retrieve(session_id);
+
+    if (status.payment_status === "paid") {
+      const find = await scheduleSchema.findOneAndUpdate(
+        { stripeId: session_id },
+        {
+          payed: true,
+        }
+      );
+      if (!find) {
+        return res.status(404).json({ error: "n encontrado" });
+      }
+      return res.redirect("/schedule/home");
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      error: error,
+    });
+  }
+});
+app.get("/my/plan", tokenVerify, (req, res) => {
+  return res.sendFile(path.join(__dirname, "public", "myplans.html"));
+});
+app.get("/return/data/plans", tokenVerify, async (req, res) => {
+  const { name, email } = req.user;
+  let havePlans = false
+  const finder = await userPlansSchema
+    .find({
+      name: name,
+      email: email,
+    })
+    .lean();
+  let htmlArray = [];
+  if (finder.length === 0) {
+    let structure = `<div class="notAllowed">
+  <div class="call-action">
+    <h1 class="call-h1">
+      No plans <strong class="GreenCard">found</strong><strong class="pointer">,</strong>
+    </h1>
+    <p class="call-p">Create subscription plans at your favorite stores.</p>
+  </div>
+
+  <div class="central-plus">
+    <div class="label-plus">
+      <p>
+        Subscribe <strong class="GreenCard">Now</strong>
+      </p>
+    </div>
+    <div class="img-plus">
+      <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF">
+    </div>
+  </div>
+</div>`;
+    htmlArray.push(structure);
+  } else {
+    for (let i = 0; i < finder.length; i++) {
+      const planName = finder[i].planName;
+      const planPrice = finder[i].planPrice;
+      const parts = planName.split(":");
+      const plan = parts[1];
+      const store = parts[0];
+      const dbStore = store.replaceAll(" ", "/");
+      let div = `<div class="columnUnion">
+        <div class="myPlan"><div class="plan-name">${plan}<div class="store-name-plan"><strong class="consoleWrite">#</strong>${store}</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>${
+        planPrice / 100
+      }</div></div>
+        <div class="cancel-plan"  data-name="${planName}" data-store="${dbStore}">Cancel Plan</div>
+      </div>`;
+      htmlArray.push(div);
+      havePlans = true
+    }
+  }
+  if (havePlans){
+    return res.status(200).json({
+    data: finder,
+    html: `<div class="marginer">${htmlArray.join("")}</div>`,
+  });
+  }else{
+    return res.status(200).json({
+    data: finder,
+    html: htmlArray.join(""),
+    })
+  }
+});
+app.post("/cancel/plan", tokenVerify, async (req, res) => {
+  const { name, email } = req.user;
+  const { plan, store } = req.body;
+
+  try {
+    const findId = await userPlansSchema
+      .findOne({
+        name: name,
+        email: email,
+        planName: plan,
+      })
+      .lean();
+      console.log("Cancelling plan:", { name, email, plan, store }); // ✅ Log
+    if (!findId) {
+      return res.status(400).json({ error: "IN VERIFY SUBSCRIPTION" });
+    }
+    let planId = findId.subscriptionId;
+    const cancel = await stripe.subscriptions.cancel(planId);
+
+    const deleter = await userPlansSchema.findOneAndDelete({
+      name: name,
+      email: email,
+      planName: plan,
+    });
+    if (!deleter) {
+      return res.status(400).json({ error: "In delete The plan" });
+    }
+    return res.status(200).json({ success: 'sucess' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "ERROR IN THE SERVER" });
   }
 });
 app.listen(PORT, () => {

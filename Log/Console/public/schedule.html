@@ -132,7 +132,10 @@
 
     const more = document.querySelector(".moreIten");
     const contenter = document.querySelector(".more-content");
-    
+    const plans = document.querySelector("#plansinapp")
+    plans.addEventListener("click", () => {
+      window.location.href = `/my/plan`
+    })
     more.addEventListener("click", () => {
       console.log(more); // Deve mostrar o elemento
 console.log(contenter);

@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Log: Plans</title>
-    <link rel="stylesheet" href="/style/style.css">
-    <link rel="shortcut icon" href="/favicons/favicon-32x32.png" type="image/x-icon">
-</head>
-<body>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
     <header class="homenav">
       <div class="consoleImge">
         <img
@@ -22,7 +26,7 @@
         </div>
       </div>
     </header>
-    
+
     <section class="userPOV">
       <aside class="leftBar">
         <div class="divAndYourLabel">
@@ -53,7 +57,11 @@
           <p>Client</p>
         </div>
         <div class="divAndYourLabel">
-          <div id="plansinapp" class="itenSelected itens" title="Yours Plans in Stores">
+          <div
+            id="plansinapp"
+            class="itenSelected itens"
+            title="Yours Plans in Stores"
+          >
             <img
               src="https://img.icons8.com/?size=100&id=86440&format=png&color=FFFFFF"
               alt=""
@@ -80,25 +88,84 @@
           <p>Terminal</p>
         </div>
       </aside>
-      
+
       <main class="infoContent">
         <!-- <div id="loading"></div> -->
 
-        <div class="content" style="opacity: 1;">
-            <form action="/plans/register/bank" method="post">
-                <input type="text" name="holder_name" id="holder_name" placeholder="Holder Name: ">
-                <input type="text" name="holder_type" id="holder_type" placeholder="holder_type">
-                <input type="text" name="bank_code" id="bank_code" placeholder="bank_code">
-                <input type="text" name="branch_code" id="branch_code" placeholder="branch_code">
-                <input type="text" name="account_number" id="account_number" placeholder="account_number">
-                <input type="text" name="tax_id" id="tax-id" placeholder="tax_id">
-                <input type="text" name="name_product" id="name_product" placeholder="name_product">
-                <input type="number" name="price_product" id="price_product" placeholder="price_product">
-                <textarea name="description" id="description" placeholder="description"></textarea>
-                <button type="submit">Send</button>
-            </form>
+        <div class="content" style="opacity: 1">
+          <form action="/plans/register/bank" method="post">
+            <input
+              type="text"
+              name="holder_name"
+              id="holder_name"
+              placeholder="Holder Name: "
+            />
+            <input
+              type="text"
+              name="holder_type"
+              id="holder_type"
+              placeholder="holder_type"
+            />
+            <input
+              type="text"
+              name="bank_code"
+              id="bank_code"
+              placeholder="bank_code"
+            />
+            <input
+              type="text"
+              name="branch_code"
+              id="branch_code"
+              placeholder="branch_code"
+            />
+            <input
+              type="text"
+              name="account_number"
+              id="account_number"
+              placeholder="account_number"
+            />
+            <input type="text" name="tax_id" id="tax-id" placeholder="tax_id" />
+            <button type="submit">Send</button>
+          </form>
+          <form action="/plans/register/plans" method="post" id="contentForm">
+            <input
+              type="text"
+              name="name_product"
+              id="name_product"
+              placeholder="name_product"
+            />
+            <input
+              type="number"
+              name="price_product"
+              id="price_product"
+              placeholder="price_product"
+            />
+            <textarea
+              name="description"
+              id="description"
+              placeholder="description"
+            ></textarea>
+            
+            <button type="submit">Send</button>
+          </form>
+          <div id="adder"><img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt=""></div>
         </div>
       </main>
     </section>
-</body>
+  </body>
+  <script>
+    function createPlan() {
+      const service = document.createElement("div");
+      service.classList.add("PlanerDiv");
+      service.innerHTML = `<input type="text" name="name_product" id="name_product" placeholder="name_product">
+                <input type="number" name="price_product" id="price_product" placeholder="price_product">
+                <textarea name="description" id="description" placeholder="description"></textarea>`;
+      return service;
+    }
+    const adder = document.querySelector("#adder");
+    const container = document.querySelector("#contentForm")
+    adder.addEventListener("click", () => {
+      container.appendChild(createPlan())
+    })
+  </script>
 </html>

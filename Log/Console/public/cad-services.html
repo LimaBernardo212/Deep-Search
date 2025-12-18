@@ -63,12 +63,7 @@
                 placeholder="Write a description for your service with a maximum of 100 characters."
                 maxlength="100"
               ></textarea>
-              <span class="Caracters divided">
-                Caracters:
-                <strong class="GreenCard">0</strong>
-                <strong class="consoleWrite">/</strong>
-                <strong class="GreenCard">100</strong>
-              </span>
+              <span class="Caracters">Caracters: <strong class="GreenCard">0</strong> / <strong class="GreenCard">100</strong></span>
               <h2 style="display: flex; align-items: center">
                 <img
                   src="https://img.icons8.com/?size=100&id=123084&format=png&color=FFFFFF"
@@ -127,10 +122,10 @@
                 maxlength="100"
               ></textarea>
 
-              <span class="Caracters divided">
+              <span class="Caracters">
                 Caracters:
                 <strong class="GreenCard">0</strong>
-                <strong class="consoleWrite">/</strong>
+                /
                 <strong class="GreenCard">100</strong>
               </span>
 
@@ -145,7 +140,7 @@
 
         newTextarea.addEventListener("input", () => {
           let n = newTextarea.value.length;
-          newSpan.innerHTML = `Caracters: <strong class="GreenCard">${n}</strong><strong class="consoleWrite">/</strong><strong class="GreenCard">100</strong>`;
+          newSpan.innerHTML = `Caracters: <strong class="GreenCard">${n}</strong> / <strong class="GreenCard">100</strong>`
         });
         setupListeners(service);
         return service;
@@ -224,9 +219,9 @@
       const selectedIndicatorA = document.querySelector(".selectedIndicatorA");
       txtArea.addEventListener("input", () => {
         let n = txtArea.value.length;
-        span.innerHTML = `Caracters: <strong class="GreenCard">${n}</strong><strong class="consoleWrite">/</strong><strong class="GreenCard">100</strong>`;
-      });
-      const form = document.querySelector(".servicesForm");
+        span.innerHTML = `Caracters: <strong class="GreenCard">${n}</strong> / <strong class="GreenCard">100</strong>`
+      })
+        const form = document.querySelector(".servicesForm");
       selectedIndicatorA.addEventListener("click", () => {
         form.submit();
       });

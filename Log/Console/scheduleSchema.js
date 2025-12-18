@@ -6,6 +6,9 @@ const scheduleSchema = new mongoose.Schema({
     hour: String,
     services: Array,
     day: String,
-    storeName: String
+    storeName: String,
+    payed: Boolean,
+    totalPrice: Number,
+    stripeId: String
 })
 export default mongoose.model("schedules", scheduleSchema)

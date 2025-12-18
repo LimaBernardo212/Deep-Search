@@ -31,7 +31,10 @@
             <p><strong class="consoleWrite">>></strong>Console Access</p>
             <p><strong class="consoleWrite">>></strong>1 Store Registration</p>
             <p>
-              <strong class="consoleWrite">>></strong>5 Basic Templates<strong class="pointer">|</strong>
+              <strong class="consoleWrite">>></strong>5 Basic Templates<strong
+                class="pointer"
+                >|</strong
+              >
             </p>
             <button>Subscribe Now</button>
           </div>
@@ -42,12 +45,15 @@
           <div class="beneficios">
             <p><strong class="consoleWrite">>></strong>Everything in Basic</p>
             <p>
-              <strong class="consoleWrite">>></strong>Advanced Features Restaurant Mode, Project Tracking <strong class="pointer">:</strong>
+              <strong class="consoleWrite">>></strong>Advanced Features
+              Restaurant Mode, Project Tracking
+              <strong class="pointer">:</strong>
             </p>
+            <p><strong class="consoleWrite">>></strong>Unlimited Store Types</p>
             <p>
-              <strong class="consoleWrite">>></strong>Unlimited Store Types
+              <strong class="consoleWrite">>></strong>Subscription & Payment
+              Management<strong class="pointer">|</strong>
             </p>
-            <p><strong class="consoleWrite">>></strong>Subscription & Payment Management<strong class="pointer">|</strong></p>
             <button>Subscribe Now</button>
           </div>
         </div>
@@ -55,14 +61,13 @@
           <h1 class="Price"><strong class="GreenCard">$</strong>47.67</h1>
           <div class="beneficios">
             <p><strong class="consoleWrite">>></strong>Everything in Pro</p>
+            <p><strong class="consoleWrite">>></strong>Full Platform Control</p>
+            <p><strong class="consoleWrite">>></strong>API & Terminal Access</p>
             <p>
-              <strong class="consoleWrite">>></strong>Full Platform Control
-            </p>
-            <p>
-              <strong class="consoleWrite">>></strong>API & Terminal Access
-            </p>
-            <p>
-              <strong class="consoleWrite">>></strong>Priority Support<strong class="pointer">|</strong>
+              <strong class="consoleWrite">>></strong>Priority Support<strong
+                class="pointer"
+                >|</strong
+              >
             </p>
             <button>Subscribe Now</button>
           </div>
@@ -71,21 +76,21 @@
     </section>
   </body>
   <script>
-    document.querySelector('#back').addEventListener('click', async () => {
-            const req = await fetch("/bad/payer", {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" }
-            })
-            if (req.ok){
-                const data = await req.json();
-                console.log(JSON.stringify(data))
-                window.location.href = `/stores/home`
-            }else{
-                const data = await req.json();
-                console.log(JSON.stringify(data))
-                window.location.href = `/store/home`
-            }
-        });
+    document.querySelector("#back").addEventListener("click", async () => {
+      const req = await fetch("/bad/payer", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (req.ok) {
+        const data = await req.json();
+        console.log(JSON.stringify(data));
+        window.location.href = `/stores/home`;
+      } else {
+        const data = await req.json();
+        console.log(JSON.stringify(data));
+        window.location.href = `/store/home`;
+      }
+    });
     const service = document.querySelector(".Text-Plan");
     const observerPlan = new IntersectionObserver(
       (e) => {
@@ -100,7 +105,7 @@
         threshold: 0.3,
       }
     );
-        //==================================================================
+    //==================================================================
     //------------------------------------------------------------------
     //==================================================================
     const basic = document.querySelector(".Basic");
@@ -110,67 +115,70 @@
     basic.addEventListener("click", async () => {
       try {
         const req = await fetch("/pay/plans/buy", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          plan: "basic"
-        }),
-      });
-      if (req.ok){
-        console.log("Aparentemente deu tudo certo")
-        const data = await req.json();
-        const url = data.url;
-        window.location.href = url;
-      }else{
-        const data = await req.json()
-        console.error(data)
-      }
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            plan: "Basic",
+            price: 23.90 * 100
+          }),
+        });
+        if (req.ok) {
+          console.log("Aparentemente deu tudo certo");
+          const data = await req.json();
+          const url = data.url;
+          window.location.href = url;
+        } else {
+          const data = await req.json();
+          console.error(data);
+        }
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
     });
     pro.addEventListener("click", async () => {
       try {
         const req = await fetch("/pay/plans/buy", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          plan: "pro"
-        }),
-      });
-      if (req.ok){
-        console.log("Aparentemente deu tudo certo")
-        const data = await req.json();
-        const url = data.url;
-        window.location.href = url;
-      }else{
-        const data = await req.json()
-        console.error(data)
-      }
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            plan: "Plano Pro",
+            price: 35.00 * 100
+          }),
+        });
+        if (req.ok) {
+          console.log("Aparentemente deu tudo certo");
+          const data = await req.json();
+          const url = data.url;
+          window.location.href = url;
+        } else {
+          const data = await req.json();
+          console.error(data);
+        }
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
     });
     master.addEventListener("click", async () => {
       try {
         const req = await fetch("/pay/plans/buy", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          plan: "superpro"
-        }),
-      });
-      if (req.ok){
-        console.log("Aparentemente deu tudo certo")
-        const data = await req.json();
-        const url = data.url;
-        window.location.href = url;
-      }else{
-        const data = await req.json()
-        console.error(data)
-      }
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            plan: "Plano Super Pro",
+            price: 47.67 * 100
+          }),
+        });
+        if (req.ok) {
+          console.log("Aparentemente deu tudo certo");
+          const data = await req.json();
+          const url = data.url;
+          window.location.href = url;
+        } else {
+          const data = await req.json();
+          console.error(data);
+        }
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
     });
   </script>
