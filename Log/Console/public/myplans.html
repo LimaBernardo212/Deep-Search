@@ -87,11 +87,11 @@
         <div class="divAndYourLabel">
           <div id="documents" class="itens" title="Documents">
             <img
-              src="https://img.icons8.com/?size=100&id=83153&format=png&color=FFFFFF"
+              src="https://img.icons8.com/?size=100&id=98397&format=png&color=FFFFFF"
               alt=""
             />
           </div>
-          <p>Documents</p>
+          <p>Docs</p>
         </div>
 
         <div class="divAndYourLabel moreIten">
@@ -132,6 +132,10 @@
       return element;
     }
     window.addEventListener('load', async () => {
+      const projects = document.querySelector("#documents");
+    projects.addEventListener('click', () => {
+        window.location.href = '/stores/home'
+      })
         const plans_content = document.querySelector('.plans-content');
         const content = document.querySelector(".content");
         const loading = document.querySelector("#loading")
@@ -160,9 +164,14 @@
                 loading.style.display = 'none';
                 content.style.display = 'flex';
             }, 500);
+
             setTimeout(() => {
                 content.style.opacity = '1'
                 plans_content.appendChild(createdatas(html))
+                const btncall = document.querySelector(".central-plus")
+                btncall.addEventListener("click", () => {
+                  window.location.href = '/home.html'
+                })
                 const cancel_plan = document.querySelectorAll(".cancel-plan");
                 cancel_plan.forEach((el, i) => {
                 el.addEventListener("click", async () => {
@@ -179,6 +188,7 @@
                     if (req.ok){
                       window.location.reload()
                     }
+
                 })
             })
             }, 200)

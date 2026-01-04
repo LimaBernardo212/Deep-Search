@@ -32,6 +32,10 @@
                     <img src="https://img.icons8.com/?size=100&id=90003&format=png&color=000000" alt="">
                     <span>Terms and Conditions</span>
                 </div>
+                <div class="OneOfOptionT selectedOption" id="payment">
+                    <img src="https://img.icons8.com/?size=100&id=86445&format=png&color=000000" alt="">
+                    <span>Payment Transparency</span>
+                </div>
             </div>
         </aside>
         <section class="contentera">
@@ -371,5 +375,8 @@ const privacy = document.querySelector("#privacy")//🤨
         privacy.addEventListener("click", () => window.location.href = '/privacy')//🤨
         stores.addEventListener("click", () => window.location.href = '/stores/home')
         user.addEventListener("click", () => window.location.href = '/more')
+        payment.addEventListener("click", () => {
+        window.location.href = '/payment-transparency';
+    });
 </script>
 </html>

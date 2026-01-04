@@ -3138,5 +3138,67 @@ border: 1px solid var(--cor01Esvoaçada);
   gap: 2vw;
   flex-wrap: wrap;
   width: 90vw;
-   margin-left: 15vw;
+   margin-left: 3.5vw;
+   align-items: center;
+   justify-content: center;
+}
+.unionE{
+  display: flex;
+  align-items: center;
+}
+.welcomeDiv p{
+  max-width: 55vw;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  margin-left: 3vw;
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  font-size: 0.7em;
+}
+.welcomeDiv{
+  width: 65vw;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  height: 25vh;
+  margin: 2vh 3vw;
+  border: 1px solid var(--cor01Esvoaçada);
+  border-radius: 15px;
+}
+.welcomeDiv h1{
+  margin-left: 2vw;
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  margin-bottom: 1vh;
+}
+.welcomeDiv:hover{
+  background-color: var(--cor03);
+}
+.weekOpen{
+  width: 20vw;
+  height: 22vh;
+  border: 1px solid var(--cor01Esvoaçada);
+  border-radius: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+.weekDiv{
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: -1vh 1vw;
+  color: var(--cor05);
+  font-family: var(--fontSpace);
+  border-radius: 10px;
+}
+.weekOpen:hover{
+  background-color: var(--cor03);
+}
+.weekDiv:hover{
+  background-color: var(--cor04);
+  color: var(--cor07);
 }

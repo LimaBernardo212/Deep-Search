@@ -87,11 +87,11 @@
         <div class="divAndYourLabel">
           <div id="documents" class="itens" title="Documents">
             <img
-              src="https://img.icons8.com/?size=100&id=83153&format=png&color=FFFFFF"
+              src="https://img.icons8.com/?size=100&id=98397&format=png&color=FFFFFF"
               alt=""
             />
           </div>
-          <p>Documentation</p>
+          <p>Docs</p>
         </div>
 
         <div class="divAndYourLabel moreIten">
@@ -142,7 +142,7 @@
     const content = document.querySelector(".content");
     const loading = document.querySelector("#loading");
     const storecontent = document.querySelector(".store-content");
-    const projects = document.querySelector("#documents");
+    
     const schedule = document.querySelector("#schedule")
     const more = document.querySelector(".moreIten");
     const contenter = document.querySelector(".more-content");
@@ -150,6 +150,10 @@
     plans.addEventListener("click", () => {
       window.location.href = `/my/plan`
     })
+    const projects = document.querySelector("#documents");
+    projects.addEventListener('click', () => {
+        window.location.href = '/stores/home'
+      })
     more.addEventListener("click", () => {
       console.log(more); // Deve mostrar o elemento
 console.log(contenter);
@@ -222,9 +226,7 @@ console.log(contenter);
       } else {
         console.log("Algo deu errado", req.status);
       }
-      projects.addEventListener('click', () => {
-        window.location.href = '/stores/home'
-      })
+      
     });
   </script>
 </html>

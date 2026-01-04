@@ -37,6 +37,10 @@
                     <img src="https://img.icons8.com/?size=100&id=90003&format=png&color=FFFFFF" alt="">
                     <span>Terms and Conditions</span>
                 </div>
+                <div class="OneOfOption" id="payment">
+                    <img src="https://img.icons8.com/?size=100&id=86445&format=png&color=FFFFFF" alt="">
+                    <span>Payment policy</span>
+                </div>
             </div>
         </aside>
         <section class="moreContenter">
@@ -88,9 +92,12 @@ const user = document.querySelector('#user');
 const stores = document.querySelector("#stores")
 const conditions = document.querySelector("#conditions");
 const privacy = document.querySelector("#privacy")//🤨
-
+const pay = document.querySelector("#payment")
         conditions.addEventListener("click", () => {
             window.location.href = '/conditions'
+        })
+        pay.addEventListener("click", () => {
+            window.location.href = '/payment-policy'
         })
         privacy.addEventListener("click", () => window.location.href = '/privacy')//🤨
         stores.addEventListener("click", () => window.location.href = '/stores/home')

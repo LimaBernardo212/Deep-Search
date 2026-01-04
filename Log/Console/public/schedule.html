@@ -87,11 +87,11 @@
         <div class="divAndYourLabel">
           <div id="documents" class="itens" title="Documents">
             <img
-              src="https://img.icons8.com/?size=100&id=83153&format=png&color=FFFFFF"
+              src="https://img.icons8.com/?size=100&id=98397&format=png&color=FFFFFF"
               alt=""
             />
           </div>
-          <p>Documents</p>
+          <p>Docs</p>
         </div>
 
         <div class="divAndYourLabel moreIten">
@@ -133,6 +133,10 @@
     const more = document.querySelector(".moreIten");
     const contenter = document.querySelector(".more-content");
     const plans = document.querySelector("#plansinapp")
+    const projects = document.querySelector("#documents");
+    projects.addEventListener('click', () => {
+        window.location.href = '/stores/home'
+      })
     plans.addEventListener("click", () => {
       window.location.href = `/my/plan`
     })

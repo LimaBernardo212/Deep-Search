@@ -942,7 +942,7 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
   }
 });
 app.get("/stores/home", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "stores.html"));
+  return res.sendFile(path.join(__dirname, "public", "stores.html"));
 });
 app.post("/api/selected/fun", tokenVerify, async (req, res) => {
   const { services, storeName } = req.body;
@@ -1479,11 +1479,74 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
 </div>`,
       });
     }
+    const outherFinder = await scheduleSchema.find({
+      storeName: finder.storeName,
+    }).lean()
+    const today = new Date();
+    const day = today.getDate();
+    const month = today.getMonth() + 1;
+    const dataDeHj = `${day}/${month.toString().padStart(2, '0')}`
+    console.log(dataDeHj)
+    const dayArray = []
+    let globalValue = 0
+    for (let i = 0; i < outherFinder.length; i++) {
+      let day = outherFinder[i].day
+      let nameC = outherFinder[i].name
+      let emailC = outherFinder[i].email
+      let hour = outherFinder[i].hour;
+      let value = outherFinder[i].totalPrice / 100
+      let payed = outherFinder[i].payed
+      if (day === dataDeHj){
+        dayArray.push({
+        day: day,
+        name: nameC,
+        email: emailC,
+        hour: hour,
+        value: value
+      })
+      
+      }
+      if (payed){
+        globalValue += value
+      }
+    }
+    console.log(globalValue)
+    const scheduleN = dayArray.length;
+    const nextDays = []
+    for (let o = 0; o < 8; o++) {
+      const data = new Date(today)
+      data.setDate(today.getDate() + o )
+      const dia = data.getDate();
+      const structure = `<div class="weekDiv">${dia.toString().padStart(2, '0')}</div>`
+      nextDays.push(structure)
+    }
+    console.log(nextDays)
+    const renderHtml = `
+    <div class="unionE">
+      <div class="welcomeDiv"><h1>Welcome back <strong class="consoleWrite">${finder.storeName}!</strong></h1><p><strong class="consoleWrite">$</strong>${finder.description}</p></div>
+      <div class="columnUnion">
+        <span class="label" style="font-size:0.8em; margin:0 0 1vh 0;">Store opening <strong class="GreenCard">control</strong><strong class="pointer">.</strong></span>
+        <div class="weekOpen">${nextDays.join("")}</div>
+      </div>
+    </div>
+    <div class="unionE">
+    <div class="dashboardBalance">
+      <p>Your <strong class="GreenCard">balance</strong></p>
+        <p class="CASH">${globalValue.toFixed(2).replace(".", ",")}</p>
+    </div>
+    <div class="todayAppointments"><p>Today's appointments:</p>
+    <p> <strong class="GreenCard">${scheduleN}</strong></p></div>
+    <div class="localSchedule"><span>Local Scheduling</span></div>
+    </div>
+    
+    
+    `
 
     return res.status(200).json({
       tudoCerto: ":>",
       finderData: finder,
-      returner: JSON.stringify(finder),
+      outherData: outherFinder,
+      returner: renderHtml,
     });
   } catch (error) {
     return res.redirect("/error500.html");
@@ -1825,29 +1888,29 @@ app.get("/cad/plan", async (req, res) => {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     const { planName, userName, userEmail, planPrice } = session.metadata;
 
-    if (session.payment_status === 'paid'){
+    if (session.payment_status === "paid") {
       const planVerify = await userPlansSchema.findOne({
-      planName: planName,
-      name: userName,
-    });
-    if (planVerify) {
-      return res.status(200).json({
-        error: "ENCONTRADO",
+        planName: planName,
+        name: userName,
       });
-    }
-    const planCad = await userPlansSchema.create({
-      name: userName,
-      email: userEmail,
-      planName: planName,
-      planPrice: planPrice,
-      subscriptionId: session.subscription,
-    });
-    if (!planCad) {
-      return res.status(400).json({
-        error: "NO CADASTRO",
+      if (planVerify) {
+        return res.status(200).json({
+          error: "ENCONTRADO",
+        });
+      }
+      const planCad = await userPlansSchema.create({
+        name: userName,
+        email: userEmail,
+        planName: planName,
+        planPrice: planPrice,
+        subscriptionId: session.subscription,
       });
-    }
-    return res.redirect('/my/plan')
+      if (!planCad) {
+        return res.status(400).json({
+          error: "NO CADASTRO",
+        });
+      }
+      return res.sendFile(path.join(__dirname, "public", "myplans.html"));
     }
   } catch (error) {
     return res.status(500).json({
@@ -2202,7 +2265,7 @@ app.get("/schedule/success", async (req, res) => {
       if (!find) {
         return res.status(404).json({ error: "n encontrado" });
       }
-      return res.redirect("/schedule/home");
+      return res.sendFile(path.join(__dirname, "public", "schedule.html"));
     }
   } catch (error) {
     console.error(error);
@@ -2216,7 +2279,7 @@ app.get("/my/plan", tokenVerify, (req, res) => {
 });
 app.get("/return/data/plans", tokenVerify, async (req, res) => {
   const { name, email } = req.user;
-  let havePlans = false
+  let havePlans = false;
   const finder = await userPlansSchema
     .find({
       name: name,
@@ -2260,19 +2323,19 @@ app.get("/return/data/plans", tokenVerify, async (req, res) => {
         <div class="cancel-plan"  data-name="${planName}" data-store="${dbStore}">Cancel Plan</div>
       </div>`;
       htmlArray.push(div);
-      havePlans = true
+      havePlans = true;
     }
   }
-  if (havePlans){
+  if (havePlans) {
     return res.status(200).json({
-    data: finder,
-    html: `<div class="marginer">${htmlArray.join("")}</div>`,
-  });
-  }else{
+      data: finder,
+      html: `<div class="marginer">${htmlArray.join("")}</div>`,
+    });
+  } else {
     return res.status(200).json({
-    data: finder,
-    html: htmlArray.join(""),
-    })
+      data: finder,
+      html: htmlArray.join(""),
+    });
   }
 });
 app.post("/cancel/plan", tokenVerify, async (req, res) => {
@@ -2287,7 +2350,7 @@ app.post("/cancel/plan", tokenVerify, async (req, res) => {
         planName: plan,
       })
       .lean();
-      console.log("Cancelling plan:", { name, email, plan, store }); // ✅ Log
+    console.log("Cancelling plan:", { name, email, plan, store }); // ✅ Log
     if (!findId) {
       return res.status(400).json({ error: "IN VERIFY SUBSCRIPTION" });
     }
@@ -2302,10 +2365,156 @@ app.post("/cancel/plan", tokenVerify, async (req, res) => {
     if (!deleter) {
       return res.status(400).json({ error: "In delete The plan" });
     }
-    return res.status(200).json({ success: 'sucess' });
+    return res.status(200).json({ success: "sucess" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "ERROR IN THE SERVER" });
+  }
+});
+app.get("/payment-policy", tokenVerify, (req, res) => {
+  return res.sendFile(path.join(__dirname, "public", "paymentpolicy.html"));
+});
+app.get("/store-plans", tokenVerify, (req, res) => {
+  return res.sendFile(path.join(__dirname, "public", "store-plans.html"));
+});
+app.get("/render/stores/plan", tokenVerify, async (req, res) => {
+  const { name, email } = req.user;
+  let htmlArray = [];
+  let havePlan = false;
+  try {
+    const find = await plansSchema
+      .find({
+        name: name,
+        email: email,
+      })
+      .lean();
+    console.log(find);
+    if (!find) {
+      return res.status(404).json({ error: "IN FIND BRO" });
+    }
+    if (find.length === 0) {
+      let html = `<div class="notAllowed">
+  <div class="call-action">
+    <h1 class="call-h1">
+      No plans <strong class="GreenCard">found</strong><strong class="pointer">,</strong>
+    </h1>
+    <p class="call-p">Create subscription plans for your store, for "free" For more informations go in <a href="/payment-policy" class="GreenCard">Payment-Policy.</a></p>
+  </div>
+
+  <div class="central-plus">
+    <div class="label-plus">
+      <p>
+        Subscribe <strong class="GreenCard">Now</strong>
+      </p>
+    </div>
+    <div class="img-plus">
+      <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF">
+    </div>
+  </div>
+</div>`;
+      htmlArray.push(html);
+    } else {
+      for (let i = 0; i < find.length; i++) {
+        const planName = find[i].planOriginalName;
+        const store = find[i].storeName;
+        const plan = find[i].planName;
+        const price = find[i].planPrice;
+        for (let j = 0; j < planName.length; j++) {
+          let html = `<div class="columnUnion">
+        <div class="myPlan"><div class="plan-name">${
+          planName[j]
+        }<div class="store-name-plan"><strong class="consoleWrite">#</strong>${store.replaceAll(
+            "/",
+            " "
+          )}</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>${
+            price[j]
+          }</div></div>
+        <div class="cancel-plan"  data-name="${
+          plan[j]
+        }" data-store="${store}" data-index="${i}">Delete Plan</div>
+      </div>`;
+          htmlArray.push(html);
+          havePlan = true;
+        }
+      }
+    }
+    if (havePlan) {
+      return res.status(200).json({
+        data: find,
+        html: `<div class="marginer">${htmlArray.join("")}</div>`,
+      });
+    } else {
+      return res.status(200).json({
+        data: find,
+        html: htmlArray.join(""),
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      erro: error,
+    });
+  }
+});
+app.post("/delete/plan", tokenVerify, async (req, res) => {
+  const { name, email } = req.user;
+  const { plan, store, index } = req.body;
+
+  try {
+    const findStripeId = await plansSchema.findOne({
+    name: name,
+    email: email,
+    planName: plan,
+    storeName: store,
+  });
+  console.log(findStripeId);
+  if (!findStripeId) {
+    return res.status(404).json({ error: "NA verificação basica" });
+  }
+  const stripeId = findStripeId.planStripeCode[index];
+  const prices = await stripe.prices.list({
+          product: stripeId,
+          limit: 100
+        });
+  for (const price of prices.data){
+    if (price.active){
+      await stripe.prices.update(price.id,{
+        active: false
+      })
+    }
+  }
+  //const deleteProduct = await stripe.products.del(stripeId);
+  findStripeId.planCode.splice(index, 1);
+  findStripeId.planName.splice(index, 1);
+  findStripeId.planOriginalName.splice(index, 1);
+  findStripeId.planPrice.splice(index, 1);
+  findStripeId.planDescription.splice(index, 1);
+  findStripeId.planStripeCode.splice(index, 1);
+  if (findStripeId.planCode.length === 0){
+    const deleter = await plansSchema.findOneAndDelete({
+      name: name,
+      email: email,
+      storeName: findStripeId.storeName,
+    })
+    if (!deleter){
+      return res.status(400).json({
+    error: 'ERROR AO DELETAR ESSA JOSSA'
+  });
+ 
+    }
+     return res.status(200).json({
+    ok: "OK",
+  });
+  }
+  await findStripeId.save();
+  
+  return res.status(200).json({
+    ok: "OK",
+  });
+  } catch (error) {
+    return res.status(500).json({
+    error: error
+  });
   }
 });
 app.listen(PORT, () => {

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Log: Stores</title>
+    <title>Log: Store: Your Plans</title>
     <link rel="stylesheet" href="/style/style.css" />
     <link
       rel="shortcut icon"
@@ -13,30 +13,24 @@
   </head>
   <body>
     <header class="homenav">
-      <div class="consoleImg">
-        <img src="/img/().png" alt="" />
+      <div class="consoleImge">
+        <img
+          src="https://img.icons8.com/?size=100&id=85099&format=png&color=FFFFFF"
+          alt=""
+          id="bbk"
+        />
       </div>
-
-      <div class="account">
-        <div class="person" id="people">
-          <img
-            src="https://img.icons8.com/?size=100&id=85147&format=png&color=FFFFFF"
-            alt=""
-          />
-        </div>
-        <div class="settings" id="sett">
-          <img
-            src="https://img.icons8.com/?size=100&id=83214&format=png&color=FFFFFF"
-            alt=""
-          />
+      <div class="accounter">
+        <div class="back" id="back">
+          <img src="/img/().png" alt="" />
         </div>
       </div>
     </header>
-    
+
     <section class="userPOV">
       <aside class="leftBar">
         <div class="divAndYourLabel">
-          <div id="store" class="itenSelected itens" title="store">
+          <div id="store" class="itens" title="store">
             <img
               src="https://img.icons8.com/?size=100&id=92137&format=png&color=FFFFFF"
               alt=""
@@ -63,7 +57,11 @@
           <p>Client</p>
         </div>
         <div class="divAndYourLabel">
-          <div id="plansinapp" class="itens" title="Yours Plans in Stores">
+          <div
+            id="plansinapp"
+            class="itenSelected itens"
+            title="Yours Plans in Stores"
+          >
             <img
               src="https://img.icons8.com/?size=100&id=86440&format=png&color=FFFFFF"
               alt=""
@@ -90,54 +88,66 @@
           <p>Terminal</p>
         </div>
       </aside>
-      
+
       <main class="infoContent">
         <div id="loading"></div>
 
         <div class="content">
-          <div class="store-content"></div>
+          <div class="your-store-data"></div>
         </div>
       </main>
     </section>
-
   </body>
   <script>
-    window.addEventListener("load", async () => {
-        function render(el) {
+    function render(el) {
       const element = document.createElement("div");
       element.classList.add("scheduleData");
       element.innerHTML = el;
       return element;
     }
-      
-      const load = document.querySelector("#loading")
-      const content = document.querySelector('.content')
-      const plans = document.querySelector("#plansinapp");
-      plans.addEventListener("click", () => {
-        window.location.href = "/store-plans"
-      })
-      const storeData = document.querySelector('.store-content');
+    window.addEventListener("load", async () => {
       const bbk = document.querySelector("#bbk");
-      // bbk.addEventListener("click", () => {
-      //   window.location.href = "/home.html";
-      // });
-      const req = await fetch("/verify/have/stores", {
+      const container = document.querySelector(".content")
+      const load = document.querySelector('#loading')
+      const content = document.querySelector(".your-store-data")
+      bbk.addEventListener("click", () => {
+        window.location.href = "/stores/home";
+      });
+      const req = await fetch("/render/stores/plan", {
         method: "GET",
-        headers:{
-            "Content-Type": "application/json"
-        }
-      })
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       if (req.ok){
         const data = await req.json()
-        storeData.appendChild(render(data.returner))
-        
-        load.style.opacity = '0';
-        content.style.opacity = '1'
-        const central_plus = document.querySelector(".central-plus");
-        central_plus.addEventListener("click", () => {
-          window.location.href = '/cad/store'
+        console.log(JSON.stringify(data))
+        content.appendChild(render(data.html))
+        load.style.opacity = '0'
+        setTimeout(() => {
+            load.style.display = 'none'
+            container.style.opacity = '1'
+        }, 500);
+        const delete_plan = document.querySelectorAll(".cancel-plan")
+        delete_plan.forEach((el, i) => {
+            el.addEventListener("click", async () => { 
+                const plan = el.getAttribute('data-name')
+                const store = el.getAttribute('data-store')
+                const index = el.getAttribute("data-index")
+                const request = await fetch("/delete/plan", {
+                    method: 'POST',
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        plan: plan,
+                        store: store,
+                        index: index
+                    })
+                })
+                if (request.ok){
+                    window.location.reload()
+                }
+            })
         })
-        
       }
     })
   </script>
