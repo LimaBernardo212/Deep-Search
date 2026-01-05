@@ -169,9 +169,7 @@
                 content.style.opacity = '1'
                 plans_content.appendChild(createdatas(html))
                 const btncall = document.querySelector(".central-plus")
-                btncall.addEventListener("click", () => {
-                  window.location.href = '/home.html'
-                })
+                
                 const cancel_plan = document.querySelectorAll(".cancel-plan");
                 cancel_plan.forEach((el, i) => {
                 el.addEventListener("click", async () => {
@@ -188,9 +186,12 @@
                     if (req.ok){
                       window.location.reload()
                     }
-
+                    
                 })
             })
+            btncall.addEventListener("click", () => {
+                  window.location.href = '/home.html'
+                })
             }, 200)
            
             

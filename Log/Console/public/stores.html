@@ -32,7 +32,7 @@
         </div>
       </div>
     </header>
-    
+
     <section class="userPOV">
       <aside class="leftBar">
         <div class="divAndYourLabel">
@@ -90,7 +90,7 @@
           <p>Terminal</p>
         </div>
       </aside>
-      
+
       <main class="infoContent">
         <div id="loading"></div>
 
@@ -99,46 +99,134 @@
         </div>
       </main>
     </section>
-
   </body>
   <script>
     window.addEventListener("load", async () => {
-        function render(el) {
-      const element = document.createElement("div");
-      element.classList.add("scheduleData");
-      element.innerHTML = el;
-      return element;
-    }
-      
-      const load = document.querySelector("#loading")
-      const content = document.querySelector('.content')
+      function render(el) {
+        const element = document.createElement("div");
+        element.classList.add("scheduleData");
+        element.innerHTML = el;
+        return element;
+      }
+
+      const load = document.querySelector("#loading");
+      const content = document.querySelector(".content");
       const plans = document.querySelector("#plansinapp");
       plans.addEventListener("click", () => {
-        window.location.href = "/store-plans"
-      })
-      const storeData = document.querySelector('.store-content');
+        window.location.href = "/store-plans";
+      });
+      const storeData = document.querySelector(".store-content");
       const bbk = document.querySelector("#bbk");
       // bbk.addEventListener("click", () => {
       //   window.location.href = "/home.html";
       // });
       const req = await fetch("/verify/have/stores", {
         method: "GET",
-        headers:{
-            "Content-Type": "application/json"
-        }
-      })
-      if (req.ok){
-        const data = await req.json()
-        storeData.appendChild(render(data.returner))
-        
-        load.style.opacity = '0';
-        content.style.opacity = '1'
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (req.ok) {
+        const data = await req.json();
+        storeData.appendChild(render(data.returner));
+        const localBtn = document.querySelector(".localSchedule");
+        console.log(localBtn);
+        localBtn.addEventListener("click", () => {
+          const data_name = localBtn.getAttribute("data-name");
+          window.location.href = `/store/:${data_name}`;
+        });
+        const apoitBtn = document.querySelectorAll(".confirm");
+        const dataSchedule = document.querySelectorAll(".schedule-data");
+        load.style.opacity = "0";
+        content.style.opacity = "1";
+        const deleter = document.querySelectorAll(".delete");
+        deleter.forEach((el, i) => {
+          el.addEventListener("click", async () => {
+            try {
+              const scheduleMe = dataSchedule[i];
+              const dia = scheduleMe.getAttribute("data-dia");
+              const hora = scheduleMe.getAttribute("data-hour");
+              const loja = scheduleMe.getAttribute("data-storename");
+              const toReq = await fetch("/reembolso/me", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  dia: dia,
+                  hora: hora,
+                  loja: loja,
+                  funcionario: funcionario,
+                }),
+              });
+            } catch (error) {}
+          });
+        });
+        apoitBtn.forEach((el, i) => {
+          el.addEventListener("click", async () => {
+            const scheduleMe = dataSchedule[i];
+            const dia = scheduleMe.getAttribute("data-dia");
+            const hora = scheduleMe.getAttribute("data-hour");
+            const loja = scheduleMe.getAttribute("data-storename");
+            const funcionario = scheduleMe.getAttribute("data-functionary");
+
+            try {
+              const req = await fetch("/pass/store", {
+                method: "DELETE",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  dia: dia,
+                  hora: hora,
+                  loja: loja,
+                  funcionario: funcionario,
+                }),
+              });
+              if (req.ok) {
+                window.location.reload();
+              }
+            } catch (error) {
+              console.error(error);
+            }
+          });
+        });
+        const weekDiv = document.querySelectorAll(".weekDiv");
+        let daysArray = [];
+        weekDiv.forEach((el, i) => {
+          el.addEventListener("click", async () => {
+            const date = el.getAttribute("data-dia");
+            if (el.classList.contains("todayClosed")) {
+              el.classList.remove("todayClosed");
+              const index = daysArray.indexOf(date);
+              const request = await fetch("/remove/closed-day", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  day: date,
+                }),
+              });
+              if (request.ok) {
+                if (index !== -1) daysArray.splice(index, 1);
+              }
+            } else {
+              el.classList.add("todayClosed");
+              const req = await fetch("/choice/closed-day", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  day: date,
+                }),
+              });
+              if (req.ok) {
+                daysArray.push(date);
+              }
+            }
+          });
+        });
         const central_plus = document.querySelector(".central-plus");
         central_plus.addEventListener("click", () => {
-          window.location.href = '/cad/store'
-        })
-        
+          window.location.href = "/cad/store";
+        });
       }
-    })
+    });
   </script>
 </html>

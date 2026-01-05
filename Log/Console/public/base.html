@@ -119,15 +119,18 @@
           button.addEventListener("click", async () => {
             try {
               const fetcher = await fetch("/render/days", {
-                method: "GET",
+                method: "POST",
                 headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  storeName: name
+                })
               });
 
               if (!fetcher.ok) return;
 
               const data = await fetcher.json();
               const calendar = data.calendario;
-
+              const data18Mais = data.datas_proibidas
               const oldCalendar = document.querySelector(".calendar");
               if (oldCalendar) oldCalendar.remove();
               const div = document.createElement("div");
@@ -153,13 +156,13 @@
                 typeof closedDays === "string"
                   ? closedDays.split(",").map((d) => d.trim())
                   : closedDays;
-
+              
               for (let i = 0; i < calendar.length; i++) {
                 const dia = calendar[i].dia;
                 const mes = calendar[i].mes;
+                let query = `${dia}/${mes}`
                 const nomeDia = calendar[i].nomeDia;
-
-                if (!closedDaysArray.includes(nomeDia)) {
+                if (!closedDaysArray.includes(nomeDia) && !data18Mais.includes(query) ) {
                   let code = `
                     <div class="day">
                       <div class="DavidJoneDay"

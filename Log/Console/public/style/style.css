@@ -1903,6 +1903,18 @@ border: 1px solid var(--cor01Esvoaçada);
   align-items: center;
   height: 43vh;
 }
+.confirm {
+  opacity: 1;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  margin-right: 4vw;
+  transform: translateY(-15vh);
+  border: 1px solid var(--cor01Esvoaçada);
+}
 .delete{
   opacity: 1;
   width: 36px;
@@ -1917,13 +1929,14 @@ border: 1px solid var(--cor01Esvoaçada);
 .schedule-content:hover{
   background-color: var(--cor03);
 }
-.delete:hover{
+.delete:hover , .confirm:hover{
   background-color: var(--cor04);
 }
 
-.delete img{
+.delete img, .confirm img{
   width: 24px;
 }
+
 .schedule-dayEHour{
   width: 6vw;
   height: 6vw;
@@ -2024,6 +2037,23 @@ border: 1px solid var(--cor01Esvoaçada);
   font-size: 1.2em;
   margin-bottom: 4vh;
 }
+.img-plusI img{
+  width: 56px;
+}
+.img-plusI:hover{
+  background-color: var(--cor04);
+}
+.img-plusI{
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--cor01Esvoaçada);
+  background-color: var(--cor03);
+ border-radius: 15px;
+}
+
 .img-plus img{
   width: 56px;
 }
@@ -3176,24 +3206,24 @@ border: 1px solid var(--cor01Esvoaçada);
 }
 .weekOpen{
   width: 20vw;
-  height: 22vh;
+  height: 9vh;
   border: 1px solid var(--cor01Esvoaçada);
   border-radius: 20px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
+  margin-bottom: 1vh;
 }
 .weekDiv{
-  width: 44px;
-  height: 44px;
+  width: 4vw;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: -1vh 1vw;
   color: var(--cor05);
   font-family: var(--fontSpace);
-  border-radius: 10px;
+  
 }
 .weekOpen:hover{
   background-color: var(--cor03);
@@ -3201,4 +3231,89 @@ border: 1px solid var(--cor01Esvoaçada);
 .weekDiv:hover{
   background-color: var(--cor04);
   color: var(--cor07);
+}
+
+
+.weekDiv:last-child{
+  border-right: 1px solid var(--cor00);
+}
+.weekOpen div{
+  border-right: 1px solid var(--cor01Esvoaçada);
+}
+.dashboardBalance{
+  margin: 3vh 5vw;
+  width: 20vw;
+  height: 10vh;
+  border-right: 1px solid var(--cor01Esvoaçada);
+}
+.dashboardBalance .test{
+  color: var(--cor05);
+  font-family: var(--fontRoboto)
+}
+.CASH img{
+  width: 24px;
+  height: 24px;
+}
+.CASH{
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--fontSpace);
+  font-size: 2em;
+  color: var(--cor05);
+}
+.todayAppointments{
+  width: 15vw;
+  height: 10vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid var(--cor01Esvoaçada);
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+}
+.localSchedule{
+  width: 13vw;
+  height: 7vh;
+  border: 1px solid var(--cor01Esvoaçada);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color:var(--cor05);
+  font-family: var(--fontRoboto);
+  font-size: 0.9em;
+  margin-left: 5vw;
+  border-radius: 10px;
+}
+.localSchedule:hover{
+  background-color: var(--cor03);
+}
+.todayClosed{
+  color: var(--cor12);
+}
+.carrosel{
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  max-width: 90vw;
+  height: 60vh;
+  overflow: scroll;
+  
+}
+.carrosel::-webkit-scrollbar {
+  height: 8px;
+}
+
+.carrosel::-webkit-scrollbar-track {
+  background: var(--cor00);
+  border-radius: 5px;
+}
+
+.carrosel::-webkit-scrollbar-thumb {
+  background: var(--cor08);
+  border-radius: 5px;
+}
+
+.carrosel::-webkit-scrollbar-thumb:hover {
+  background: var(--cor09);
 }

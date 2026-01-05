@@ -27,6 +27,7 @@ import BankSchema from "./BankSchema.js";
 import { buffer } from "stream/consumers";
 import plansSchema from "./plansSchema.js";
 import userPlansSchema from "./userPlansSchema.js";
+import store_data_schema from "./store_data_schema.js";
 dotenv.config();
 
 const app = express();
@@ -1047,18 +1048,29 @@ app.post("/api/selected/hours", tokenVerify, async (req, res) => {
     });
   } catch (error) {}
 });
-app.get("/render/days", tokenVerify, (req, res) => {
+app.post("/render/days", tokenVerify, async (req, res) => {
+  const {storeName} = req.body
   const now = new Date();
   const calendar = [];
   let data = null;
+  const searcher = await store_data_schema.findOne({storeName: storeName})
+  if (!searcher){
+    console.log('ERROR NO SEARCH')
+    return res.status(404).json({
+      erro: 'NINGUEM ENCONTROU NADA QUI N PARCEIRO'
+    })
+  }
+  
+  const datas_proibidas = searcher.closedChoice
+  console.log(datas_proibidas)
   const weekDays = [
-    "Domingo",
-    "Segunda",
-    "Terça",
-    "Quarta",
-    "Quinta",
-    "Sexta",
-    "Sabado",
+    "Sunda",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday,",
+    "Friday",
+    "Saturday",
   ];
   const months = [
     "01",
@@ -1093,6 +1105,7 @@ app.get("/render/days", tokenVerify, (req, res) => {
     mes: months[data.getMonth()],
     ano: data.getFullYear(),
     dataCompleta: data.toLocaleDateString("pt-BR"),
+    datas_proibidas: datas_proibidas
   });
 });
 async function extrairHoras(req, res) {
@@ -1371,6 +1384,37 @@ app.delete("/delete/schedules", tokenVerify, async (req, res) => {
 
   try {
     const realName = loja.replaceAll(" ", "/");
+    const finder = await scheduleSchema.findOne({
+      name: name,
+      email: email,
+      functionary: funcionario,
+      hour: hora,
+      day: dia,
+      storeName: realName,
+    })
+    if (!finder){
+      return res.status(404).json({
+      error: "Error 404, server error man, que merda",
+    });
+    }
+    const f = await store_data_schema.findOne({
+      storeName: realName
+    })
+    if (!f){
+      return res.status(404).json({
+      error: "Error 404, server error man, que merda",
+    });
+    }
+    const value = await store_data_schema.findOneAndUpdate({
+      storeName: realName
+    }, {
+      totalCash: f.totalCash - finder.totalPrice
+    })
+    if (!value){
+      return res.status(400).json({
+      error: "Error 400, server error man, que merda",
+    });
+    }
     const deleter = await scheduleSchema.findOneAndDelete({
       name: name,
       email: email,
@@ -1456,6 +1500,7 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
   const { name, email } = req.user;
   try {
     const finder = await StoreCad.findOne({ name: name, email: email });
+
     if (!finder) {
       return res.status(200).json({
         returner: `<div class="notAllowed">
@@ -1479,69 +1524,304 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
 </div>`,
       });
     }
-    const outherFinder = await scheduleSchema.find({
-      storeName: finder.storeName,
-    }).lean()
+    const outherFinder = await scheduleSchema
+      .find({
+        storeName: finder.storeName,
+      })
+      .lean();
     const today = new Date();
     const day = today.getDate();
     const month = today.getMonth() + 1;
-    const dataDeHj = `${day}/${month.toString().padStart(2, '0')}`
-    console.log(dataDeHj)
-    const dayArray = []
-    let globalValue = 0
+    const dataDeHj = `${day}/${month.toString().padStart(2, "0")}`;
+    console.log(dataDeHj);
+    const dayArray = [];
+    let globalValue = 0;
+    const htmlArray = [];
+
     for (let i = 0; i < outherFinder.length; i++) {
-      let day = outherFinder[i].day
-      let nameC = outherFinder[i].name
-      let emailC = outherFinder[i].email
+      let cS = [];
+      let day = outherFinder[i].day;
+      let nameC = outherFinder[i].name;
+      let emailC = outherFinder[i].email;
       let hour = outherFinder[i].hour;
-      let value = outherFinder[i].totalPrice / 100
-      let payed = outherFinder[i].payed
-      if (day === dataDeHj){
+      let value = outherFinder[i].totalPrice / 100;
+      let payed = outherFinder[i].payed;
+      const functionary = outherFinder[i].functionary;
+      const services = outherFinder[i].services;
+      const storeName = outherFinder[i].storeName;
+      const randomSymbol = ["$", "#", ">>"];
+      let random = Math.floor(Math.random() * 3);
+      for (let j = 0; j < services.length; j++) {
+        let serviceName = services[j];
+        let html = `
+        <p>${serviceName}
+        `;
+        cS.push(html);
+      }
+      if (day === dataDeHj) {
         dayArray.push({
-        day: day,
-        name: nameC,
-        email: emailC,
-        hour: hour,
-        value: value
-      })
-      
+          day: day,
+          name: nameC,
+          email: emailC,
+          hour: hour,
+          value: value,
+        });
+        if (!payed) {
+          let structure = `<div class="schedule-content">
+      <div class="schedule-data" data-dia="${day}" data-hour="${hour}" data-storeName="${storeName}" data-functionary="${functionary}">
+        <div class="schedule-StoreName" ><strong class="consoleWrite">${
+          randomSymbol[random]
+        }</strong>${storeName.replaceAll("/", " ")}</div>
+
+        <div class="schedule-Fun"><strong class="GreenCard" style="margin-bottom: 10px;">Professional:</strong> ${functionary}</div>
+        <div class="schedule-Dam">
+        <strong class="GreenCard">Services:</strong><br><strong class="jsonWrite">{</strong><br>
+          <div class="schedule-services">${cS.join(",")}</p></div>
+          <br>
+          <strong class="jsonWrite">}</strong>
+        </div>
+          
+        
+
+        
+      </div>
+      <div class="lateralInfos">
+       <div class="delete">
+              <img
+                src="https://img.icons8.com/?size=100&id=95771&format=png&color=FFFFFF"
+              />
+            </div>
+            <div class="confirm">
+              <img
+                src="https://img.icons8.com/?size=100&id=83145&format=png&color=FFFFFF"
+              />
+            </div>
+        <div class="schedule-dayEHour">
+              <div class="schedule-Day">
+                 <strong class="dayEHour">$ ${value
+                   .toFixed(2)
+                   .replace(".", ",")}</strong>
+              </div>
+              <div class="schedule-Hour">
+                 <strong class="dayEHour">${hour}</strong>
+              </div>
+            </div>
+      </div>
+    </div>
+      `;
+          htmlArray.push(structure);
+        } else {
+          let structure = `<div class="union">
+          <div class="payed-symbol" title="Previously paid"> <img src="https://img.icons8.com/?size=100&id=122142&format=png&color=FFFFFF"></div>
+              <div class="schedule-content schedule-payed">
+                <div class="schedule-data" data-dia="${day}" data-hour="${hour}" data-storeName="${storeName}" data-functionary="${functionary}">
+          <div class="schedule-StoreName" ><strong class="consoleWrite">${
+            randomSymbol[random]
+          }</strong>${storeName.replaceAll("/", " ")}</div>
+          <div class="schedule-Fun"><strong class="GreenCard" style="margin-bottom: 10px;">Professional:</strong> ${functionary}</div>
+          <div class="schedule-Dam">
+          <strong class="GreenCard">Services:</strong><br><strong class="jsonWrite">{</strong><br>
+            <div class="schedule-services">${cS.join(" ,")}</p></div>
+            <br>
+            <strong class="jsonWrite">}</strong>
+          </div>
+          
+          
+          
+                </div>
+                <div class="lateralInfos">
+          <div class="delete">
+              <img
+                src="https://img.icons8.com/?size=100&id=95771&format=png&color=FFFFFF"
+              />
+            </div>
+            <div class="confirm">
+              <img
+                src="https://img.icons8.com/?size=100&id=83145&format=png&color=FFFFFF"
+              />
+            </div>
+          <div class="schedule-dayEHour">
+                <div class="schedule-Day">
+                 <strong class="dayEHour">$ ${value
+                   .toFixed(2)
+                   .replace(".", ",")}</strong>
+              </div>
+                 <div class="schedule-Hour">
+                 <strong class="dayEHour">${hour}</strong>
+              </div>
+              </div>
+                </div>
+              </div>
+        </div>`;
+          htmlArray.push(structure);
+        }
       }
-      if (payed){
-        globalValue += value
+      if (payed) {
+        globalValue += value;
       }
     }
-    console.log(globalValue)
+    console.log(globalValue);
     const scheduleN = dayArray.length;
-    const nextDays = []
-    for (let o = 0; o < 8; o++) {
-      const data = new Date(today)
-      data.setDate(today.getDate() + o )
-      const dia = data.getDate();
-      const structure = `<div class="weekDiv">${dia.toString().padStart(2, '0')}</div>`
-      nextDays.push(structure)
+    const nextDays = [];
+    const nexterdays = await store_data_schema.findOne({
+      storeName: finder.storeName
+    })
+    if (!nexterdays){
+      return res.status(400).json({
+          tudoErrado: ":>",
+          finderData: finder,
+          outherData: outherFinder,
+          returner: "ERRORRORORORROROROROR",
+        });
     }
-    console.log(nextDays)
+    for (let o = 0; o < 8; o++) {
+      const data = new Date(today);
+      data.setDate(today.getDate() + o);
+      const dia = data.getDate();
+      const mes = data.getMonth() + 1
+      const query = `${dia.toString()}/${mes.toString().padStart(2, '0')}`
+      if (nexterdays.closedChoice.includes(query)){
+        const structure = `<div class="weekDiv todayClosed" data-dia="${dia.toString()}/${mes.toString().padStart(2, '0')}">${dia
+        .toString()
+        .padStart(2, "0")}</div>`
+        nextDays.push(structure);
+        continue
+      }
+      const structure = `<div class="weekDiv" data-dia="${dia.toString()}/${mes.toString().padStart(2, '0')}">${dia
+        .toString()
+        .padStart(2, "0")}</div>`;
+      nextDays.push(structure);
+    }
+    console.log(nextDays);
+    const basicInfos = await store_data_schema.findOne({
+      name: name,
+      email: email,
+      storeName: finder.storeName,
+    });
+    if (basicInfos) {
+      
+      let cash = basicInfos.totalCash / 100
+      const renderHtml = `
+    <div class="unionE">
+      <div class="welcomeDiv"><h1>Welcome back <strong class="consoleWrite">${
+        finder.storeName.replaceAll('/', " ")
+      }!</strong></h1><p><strong class="consoleWrite">$</strong>${
+      finder.description
+    }</p></div>
+      <div class="columnUnion">
+        <span class="label" style="font-size:0.8em; margin:0 0 2vh 0;">Store opening <strong class="GreenCard">control</strong><strong class="pointer">.</strong></span>
+        <div class="weekOpen">${nextDays.slice(0, 4).join("")}</div>
+        <div class="weekOpen">${nextDays.slice(4, 8).join("")}</div>
+      </div>
+    </div>
+    <div class="unionE" style="margin: 3vh 0;">
+    <div class="dashboardBalance">
+      <p class="test">Your <strong class="GreenCard">balance:</strong></p>
+        <p class="CASH"><strong class="consoleWrite" style="margin:0;">$</strong>${cash
+          .toFixed(2)
+          .replace(
+            ".",
+            ","
+          )} <img src="https://img.icons8.com/?size=100&id=85969&format=png&color=FFFFFF" alt=""></p>
+    </div>
+    <div class="todayAppointments"><p>Today's appointments:</p>
+    <p> <strong class="GreenCard" style="margin: 1vw;">${scheduleN
+      .toString()
+      .padStart(2, "0")}</strong></p></div>
+    <div class="localSchedule"data-name="${finder.storeName.replaceAll(
+      "/",
+      "_"
+    )}"><span><strong class="GreenCard">Local</strong> Scheduling</span></div>
+    </div>
+    <div class="unionE">
+    <div class="schedule-union">${htmlArray.slice(0,1).join("")}<div class="central-plus">
+    <div class="label-plus">
+      <p>
+       
+Manage your ${scheduleN} other <strong class="GreenCard">appointments</strong>
+      </p>
+    </div>
+    <div class="img-plusI">
+      <img src="https://img.icons8.com/?size=100&id=T04N1K6ZbCY8&format=png&color=FFFFFF">
+    </div>
+  </div></div>
+    </div>
+    
+    `;
+    
+      return res.status(200).json({
+        tudoCerto: ":>",
+        finderData: finder,
+        outherData: outherFinder,
+        returner: renderHtml,
+      });
+    }
+    const createBasicInfos = await store_data_schema.create({
+      name: name,
+      email: email,
+      storeName: finder.storeName,
+      storeEmail: finder.storeEmail,
+      totalCash: globalValue * 100,
+      closedChoice: [],
+      totalVisits: 0,
+      totalAppointments: scheduleN,
+    });
+    if (!createBasicInfos){
+      return res.status(400).json({
+          tudoErrado: ":>",
+          finderData: finder,
+          outherData: outherFinder,
+          returner: "ERRORRORORORROROROROR",
+        });
+    }
     const renderHtml = `
     <div class="unionE">
-      <div class="welcomeDiv"><h1>Welcome back <strong class="consoleWrite">${finder.storeName}!</strong></h1><p><strong class="consoleWrite">$</strong>${finder.description}</p></div>
+      <div class="welcomeDiv"><h1>Welcome back <strong class="consoleWrite">${
+        finder.storeName
+      }!</strong></h1><p><strong class="consoleWrite">$</strong>${
+      finder.description
+    }</p></div>
       <div class="columnUnion">
-        <span class="label" style="font-size:0.8em; margin:0 0 1vh 0;">Store opening <strong class="GreenCard">control</strong><strong class="pointer">.</strong></span>
-        <div class="weekOpen">${nextDays.join("")}</div>
+        <span class="label" style="font-size:0.8em; margin:0 0 2vh 0;">Store opening <strong class="GreenCard">control</strong><strong class="pointer">.</strong></span>
+        <div class="weekOpen">${nextDays.slice(0, 4).join("")}</div>
+        <div class="weekOpen">${nextDays.slice(4, 8).join("")}</div>
       </div>
     </div>
     <div class="unionE">
     <div class="dashboardBalance">
-      <p>Your <strong class="GreenCard">balance</strong></p>
-        <p class="CASH">${globalValue.toFixed(2).replace(".", ",")}</p>
+      <p class="test">Your <strong class="GreenCard">balance:</strong></p>
+        <p class="CASH"><strong class="consoleWrite" style="margin:0;">$</strong>${globalValue
+          .toFixed(2)
+          .replace(
+            ".",
+            ","
+          )} <img src="https://img.icons8.com/?size=100&id=85969&format=png&color=FFFFFF" alt=""></p>
     </div>
     <div class="todayAppointments"><p>Today's appointments:</p>
-    <p> <strong class="GreenCard">${scheduleN}</strong></p></div>
-    <div class="localSchedule"><span>Local Scheduling</span></div>
+    <p> <strong class="GreenCard" style="margin: 1vw;">${scheduleN
+      .toString()
+      .padStart(2, "0")}</strong></p></div>
+    <div class="localSchedule"data-name="${finder.storeName.replaceAll(
+      "/",
+      "_"
+    )}"><span><strong class="GreenCard">Local</strong> Scheduling</span></div>
+    </div>
+    <div class="carrosel">
+    ${htmlArray.slice(0, 1).join("")}
+    <div class="central-plus">
+    <div class="label-plus">
+      <p>
+        Manage your<strong class="GreenCard">schedules</strong>
+      </p>
+    </div>
+    <div class="img-plus">
+      <img src="https://img.icons8.com/?size=100&id=T04N1K6ZbCY8&format=png&color=FFFFFF">
+    </div>
+  </div>
     </div>
     
+    `;
     
-    `
-
     return res.status(200).json({
       tudoCerto: ":>",
       finderData: finder,
@@ -1549,7 +1829,10 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
       returner: renderHtml,
     });
   } catch (error) {
-    return res.redirect("/error500.html");
+    console.error(error);
+    return res.status(500).json({
+      error: error,
+    });
   }
 });
 app.get("/cad/store", (req, res) => {
@@ -1898,6 +2181,31 @@ app.get("/cad/plan", async (req, res) => {
           error: "ENCONTRADO",
         });
       }
+      const parts = planName.split(":");
+      const plan = parts[1];
+      const store = parts[0];
+      const dbStore = store.replaceAll(" ", "/");
+      const findData = await plansSchema.findOne({
+        storeName: dbStore
+      })
+
+    if (!findData){
+      return res.status(400).json({ error: "Na verficação" });
+    }
+    const verify = await store_data_schema.findOne({
+      storeName: findData.storeName
+    })
+    if (!verify){
+      return res.status(400).json({ error: "Na verficação 2" });
+    }
+    const att = await store_data_schema.findOneAndUpdate({
+      storeName: verify.storeName
+    }, {
+      totalCash: verify.totalCash + parseInt(planPrice)
+    })
+    if (!att){
+      return res.status(400).json({ error: "Na ganhação de money " });
+    }
       const planCad = await userPlansSchema.create({
         name: userName,
         email: userEmail,
@@ -2136,6 +2444,7 @@ app.post("/plans/register/plans", tokenVerify, async (req, res) => {
     if (verify) {
       return res.status(400).json({ error: "Ja existe :(" });
     }
+    
     const cadInDB = await plansSchema.create({
       name: name,
       email: email,
@@ -2265,6 +2574,20 @@ app.get("/schedule/success", async (req, res) => {
       if (!find) {
         return res.status(404).json({ error: "n encontrado" });
       }
+      const findOne = await store_data_schema.findOne({
+        storeName: find.storeName
+      })
+      if (!findOne){
+        return res.status(404).json({ error: "n encontrado" });
+      }
+      const updt = await store_data_schema.findOneAndUpdate({
+        storeName: find.storeName,
+      }, {
+        totalCash: findOne.totalCash + find.totalPrice
+      })
+      if (!updt){
+        return res.status(400).json({ error: "ao encontrar" });
+      }
       return res.sendFile(path.join(__dirname, "public", "schedule.html"));
     }
   } catch (error) {
@@ -2342,6 +2665,9 @@ app.post("/cancel/plan", tokenVerify, async (req, res) => {
   const { name, email } = req.user;
   const { plan, store } = req.body;
 
+  console.log("=== CANCEL PLAN DEBUG ===");
+  console.log("User:", { name, email });
+  console.log("Body:", { plan, store });
   try {
     const findId = await userPlansSchema
       .findOne({
@@ -2350,6 +2676,7 @@ app.post("/cancel/plan", tokenVerify, async (req, res) => {
         planName: plan,
       })
       .lean();
+          console.log("FindId result:", findId);
     console.log("Cancelling plan:", { name, email, plan, store }); // ✅ Log
     if (!findId) {
       return res.status(400).json({ error: "IN VERIFY SUBSCRIPTION" });
@@ -2462,61 +2789,162 @@ app.post("/delete/plan", tokenVerify, async (req, res) => {
 
   try {
     const findStripeId = await plansSchema.findOne({
-    name: name,
-    email: email,
-    planName: plan,
-    storeName: store,
-  });
-  console.log(findStripeId);
-  if (!findStripeId) {
-    return res.status(404).json({ error: "NA verificação basica" });
-  }
-  const stripeId = findStripeId.planStripeCode[index];
-  const prices = await stripe.prices.list({
-          product: stripeId,
-          limit: 100
-        });
-  for (const price of prices.data){
-    if (price.active){
-      await stripe.prices.update(price.id,{
-        active: false
-      })
-    }
-  }
-  //const deleteProduct = await stripe.products.del(stripeId);
-  findStripeId.planCode.splice(index, 1);
-  findStripeId.planName.splice(index, 1);
-  findStripeId.planOriginalName.splice(index, 1);
-  findStripeId.planPrice.splice(index, 1);
-  findStripeId.planDescription.splice(index, 1);
-  findStripeId.planStripeCode.splice(index, 1);
-  if (findStripeId.planCode.length === 0){
-    const deleter = await plansSchema.findOneAndDelete({
       name: name,
       email: email,
-      storeName: findStripeId.storeName,
-    })
-    if (!deleter){
-      return res.status(400).json({
-    error: 'ERROR AO DELETAR ESSA JOSSA'
-  });
- 
+      planName: plan,
+      storeName: store,
+    });
+    console.log(findStripeId);
+    if (!findStripeId) {
+      return res.status(404).json({ error: "NA verificação basica" });
     }
-     return res.status(200).json({
-    ok: "OK",
-  });
-  }
-  await findStripeId.save();
-  
-  return res.status(200).json({
-    ok: "OK",
-  });
+    const stripeId = findStripeId.planStripeCode[index];
+    const prices = await stripe.prices.list({
+      product: stripeId,
+      limit: 100,
+    });
+    for (const price of prices.data) {
+      if (price.active) {
+        await stripe.prices.update(price.id, {
+          active: false,
+        });
+      }
+    }
+    //const deleteProduct = await stripe.products.del(stripeId);
+    findStripeId.planCode.splice(index, 1);
+    findStripeId.planName.splice(index, 1);
+    findStripeId.planOriginalName.splice(index, 1);
+    findStripeId.planPrice.splice(index, 1);
+    findStripeId.planDescription.splice(index, 1);
+    findStripeId.planStripeCode.splice(index, 1);
+    if (findStripeId.planCode.length === 0) {
+      const deleter = await plansSchema.findOneAndDelete({
+        name: name,
+        email: email,
+        storeName: findStripeId.storeName,
+      });
+      if (!deleter) {
+        return res.status(400).json({
+          error: "ERROR AO DELETAR ESSA JOSSA",
+        });
+      }
+      return res.status(200).json({
+        ok: "OK",
+      });
+    }
+    await findStripeId.save();
+
+    return res.status(200).json({
+      ok: "OK",
+    });
   } catch (error) {
     return res.status(500).json({
-    error: error
-  });
+      error: error,
+    });
   }
 });
+app.delete("/pass/store", tokenVerify, async (req, res) => {
+  const { name, email } = req.user;
+  const { dia, hora, loja, funcionario } = req.body;
+
+  try {
+    const realName = loja.replaceAll(" ", "/");
+    
+    const deleter = await scheduleSchema.findOneAndDelete({
+      name: name,
+      email: email,
+      functionary: funcionario,
+      hour: hora,
+      day: dia,
+      storeName: realName,
+    });
+    if (!deleter) {
+      return res.status(404).json({
+        error: "Error 404, n encontrado",
+      });
+    }
+    return res.status(201).json({
+      s: "Sucess",
+      redirect: "/reload",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: "Error 500, server error man, que merda",
+    });
+  }
+})
+app.post("/choice/closed-day", tokenVerify, async (req, res) => {
+  const {name, email} = req.user;
+  const {day} = req.body;
+
+  try {
+    const fvp = await store_data_schema.findOne({
+    name: name,
+    email: email
+  })
+  console.log(day, fvp)
+  if (!fvp){
+    return res.status(404).json({
+      errror: "EM FVP"
+    })
+  }
+ if (fvp.closedChoice.includes(day)){
+return res.status(200).json({
+      errror: "EM DAY"
+    })
+ }
+  fvp.closedChoice.push(day)
+  await fvp.save()
+  return res.status(200).json({
+      sucess: 'sucesss'
+    })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({
+      errror: "No server",
+      er: error
+    })
+  }
+})
+app.post("/remove/closed-day", tokenVerify, async (req, res) => {
+  const {name, email} = req.user;
+  const {day} = req.body;
+
+  try {
+    const fvp = await store_data_schema.findOne({
+    name: name,
+    email: email
+  })
+  console.log(day, fvp)
+  if (!fvp){
+    return res.status(404).json({
+      errror: "EM FVP"
+    })
+  }
+ if (!fvp.closedChoice.includes(day)){
+return res.status(200).json({
+      errror: "EM DAY"
+    })
+ }
+  let index = fvp.closedChoice.indexOf(day)
+  fvp.closedChoice.splice(index, 1)
+  await fvp.save()
+  return res.status(200).json({
+      sucess: 'sucesss'
+    })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({
+      errror: "No server",
+      er: error
+    })
+  }
+})
+app.delete("/reembolso/me", tokenVerify, async (req, res) => {
+  const {name, email} = req.user;
+  const {dia, hora, loja, funcionario} = req.body;
+  
+})
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
   console.log(`📧 Sistema de recuperação de senha ativo`);
