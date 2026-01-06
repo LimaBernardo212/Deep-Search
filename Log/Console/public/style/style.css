@@ -3317,3 +3317,69 @@ border: 1px solid var(--cor01Esvoaçada);
 .carrosel::-webkit-scrollbar-thumb:hover {
   background: var(--cor09);
 }
+.Identifire{
+  width: 65vw;
+  height: 20vh;
+  border: 1px solid var(--cor01Esvoaçada);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 3vh 4vw;
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+}
+
+.Identifire h1{
+  margin: 0vh 2vw;
+}
+.Identifire p{
+  font-size: 0.9em;
+  margin: 1vh 3vw;
+}
+.Identifire:hover, .dateNasc:hover{
+  background-color: var(--cor03);
+}
+.dateNasc{
+  width: 17vw;
+  height: 20vh;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border: 1px solid var(--cor01Esvoaçada);
+}
+.dateSpan{
+  color: var(--cor05);
+  font-family: var(--fontSpace);
+  font-size: 1.7em;
+}
+.analyticsInfo{
+    width: 16vw; 
+    height: 15vw;
+    border: 1px solid var(--cor01Esvoaçada);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 20px;
+    margin: 2vh 2vw;
+  }
+  .analyticsInfo:hover{
+    background-color: var(--cor03);
+  }
+.analyticsInfo .pricer{
+  font-size: 1.8em;
+  font-family: var(--fontSpace);
+  color: var(--cor05);
+}
+.analyticsInfo span img{
+  width: 24px;
+  margin-left: 10px;
+}
+.Numbera{
+  font-size: 3em;
+  font-family: var(--fontSpace);
+  color: var(--cor08);
+}

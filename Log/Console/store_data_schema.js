@@ -8,5 +8,9 @@ const datas = new mongoose.Schema({
     closedChoice: Array,
     totalVisits: Number,
     totalAppointments: Number,
+    totalAppointmentsPayed: Number,
+    planNumber: Number,
+    createdAt: String,
+    money: Number
 })
 export default mongoose.model("store_datas", datas);

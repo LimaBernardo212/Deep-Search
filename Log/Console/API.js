@@ -28,6 +28,8 @@ import { buffer } from "stream/consumers";
 import plansSchema from "./plansSchema.js";
 import userPlansSchema from "./userPlansSchema.js";
 import store_data_schema from "./store_data_schema.js";
+import reembolso from "./reembolso.js";
+import recurring from "./recurring.js";
 dotenv.config();
 
 const app = express();
@@ -260,7 +262,17 @@ async function enviarEmailRecuperacao(email, resetToken) {
   // ✅ IMPORTANTE: Retorna a Promise para poder tratar erros
   return await transport.sendMail(emailOptions);
 }
+async function functionaryEmail(email, msg) {
+  const emailOptions = {
+    from: "bernardolimarodrigues4@gmail.com",
+    to: email,
+    subject: "Update your appointment",
+    html: msg,
+  };
 
+  // ✅ IMPORTANTE: Retorna a Promise para poder tratar erros
+  return await transport.sendMail(emailOptions);
+}
 function criptografar(datas) {
   const iv = crypto.randomBytes(16);
   const cypher = crypto.createCipheriv(
@@ -512,7 +524,7 @@ app.get("/api/me", tokenVerify, async (req, res) => {
   });
 });
 
-app.post("/api/logout", (req, res) => {
+app.get("/api/logout", (req, res) => {
   res.clearCookie("authToken", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -780,7 +792,32 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
       storeImagePath: imageInfo?.path ?? null,
       storeImageMeta: imageInfo ?? null,
     });
-
+    const data = new Date();
+    const dia = data.getDate(); // Dia do mês (1-31)
+    const mes = data.getMonth() + 1; // Mês (0-11), adicionamos 1 para ser
+    const ano = data.getFullYear(); // Ano (ex: 2026)
+    const createBasicInfos = await store_data_schema.create({
+      name: name,
+      email: email,
+      storeName: storeNamer,
+      storeEmail: storeEmail,
+      totalCash: 0,
+      closedChoice: [],
+      totalVisits: 0,
+      totalAppointments: 0,
+      totalAppointmentsPayed: 0,
+      planNumber: 0,
+      createdAt: `${dia}/${mes}/${ano}`,
+      money: 0,
+    });
+    if (!createBasicInfos) {
+      return res.status(400).json({
+        tudoErrado: ":>",
+        // finderData: finder,
+        // outherData: outherFinder,
+        returner: "ERRORRORORORROROROROR",
+      });
+    }
     console.log("✅ Loja cadastrada:", newStore._id);
     console.log("📁 Imagem salva em:", imageInfo?.path || "sem imagem");
 
@@ -804,6 +841,12 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
 app.post("/store/page", async (req, res) => {
   const { storeName } = req.body;
   const forStoreName = storeName.replaceAll("/", "_");
+  const datas = await store_data_schema.findOne({ storeName: storeName });
+  if (!datas) {
+    return res.status(404).json({ error: "Not found bro" });
+  }
+  datas.totalVisits += 1;
+  await datas.save();
   return res.status(200).json({ redirect: `/store/:${forStoreName}` });
 });
 
@@ -1049,22 +1092,23 @@ app.post("/api/selected/hours", tokenVerify, async (req, res) => {
   } catch (error) {}
 });
 app.post("/render/days", tokenVerify, async (req, res) => {
-  const {storeName} = req.body
+  const { storeName } = req.body;
   const now = new Date();
   const calendar = [];
   let data = null;
-  const searcher = await store_data_schema.findOne({storeName: storeName})
-  if (!searcher){
-    console.log('ERROR NO SEARCH')
+  let realName = storeName.replaceAll(" ", "/");
+  const searcher = await store_data_schema.findOne({ storeName: realName });
+  if (!searcher) {
+    console.log("ERROR NO SEARCH");
     return res.status(404).json({
-      erro: 'NINGUEM ENCONTROU NADA QUI N PARCEIRO'
-    })
+      erro: "NINGUEM ENCONTROU NADA QUI N PARCEIRO",
+    });
   }
-  
-  const datas_proibidas = searcher.closedChoice
-  console.log(datas_proibidas)
+
+  const datas_proibidas = searcher.closedChoice;
+  console.log(datas_proibidas);
   const weekDays = [
-    "Sunda",
+    "Sunday",
     "Monday",
     "Tuesday",
     "Wednesday",
@@ -1105,7 +1149,7 @@ app.post("/render/days", tokenVerify, async (req, res) => {
     mes: months[data.getMonth()],
     ano: data.getFullYear(),
     dataCompleta: data.toLocaleDateString("pt-BR"),
-    datas_proibidas: datas_proibidas
+    datas_proibidas: datas_proibidas,
   });
 });
 async function extrairHoras(req, res) {
@@ -1202,7 +1246,274 @@ app.post("/schedule", tokenVerify, async (req, res) => {
     if (!cadSchedule) {
       return res.status(500).json({ error: "error in DB" });
     }
+
+    const datas = await store_data_schema.findOne({ storeName: realStoreName });
+    if (!datas) {
+      return res.status(404).json({ error: "Not found bro" });
+    }
+    datas.totalAppointments += 1;
+    await datas.save();
     const scheduleId = cadSchedule.id;
+    const findFunctionary = await functionaryCad.findOne({
+      storeName: realStoreName,
+    });
+    if (!findFunctionary) {
+      return res.status(500).json({ error: "error in DB" });
+    }
+
+    const findThisFunctionary =
+      findFunctionary.functionarysName.indexOf(choiceFunctionary);
+    const functionaryMail =
+      findFunctionary.functionarysEmail[findThisFunctionary];
+    let msg = `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Appointment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #0d0d0d 0%, #042326 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #f2f2f2;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: rgba(13, 13, 13, 0.8);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(166, 166, 166, 0.2);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #238c6e 0%, #1a6b54 100%);
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: clamp(20px, 5vw, 28px);
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: clamp(14px, 3vw, 16px);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .content {
+            padding: 30px 20px;
+        }
+
+        .greeting {
+            margin-bottom: 24px;
+        }
+
+        .greeting h2 {
+            font-size: clamp(18px, 4vw, 24px);
+            margin-bottom: 8px;
+        }
+
+        .greeting .highlight {
+            color: #238c6e;
+        }
+
+        .info-card {
+            background-color: rgba(35, 140, 110, 0.1);
+            border: 1px solid rgba(35, 140, 110, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-size: clamp(13px, 3vw, 14px);
+            color: rgba(242, 242, 242, 0.7);
+            margin-bottom: 4px;
+            width: 100%;
+        }
+
+        .info-value {
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: 600;
+            color: #238c6e;
+            word-break: break-word;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .detail-box {
+            background-color: rgba(35, 140, 110, 0.08);
+            border: 1px solid rgba(166, 166, 166, 0.15);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .detail-box .label {
+            font-size: clamp(12px, 3vw, 13px);
+            color: rgba(242, 242, 242, 0.6);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-box .value {
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: 700;
+            color: #238c6e;
+        }
+
+        .footer {
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid rgba(166, 166, 166, 0.15);
+        }
+
+        .footer p {
+            font-size: clamp(12px, 3vw, 14px);
+            color: rgba(242, 242, 242, 0.5);
+        }
+
+        .icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        /* Responsividade para mobile */
+        @media only screen and (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                border-radius: 12px;
+            }
+
+            .header {
+                padding: 24px 16px;
+            }
+
+            .content {
+                padding: 24px 16px;
+            }
+
+            .info-card {
+                padding: 16px;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .detail-box {
+                padding: 14px;
+            }
+        }
+
+        /* Suporte para dark mode em clientes de email */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #0d0d0d 0%, #042326 100%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ New Appointment</h1>
+            <p>You have a new client waiting</p>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                <h2>Hello, <span class="highlight">${choiceFunctionary.join(
+                  ""
+                )}</span>!</h2>
+                <p style="color: rgba(242, 242, 242, 0.8); margin-top: 8px;">
+                    A new appointment has been confirmed for you.
+                </p>
+            </div>
+
+            <div class="info-card">
+                <div class="info-row">
+                    <span class="info-label">👤 Cliente</span>
+                    <span class="info-value">${name}</span>
+                </div>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-box">
+                    <div class="label">📅 Date</div>
+                    <div class="value">${choiceDay.join("")}</div>
+                </div>
+
+                <div class="detail-box">
+                    <div class="label">🕒 Time</div>
+                    <div class="value">${choiceHour.join("")}</div>
+                </div>
+
+                <div class="detail-box">
+                    <div class="label">💰 Price</div>
+                    <div class="value">R$ ${price / 100}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated email. Please do not reply to this message.</p>
+            <p style="margin-top: 8px;">© 2025 Your Appointment System</p>
+        </div>
+    </div>
+</body>
+</html>`;
+    const mtp = await recurring.findOne({
+      name: name,
+      email: email,
+      storeName: realStoreName,
+    });
+    if (!mtp) {
+      console.log("QUE MERDA BRO!!!!!!!!!");
+      return res.status(400).json({ error: "Na verficação 7" });
+    }
+    mtp.scheduleNumber += 1;
+    await mtp.save();
+    functionaryEmail(functionaryMail, msg);
     return res.status(200).json({
       sucess: "Sucess",
       redirect: `/pay/app/${scheduleId}`,
@@ -1391,30 +1702,351 @@ app.delete("/delete/schedules", tokenVerify, async (req, res) => {
       hour: hora,
       day: dia,
       storeName: realName,
-    })
-    if (!finder){
+    });
+    if (!finder) {
       return res.status(404).json({
-      error: "Error 404, server error man, que merda",
-    });
+        error: "Error 404, server error man, que merda",
+      });
     }
-    const f = await store_data_schema.findOne({
-      storeName: realName
-    })
-    if (!f){
+    if (finder.payed) {
+      const f = await store_data_schema.findOne({
+        storeName: realName,
+      });
+      if (!f) {
+        return res.status(404).json({
+          error: "Error 404, server error man, que merda",
+        });
+      }
+      const value = await store_data_schema.findOneAndUpdate(
+        {
+          storeName: realName,
+        },
+        {
+          totalCash: f.totalCash - finder.totalPrice,
+          money: f.money - finder.totalPrice,
+        }
+      );
+      if (!value) {
+        return res.status(400).json({
+          error: "Error 400, server error man, que merda",
+        });
+      }
+    }
+    let msg = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Cancelled</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a0d0d 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #f2f2f2;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: rgba(13, 13, 13, 0.8);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(166, 166, 166, 0.2);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8c2323 0%, #6b1a1a 100%);
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .warning-icon {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 32px;
+        }
+
+        .header h1 {
+            font-size: clamp(20px, 5vw, 28px);
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: clamp(14px, 3vw, 16px);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .content {
+            padding: 30px 20px;
+        }
+
+        .greeting {
+            margin-bottom: 24px;
+        }
+
+        .greeting h2 {
+            font-size: clamp(18px, 4vw, 24px);
+            margin-bottom: 8px;
+        }
+
+        .greeting .highlight {
+            color: #e74c3c;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: clamp(13px, 3vw, 14px);
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-card {
+            background-color: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-size: clamp(13px, 3vw, 14px);
+            color: rgba(242, 242, 242, 0.7);
+            margin-bottom: 4px;
+            width: 100%;
+        }
+
+        .info-value {
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: 600;
+            color: #e74c3c;
+            word-break: break-word;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .detail-box {
+            background-color: rgba(231, 76, 60, 0.08);
+            border: 1px solid rgba(166, 166, 166, 0.15);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .detail-box .label {
+            font-size: clamp(12px, 3vw, 13px);
+            color: rgba(242, 242, 242, 0.6);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-box .value {
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: 700;
+            color: #e74c3c;
+        }
+
+        .notice-box {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.15) 0%, rgba(231, 76, 60, 0.05) 100%);
+            border: 2px solid rgba(231, 76, 60, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 24px;
+        }
+
+        .notice-box .notice-title {
+            font-size: clamp(14px, 3.5vw, 16px);
+            font-weight: 700;
+            color: #e74c3c;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notice-box .notice-text {
+            font-size: clamp(13px, 3vw, 14px);
+            color: rgba(242, 242, 242, 0.8);
+            line-height: 1.6;
+        }
+
+        .footer {
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid rgba(166, 166, 166, 0.15);
+        }
+
+        .footer p {
+            font-size: clamp(12px, 3vw, 14px);
+            color: rgba(242, 242, 242, 0.5);
+        }
+
+        /* Responsiveness */
+        @media only screen and (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                border-radius: 12px;
+            }
+
+            .header {
+                padding: 24px 16px;
+            }
+
+            .warning-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 28px;
+            }
+
+            .content {
+                padding: 24px 16px;
+            }
+
+            .info-card {
+                padding: 16px;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .detail-box {
+                padding: 14px;
+            }
+
+            .notice-box {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="warning-icon">✕</div>
+            <h1>⚠️ Appointment Cancelled</h1>
+            <p>An appointment has been cancelled</p>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                <h2>Hello, <span class="highlight">${funcionario}</span></h2>
+                <p style="color: rgba(242, 242, 242, 0.8); margin-top: 8px;">
+                    The appointment for <strong style="color: #e74c3c;">${name}</strong> has been cancelled.
+                </p>
+            </div>
+
+            <div style="text-align: center;">
+                <span class="status-badge">✕ Cancelled</span>
+            </div>
+
+            <div class="info-card">
+                <div class="info-row">
+                    <span class="info-label">👤 Client</span>
+                    <span class="info-value">${name}</span>
+                </div>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-box">
+                    <div class="label">📅 Date</div>
+                    <div class="value">${dia}</div>
+                </div>
+
+                <div class="detail-box">
+                    <div class="label">🕒 Time</div>
+                    <div class="value">${hora}</div>
+                </div>
+
+                <div class="detail-box">
+                    <div class="label">💰 Amount</div>
+                    <div class="value">$${finder.totalPrice / 100}</div>
+                </div>
+            </div>
+
+            <div class="notice-box">
+                <div class="notice-title">
+                    <span>ℹ️</span>
+                    <span>Important Notice</span>
+                </div>
+                <div class="notice-text">
+                    This time slot is now available for new bookings. The client has been notified of the cancellation.
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated email. Please do not reply to this message.</p>
+            <p style="margin-top: 8px;">© 2025 Your Appointment System</p>
+        </div>
+    </div>
+</body>
+</html>`;
+    const mtp = await recurring.findOne({
+      name: name,
+      email: email,
+      storeName: realName,
+    });
+    if (!mtp) {
+      return res.status(400).json({ error: "Na verficação 3" });
+    }
+    mtp.cancelNumber += 1;
+    await mtp.save();
+    const functionary_email = await functionaryCad.findOne({
+      functionarysName: funcionario,
+      storeName: realName,
+    });
+    if (!functionary_email) {
       return res.status(404).json({
-      error: "Error 404, server error man, que merda",
-    });
+        error: "Error 404, n encontrado aqui em functionary email",
+      });
     }
-    const value = await store_data_schema.findOneAndUpdate({
-      storeName: realName
-    }, {
-      totalCash: f.totalCash - finder.totalPrice
-    })
-    if (!value){
-      return res.status(400).json({
-      error: "Error 400, server error man, que merda",
-    });
-    }
+    functionaryEmail(functionary_email.functionarysEmail, msg);
+
     const deleter = await scheduleSchema.findOneAndDelete({
       name: name,
       email: email,
@@ -1568,7 +2200,7 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
         });
         if (!payed) {
           let structure = `<div class="schedule-content">
-      <div class="schedule-data" data-dia="${day}" data-hour="${hour}" data-storeName="${storeName}" data-functionary="${functionary}">
+      <div class="schedule-data" data-dia="${day}" data-hour="${hour}" data-storeName="${storeName}" data-functionary="${functionary}"  data-nameC="${nameC}" data-emailC="${emailC}">
         <div class="schedule-StoreName" ><strong class="consoleWrite">${
           randomSymbol[random]
         }</strong>${storeName.replaceAll("/", " ")}</div>
@@ -1614,7 +2246,7 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
           let structure = `<div class="union">
           <div class="payed-symbol" title="Previously paid"> <img src="https://img.icons8.com/?size=100&id=122142&format=png&color=FFFFFF"></div>
               <div class="schedule-content schedule-payed">
-                <div class="schedule-data" data-dia="${day}" data-hour="${hour}" data-storeName="${storeName}" data-functionary="${functionary}">
+                <div class="schedule-data" data-dia="${day}" data-hour="${hour}" data-storeName="${storeName}" data-functionary="${functionary}" data-nameC="${nameC}" data-emailC="${emailC}">
           <div class="schedule-StoreName" ><strong class="consoleWrite">${
             randomSymbol[random]
           }</strong>${storeName.replaceAll("/", " ")}</div>
@@ -1664,32 +2296,32 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
     const scheduleN = dayArray.length;
     const nextDays = [];
     const nexterdays = await store_data_schema.findOne({
-      storeName: finder.storeName
-    })
-    if (!nexterdays){
+      storeName: finder.storeName,
+    });
+    if (!nexterdays) {
       return res.status(400).json({
-          tudoErrado: ":>",
-          finderData: finder,
-          outherData: outherFinder,
-          returner: "ERRORRORORORROROROROR",
-        });
+        tudoErrado: ":>",
+        finderData: finder,
+        outherData: outherFinder,
+        returner: "Eu",
+      });
     }
     for (let o = 0; o < 8; o++) {
       const data = new Date(today);
       data.setDate(today.getDate() + o);
       const dia = data.getDate();
-      const mes = data.getMonth() + 1
-      const query = `${dia.toString()}/${mes.toString().padStart(2, '0')}`
-      if (nexterdays.closedChoice.includes(query)){
-        const structure = `<div class="weekDiv todayClosed" data-dia="${dia.toString()}/${mes.toString().padStart(2, '0')}">${dia
-        .toString()
-        .padStart(2, "0")}</div>`
+      const mes = data.getMonth() + 1;
+      const query = `${dia.toString()}/${mes.toString().padStart(2, "0")}`;
+      if (nexterdays.closedChoice.includes(query)) {
+        const structure = `<div class="weekDiv todayClosed" data-dia="${dia.toString()}/${mes
+          .toString()
+          .padStart(2, "0")}">${dia.toString().padStart(2, "0")}</div>`;
         nextDays.push(structure);
-        continue
+        continue;
       }
-      const structure = `<div class="weekDiv" data-dia="${dia.toString()}/${mes.toString().padStart(2, '0')}">${dia
+      const structure = `<div class="weekDiv" data-dia="${dia.toString()}/${mes
         .toString()
-        .padStart(2, "0")}</div>`;
+        .padStart(2, "0")}">${dia.toString().padStart(2, "0")}</div>`;
       nextDays.push(structure);
     }
     console.log(nextDays);
@@ -1698,14 +2330,99 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
       email: email,
       storeName: finder.storeName,
     });
+    
     if (basicInfos) {
-      
-      let cash = basicInfos.totalCash / 100
+      let cash = basicInfos.totalCash / 100;
+      let scheduleRemanescentes = 0;
+      const formattedBalance = cash.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+      let stcr = ``;
+      if (scheduleN > 0) {
+        scheduleRemanescentes = scheduleN - 1;
+        stcr = `<div class="central-plus">
+    <div class="label-plus">
+      <p>
+       
+Manage your ${scheduleRemanescentes} other <strong class="GreenCard">appointments</strong>
+      </p>
+    </div>
+    <div class="img-plusI">
+      <img src="https://img.icons8.com/?size=100&id=T04N1K6ZbCY8&format=png&color=FFFFFF">
+    </div>
+  </div></div>
+    </div>`;
+      }
       const renderHtml = `
     <div class="unionE">
-      <div class="welcomeDiv"><h1>Welcome back <strong class="consoleWrite">${
-        finder.storeName.replaceAll('/', " ")
-      }!</strong></h1><p><strong class="consoleWrite">$</strong>${
+      <div class="welcomeDiv"><h1>Welcome back <strong class="consoleWrite">${finder.storeName.replaceAll(
+        "/",
+        " "
+      )}!</strong></h1><p><strong class="consoleWrite">$</strong>${
+        finder.description
+      }</p></div>
+      <div class="columnUnion">
+        <span class="label" style="font-size:0.8em; margin:0 0 2vh 0;">Store opening <strong class="GreenCard">control</strong><strong class="pointer">.</strong></span>
+        <div class="weekOpen">${nextDays.slice(0, 4).join("")}</div>
+        <div class="weekOpen">${nextDays.slice(4, 8).join("")}</div>
+      </div>
+    </div>
+    <div class="unionE" style="margin: 3vh 0;">
+    <div class="dashboardBalance">
+      <p class="test">Your <strong class="GreenCard">balance:</strong></p>
+        <p class="CASH"><strong class="consoleWrite" style="margin:0;">$</strong>${formattedBalance} <img src="https://img.icons8.com/?size=100&id=85969&format=png&color=FFFFFF" alt=""></p>
+    </div>
+    <div class="todayAppointments"><p>Today's appointments:</p>
+    <p> <strong class="GreenCard" style="margin: 1vw;">${scheduleN
+      .toString()
+      .padStart(2, "0")}</strong></p></div>
+    <div class="localSchedule"data-name="${finder.storeName.replaceAll(
+      "/",
+      "_"
+    )}"><span><strong class="GreenCard">Local</strong> Scheduling</span></div>
+    </div>
+    <div class="unionE">
+    <div class="schedule-union">${htmlArray.slice(0, 1).join("")}
+    ${stcr}
+    `;
+
+      return res.status(200).json({
+        tudoCerto: ":>",
+        finderData: finder,
+        outherData: outherFinder,
+        returner: renderHtml,
+      });
+    }
+
+    let cash = basicInfos.totalCash / 100;
+    let scheduleRemanescentes = 0;
+    let stcr = ``;
+    const formattedBalance = cash.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    if (scheduleN > 0) {
+      scheduleRemanescentes = scheduleN - 1;
+      stcr = `<div class="central-plus">
+    <div class="label-plus">
+      <p>
+       
+Manage your ${scheduleRemanescentes} other <strong class="GreenCard">appointments</strong>
+      </p>
+    </div>
+    <div class="img-plusI">
+      <img src="https://img.icons8.com/?size=100&id=T04N1K6ZbCY8&format=png&color=FFFFFF">
+    </div>
+  </div></div>
+    </div>`;
+    }
+    const renderHtml = `
+    <div class="unionE">
+      <div class="welcomeDiv"><h1>Welcome back <strong class="consoleWrite">${finder.storeName.replaceAll(
+        "/",
+        " "
+      )}!</strong></h1><p><strong class="consoleWrite">$</strong>${
       finder.description
     }</p></div>
       <div class="columnUnion">
@@ -1717,12 +2434,7 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
     <div class="unionE" style="margin: 3vh 0;">
     <div class="dashboardBalance">
       <p class="test">Your <strong class="GreenCard">balance:</strong></p>
-        <p class="CASH"><strong class="consoleWrite" style="margin:0;">$</strong>${cash
-          .toFixed(2)
-          .replace(
-            ".",
-            ","
-          )} <img src="https://img.icons8.com/?size=100&id=85969&format=png&color=FFFFFF" alt=""></p>
+        <p class="CASH"><strong class="consoleWrite" style="margin:0;">$</strong>${formattedBalance} <img src="https://img.icons8.com/?size=100&id=85969&format=png&color=FFFFFF" alt=""></p>
     </div>
     <div class="todayAppointments"><p>Today's appointments:</p>
     <p> <strong class="GreenCard" style="margin: 1vw;">${scheduleN
@@ -1734,94 +2446,10 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
     )}"><span><strong class="GreenCard">Local</strong> Scheduling</span></div>
     </div>
     <div class="unionE">
-    <div class="schedule-union">${htmlArray.slice(0,1).join("")}<div class="central-plus">
-    <div class="label-plus">
-      <p>
-       
-Manage your ${scheduleN} other <strong class="GreenCard">appointments</strong>
-      </p>
-    </div>
-    <div class="img-plusI">
-      <img src="https://img.icons8.com/?size=100&id=T04N1K6ZbCY8&format=png&color=FFFFFF">
-    </div>
-  </div></div>
-    </div>
-    
+    <div class="schedule-union">${htmlArray.slice(0, 1).join("")}
+    ${stcr}
     `;
-    
-      return res.status(200).json({
-        tudoCerto: ":>",
-        finderData: finder,
-        outherData: outherFinder,
-        returner: renderHtml,
-      });
-    }
-    const createBasicInfos = await store_data_schema.create({
-      name: name,
-      email: email,
-      storeName: finder.storeName,
-      storeEmail: finder.storeEmail,
-      totalCash: globalValue * 100,
-      closedChoice: [],
-      totalVisits: 0,
-      totalAppointments: scheduleN,
-    });
-    if (!createBasicInfos){
-      return res.status(400).json({
-          tudoErrado: ":>",
-          finderData: finder,
-          outherData: outherFinder,
-          returner: "ERRORRORORORROROROROR",
-        });
-    }
-    const renderHtml = `
-    <div class="unionE">
-      <div class="welcomeDiv"><h1>Welcome back <strong class="consoleWrite">${
-        finder.storeName
-      }!</strong></h1><p><strong class="consoleWrite">$</strong>${
-      finder.description
-    }</p></div>
-      <div class="columnUnion">
-        <span class="label" style="font-size:0.8em; margin:0 0 2vh 0;">Store opening <strong class="GreenCard">control</strong><strong class="pointer">.</strong></span>
-        <div class="weekOpen">${nextDays.slice(0, 4).join("")}</div>
-        <div class="weekOpen">${nextDays.slice(4, 8).join("")}</div>
-      </div>
-    </div>
-    <div class="unionE">
-    <div class="dashboardBalance">
-      <p class="test">Your <strong class="GreenCard">balance:</strong></p>
-        <p class="CASH"><strong class="consoleWrite" style="margin:0;">$</strong>${globalValue
-          .toFixed(2)
-          .replace(
-            ".",
-            ","
-          )} <img src="https://img.icons8.com/?size=100&id=85969&format=png&color=FFFFFF" alt=""></p>
-    </div>
-    <div class="todayAppointments"><p>Today's appointments:</p>
-    <p> <strong class="GreenCard" style="margin: 1vw;">${scheduleN
-      .toString()
-      .padStart(2, "0")}</strong></p></div>
-    <div class="localSchedule"data-name="${finder.storeName.replaceAll(
-      "/",
-      "_"
-    )}"><span><strong class="GreenCard">Local</strong> Scheduling</span></div>
-    </div>
-    <div class="carrosel">
-    ${htmlArray.slice(0, 1).join("")}
-    <div class="central-plus">
-    <div class="label-plus">
-      <p>
-        Manage your<strong class="GreenCard">schedules</strong>
-      </p>
-    </div>
-    <div class="img-plus">
-      <img src="https://img.icons8.com/?size=100&id=T04N1K6ZbCY8&format=png&color=FFFFFF">
-    </div>
-  </div>
-    </div>
-    
-    `;
-    
+
     return res.status(200).json({
       tudoCerto: ":>",
       finderData: finder,
@@ -1951,7 +2579,7 @@ app.post("/cadFunctionary", tokenVerify, upload.any(), async (req, res) => {
     console.log(`Criados funcionários. files.length=${files.length}`);
 
     // ✅ Redireciona igual ao servicesCad
-    return res.redirect("/pay/plans");
+    return res.redirect("/stores/home");
   } catch (error) {
     console.error("Erro ao cadastrar funcionários:", error);
     return res.status(500).json({
@@ -1963,7 +2591,8 @@ app.post("/cadFunctionary", tokenVerify, upload.any(), async (req, res) => {
 app.get(`/store/:storeName`, async (req, res) => {
   res.sendFile(path.join(__dirname, "public", "base.html"));
 });
-app.get(`/api/store/:storeName`, async (req, res) => {
+app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
+  const { name, email } = req.user;
   const storeName = req.params.storeName;
   const realStoreName = storeName.replaceAll("_", "/");
   const trueName = realStoreName.replaceAll("/", " ");
@@ -2095,6 +2724,26 @@ app.get(`/api/store/:storeName`, async (req, res) => {
     </section>
         `;
     console.log(plansReturner);
+    const verifyRecurring = await recurring.findOne({
+      name: name,
+      email: email,
+      storeName: realStoreName,
+    });
+    if (!verifyRecurring) {
+      const recurringCreate = await recurring.create({
+        name: name,
+        email: email,
+        storeName: realStoreName,
+        totalMoney: 0,
+        recurringType: true,
+        scheduleNumber: 0,
+        planNumber: 0,
+        cancelNumber: 0,
+      });
+      if (!recurringCreate) {
+        return res.status(404).json({ error: "ERRO NO RECURRING" });
+      }
+    }
     return res.status(200).json({
       htmlPage: htmlBasePageModel3,
       services: servicesData,
@@ -2176,36 +2825,53 @@ app.get("/cad/plan", async (req, res) => {
         planName: planName,
         name: userName,
       });
+
       if (planVerify) {
         return res.status(200).json({
           error: "ENCONTRADO",
         });
       }
+
       const parts = planName.split(":");
       const plan = parts[1];
       const store = parts[0];
       const dbStore = store.replaceAll(" ", "/");
       const findData = await plansSchema.findOne({
-        storeName: dbStore
-      })
+        storeName: dbStore,
+      });
+      if (!findData) {
+        return res.status(400).json({ error: "Na verficação" });
+      }
 
-    if (!findData){
-      return res.status(400).json({ error: "Na verficação" });
-    }
-    const verify = await store_data_schema.findOne({
-      storeName: findData.storeName
-    })
-    if (!verify){
-      return res.status(400).json({ error: "Na verficação 2" });
-    }
-    const att = await store_data_schema.findOneAndUpdate({
-      storeName: verify.storeName
-    }, {
-      totalCash: verify.totalCash + parseInt(planPrice)
-    })
-    if (!att){
-      return res.status(400).json({ error: "Na ganhação de money " });
-    }
+      const verify = await store_data_schema.findOne({
+        storeName: findData.storeName,
+      });
+      if (!verify) {
+        return res.status(400).json({ error: "Na verficação 2" });
+      }
+      const mtp = await recurring.findOne({
+        name: userName,
+        email: userEmail,
+        storeName: findData.storeName,
+      });
+      if (!mtp) {
+        return res.status(400).json({ error: "Na verficação 3" });
+      }
+      mtp.planNumber += 1;
+      await mtp.save();
+      const att = await store_data_schema.findOneAndUpdate(
+        {
+          storeName: verify.storeName,
+        },
+        {
+          totalCash: verify.totalCash + parseInt(planPrice),
+          planNumber: (verify.planNumber += 1),
+          money: verify.money + parseInt(planPrice),
+        }
+      );
+      if (!att) {
+        return res.status(400).json({ error: "Na ganhação de money " });
+      }
       const planCad = await userPlansSchema.create({
         name: userName,
         email: userEmail,
@@ -2221,6 +2887,7 @@ app.get("/cad/plan", async (req, res) => {
       return res.sendFile(path.join(__dirname, "public", "myplans.html"));
     }
   } catch (error) {
+    console.error(error);
     return res.status(500).json({
       error: "NO SERVIDOR",
     });
@@ -2444,7 +3111,7 @@ app.post("/plans/register/plans", tokenVerify, async (req, res) => {
     if (verify) {
       return res.status(400).json({ error: "Ja existe :(" });
     }
-    
+
     const cadInDB = await plansSchema.create({
       name: name,
       email: email,
@@ -2575,19 +3242,335 @@ app.get("/schedule/success", async (req, res) => {
         return res.status(404).json({ error: "n encontrado" });
       }
       const findOne = await store_data_schema.findOne({
-        storeName: find.storeName
-      })
-      if (!findOne){
+        storeName: find.storeName,
+      });
+      if (!findOne) {
         return res.status(404).json({ error: "n encontrado" });
       }
-      const updt = await store_data_schema.findOneAndUpdate({
-        storeName: find.storeName,
-      }, {
-        totalCash: findOne.totalCash + find.totalPrice
-      })
-      if (!updt){
+      console.log(findOne.totalCash + find.totalPrice);
+      const updt = await store_data_schema.findOneAndUpdate(
+        {
+          storeName: find.storeName,
+        },
+        {
+          totalCash: findOne.totalCash + find.totalPrice,
+          totalAppointmentsPayed: findOne.totalAppointmentsPayed + 1,
+          money: findOne.money + find.totalPrice,
+        }
+      );
+      if (!updt) {
         return res.status(400).json({ error: "ao encontrar" });
       }
+      const mtp = await recurring.findOne({
+        name: find.name,
+        email: find.email,
+        storeName: find.storeName,
+      });
+      if (!mtp) {
+        return res.status(400).json({ error: "ao encontrar" });
+      }
+      mtp.scheduleNumber += 1;
+      mtp.totalMoney += find.totalPrice;
+      await mtp.save();
+      let msg = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Confirmed</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #0d0d0d 0%, #042326 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #f2f2f2;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: rgba(13, 13, 13, 0.8);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(166, 166, 166, 0.2);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #238c6e 0%, #1a6b54 100%);
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .success-icon {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 32px;
+        }
+
+        .header h1 {
+            font-size: clamp(20px, 5vw, 28px);
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: clamp(14px, 3vw, 16px);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .content {
+            padding: 30px 20px;
+        }
+
+        .greeting {
+            margin-bottom: 24px;
+        }
+
+        .greeting h2 {
+            font-size: clamp(18px, 4vw, 24px);
+            margin-bottom: 8px;
+        }
+
+        .greeting .highlight {
+            color: #238c6e;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #238c6e 0%, #1a6b54 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: clamp(13px, 3vw, 14px);
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-card {
+            background-color: rgba(35, 140, 110, 0.1);
+            border: 1px solid rgba(35, 140, 110, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-size: clamp(13px, 3vw, 14px);
+            color: rgba(242, 242, 242, 0.7);
+            margin-bottom: 4px;
+            width: 100%;
+        }
+
+        .info-value {
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: 600;
+            color: #238c6e;
+            word-break: break-word;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .detail-box {
+            background-color: rgba(35, 140, 110, 0.08);
+            border: 1px solid rgba(166, 166, 166, 0.15);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .detail-box .label {
+            font-size: clamp(12px, 3vw, 13px);
+            color: rgba(242, 242, 242, 0.6);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-box .value {
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: 700;
+            color: #238c6e;
+        }
+
+        .payment-summary {
+            background: linear-gradient(135deg, rgba(35, 140, 110, 0.15) 0%, rgba(35, 140, 110, 0.05) 100%);
+            border: 2px solid rgba(35, 140, 110, 0.4);
+            border-radius: 12px;
+            padding: 24px 20px;
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .payment-summary .total-label {
+            font-size: clamp(13px, 3vw, 14px);
+            color: rgba(242, 242, 242, 0.7);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .payment-summary .total-value {
+            font-size: clamp(28px, 7vw, 36px);
+            font-weight: 900;
+            color: #238c6e;
+            text-shadow: 0 2px 10px rgba(35, 140, 110, 0.3);
+        }
+
+        .footer {
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid rgba(166, 166, 166, 0.15);
+        }
+
+        .footer p {
+            font-size: clamp(12px, 3vw, 14px);
+            color: rgba(242, 242, 242, 0.5);
+        }
+
+        /* Responsiveness */
+        @media only screen and (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                border-radius: 12px;
+            }
+
+            .header {
+                padding: 24px 16px;
+            }
+
+            .success-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 28px;
+            }
+
+            .content {
+                padding: 24px 16px;
+            }
+
+            .info-card {
+                padding: 16px;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .detail-box {
+                padding: 14px;
+            }
+
+            .payment-summary {
+                padding: 20px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="success-icon">✓</div>
+            <h1>💰 Payment Confirmed</h1>
+            <p>The appointment has been successfully paid</p>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                <h2>Hello, <span class="highlight">${
+                  find.functionary
+                }</span>!</h2>
+                <p style="color: rgba(242, 242, 242, 0.8); margin-top: 8px;">
+                    Great news! The appointment for <strong style="color: #238c6e;">${
+                      find.name
+                    }</strong> has been paid.
+                </p>
+            </div>
+
+            <div style="text-align: center;">
+                <span class="status-badge">✓ Paid</span>
+            </div>
+
+            <div class="info-card">
+                <div class="info-row">
+                    <span class="info-label">👤 Client</span>
+                    <span class="info-value">${find.name}</span>
+                </div>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-box">
+                    <div class="label">📅 Date</div>
+                    <div class="value">${find.day}</div>
+                </div>
+
+                <div class="detail-box">
+                    <div class="label">🕒 Time</div>
+                    <div class="value">${find.hour}</div>
+                </div>
+            </div>
+
+            <div class="payment-summary">
+                <div class="total-label">Total Paid</div>
+                <div class="total-value">$${find.totalPrice / 100}</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated email. Please do not reply to this message.</p>
+            <p style="margin-top: 8px;">© 2025 Your Appointment System</p>
+        </div>
+    </div>
+</body>
+</html>`;
+      const verifyEmail = await functionaryCad.findOne({
+        storeName: find.storeName,
+      });
+      if (!verifyEmail) {
+        console.error("error");
+        return res.status(404).json({
+          error: error,
+        });
+      }
+      functionaryEmail(verifyEmail.functionarysEmail, msg);
       return res.sendFile(path.join(__dirname, "public", "schedule.html"));
     }
   } catch (error) {
@@ -2676,14 +3659,32 @@ app.post("/cancel/plan", tokenVerify, async (req, res) => {
         planName: plan,
       })
       .lean();
-          console.log("FindId result:", findId);
+    console.log("FindId result:", findId);
     console.log("Cancelling plan:", { name, email, plan, store }); // ✅ Log
     if (!findId) {
       return res.status(400).json({ error: "IN VERIFY SUBSCRIPTION" });
     }
     let planId = findId.subscriptionId;
     const cancel = await stripe.subscriptions.cancel(planId);
-
+    const fvp = await store_data_schema.findOne({
+      storeName: store,
+    });
+    if (!fvp) {
+      return res.status(404).json({ error: "IN FVP" });
+    }
+    fvp.totalCash -= findId.planPrice;
+    fvp.money -= findId.planPrice;
+    await fvp.save();
+    const mtp = await recurring.findOne({
+      name: name,
+      email: email,
+      storeName: store,
+    });
+    if (!mtp) {
+      return res.status(404).json({ error: "IN MTP" });
+    }
+    mtp.planNumber -= 1;
+    await mtp.save();
     const deleter = await userPlansSchema.findOneAndDelete({
       name: name,
       email: email,
@@ -2849,7 +3850,7 @@ app.delete("/pass/store", tokenVerify, async (req, res) => {
 
   try {
     const realName = loja.replaceAll(" ", "/");
-    
+
     const deleter = await scheduleSchema.findOneAndDelete({
       name: name,
       email: email,
@@ -2872,79 +3873,297 @@ app.delete("/pass/store", tokenVerify, async (req, res) => {
       error: "Error 500, server error man, que merda",
     });
   }
-})
+});
 app.post("/choice/closed-day", tokenVerify, async (req, res) => {
-  const {name, email} = req.user;
-  const {day} = req.body;
+  const { name, email } = req.user;
+  const { day } = req.body;
 
   try {
     const fvp = await store_data_schema.findOne({
-    name: name,
-    email: email
-  })
-  console.log(day, fvp)
-  if (!fvp){
-    return res.status(404).json({
-      errror: "EM FVP"
-    })
-  }
- if (fvp.closedChoice.includes(day)){
-return res.status(200).json({
-      errror: "EM DAY"
-    })
- }
-  fvp.closedChoice.push(day)
-  await fvp.save()
-  return res.status(200).json({
-      sucess: 'sucesss'
-    })
+      name: name,
+      email: email,
+    });
+    console.log(day, fvp);
+    if (!fvp) {
+      return res.status(404).json({
+        errror: "EM FVP",
+      });
+    }
+    if (fvp.closedChoice.includes(day)) {
+      return res.status(200).json({
+        errror: "EM DAY",
+      });
+    }
+    fvp.closedChoice.push(day);
+    await fvp.save();
+    return res.status(200).json({
+      sucess: "sucesss",
+    });
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return res.status(500).json({
       errror: "No server",
-      er: error
-    })
+      er: error,
+    });
   }
-})
+});
 app.post("/remove/closed-day", tokenVerify, async (req, res) => {
-  const {name, email} = req.user;
-  const {day} = req.body;
+  const { name, email } = req.user;
+  const { day } = req.body;
 
   try {
     const fvp = await store_data_schema.findOne({
-    name: name,
-    email: email
-  })
-  console.log(day, fvp)
-  if (!fvp){
-    return res.status(404).json({
-      errror: "EM FVP"
-    })
-  }
- if (!fvp.closedChoice.includes(day)){
-return res.status(200).json({
-      errror: "EM DAY"
-    })
- }
-  let index = fvp.closedChoice.indexOf(day)
-  fvp.closedChoice.splice(index, 1)
-  await fvp.save()
-  return res.status(200).json({
-      sucess: 'sucesss'
-    })
+      name: name,
+      email: email,
+    });
+    console.log(day, fvp);
+    if (!fvp) {
+      return res.status(404).json({
+        errror: "EM FVP",
+      });
+    }
+    if (!fvp.closedChoice.includes(day)) {
+      return res.status(200).json({
+        errror: "EM DAY",
+      });
+    }
+    let index = fvp.closedChoice.indexOf(day);
+    fvp.closedChoice.splice(index, 1);
+    await fvp.save();
+    return res.status(200).json({
+      sucess: "sucesss",
+    });
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return res.status(500).json({
       errror: "No server",
-      er: error
-    })
+      er: error,
+    });
   }
-})
-app.delete("/reembolso/me", tokenVerify, async (req, res) => {
-  const {name, email} = req.user;
-  const {dia, hora, loja, funcionario} = req.body;
-  
-})
+});
+app.delete("/backMyMoney/me", async (req, res) => {
+  const { dia, hora, loja, funcionario, nameC, emailC } = req.body;
+
+  try {
+    const realName = loja.replaceAll(" ", "/");
+    console.log(nameC, emailC);
+    const finder = await scheduleSchema.findOne({
+      name: nameC,
+      email: emailC,
+      functionary: funcionario,
+      hour: hora,
+      day: dia,
+      storeName: realName,
+    });
+    if (!finder) {
+      console.log("me");
+      return res.status(404).json({
+        error: "Error 404, server error man, que merda",
+      });
+    }
+    if (finder.payed) {
+      const f = await store_data_schema.findOne({
+        storeName: realName,
+      });
+      if (!f) {
+        console.log("eu");
+        return res.status(404).json({
+          error: "Error 404, server error man, que merda",
+        });
+      }
+      const value = await store_data_schema.findOneAndUpdate(
+        {
+          storeName: realName,
+        },
+        {
+          totalCash: f.totalCash - finder.totalPrice,
+        }
+      );
+      if (!value) {
+        console.log("tu");
+        return res.status(400).json({
+          error: "Error 400, server error man, que merda",
+        });
+      }
+      const reembolsoTotal = await reembolso.create({
+        name: nameC,
+        email: nameC,
+        storeName: realName,
+        totalPrice: finder.totalPrice,
+      });
+      if (!reembolsoTotal) {
+        return res.status(400).json({
+          error: "Error 400, server error man, que merda",
+        });
+      }
+    }
+    const deleter = await scheduleSchema.findOneAndDelete({
+      name: nameC,
+      email: emailC,
+      functionary: funcionario,
+      hour: hora,
+      day: dia,
+      storeName: realName,
+    });
+    if (!deleter) {
+      return res.status(404).json({
+        error: "Error 404, n encontrado",
+      });
+    }
+    return res.status(201).json({
+      s: "Sucess",
+      redirect: "/reload",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: "Error 500, server error man, que merda",
+    });
+  }
+});
+app.get("/stores/analitics", (req, res) => {
+  return res.sendFile(path.join(__dirname, "public", "analitics.html"));
+});
+app.get("/analitics", tokenVerify, async (req, res) => {
+  const { name, email } = req.user;
+  try {
+    const analiticsPush = await store_data_schema.findOne({
+      name: name,
+      email: email,
+    });
+    if (!analiticsPush) {
+      return res.status(404).json({
+        error: "N ENCONTRADO BRO",
+      });
+    }
+    const recurringPush = await recurring
+      .find({
+        storeName: analiticsPush.storeName,
+      })
+      .lean();
+    if (!recurringPush) {
+      return res.status(404).json({
+        error: "N ENCONTROU NADA O BETINHA",
+      });
+    }
+    const Cash = analiticsPush.totalCash / 100;
+    const visitantes = analiticsPush.totalVisits;
+    const dateNasc = analiticsPush.createdAt;
+    const totalAppointmentsPayed = analiticsPush.totalAppointmentsPayed;
+    const totalAppointments = analiticsPush.totalAppointments;
+    const planNumber = analiticsPush.planNumber
+    const storeName = analiticsPush.storeName;
+    let gastosArray = [];
+    let scheduleCancel = [];
+    let scheduleNumberArray = [];
+
+    if (recurringPush.length > 1) {
+      for (let i = 0; i < recurringPush.length; i++) {
+        let totalMoney = recurringPush[i].totalMoney;
+        let cancelNumber = recurringPush[i].cancelNumber;
+        let scheduleNumber = recurringPush[i].scheduleNumber;
+        gastosArray.push(totalMoney);
+        scheduleCancel.push(cancelNumber);
+        scheduleNumberArray.push(scheduleNumber);
+      }
+    } else {
+      let totalMoney = recurringPush[0].totalMoney;
+      let cancelNumber = recurringPush[0].cancelNumber;
+      let scheduleNumber = recurringPush[0].planNumber;
+      gastosArray.push(totalMoney);
+      scheduleCancel.push(cancelNumber);
+      scheduleNumberArray.push(scheduleNumber);
+    }
+    console.log(gastosArray);
+    console.log("---------------------------------------");
+    console.log(scheduleCancel);
+    console.log("---------------------------------------");
+    console.log(scheduleNumberArray);
+    console.log("---------------------------------------");
+    const gastosArrayDivisor = gastosArray.length;
+    const gastosArraySoma = gastosArray.reduce((acumulador, valorAtual) => {
+      return acumulador + valorAtual;
+    }, 0);
+    const gastosMedios = gastosArraySoma / gastosArrayDivisor;
+    console.log(gastosArraySoma);
+    console.log(gastosMedios / 100);
+    const scheduleCancelSoma = scheduleCancel.reduce(
+      (acumulador, valorAtual) => {
+        return acumulador + valorAtual;
+      },
+      0
+    );
+    const scheduleNumberSoma = scheduleNumberArray.reduce(
+      (acumulador, valorAtual) => {
+        return acumulador + valorAtual;
+      },
+      0
+    );
+    const mediaDeCancelamentos =
+      (scheduleCancelSoma / scheduleNumberSoma) * 100;
+    console.log(mediaDeCancelamentos);
+    console.log(dateNasc);
+    const formattedBalance = Cash.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    const realGastos = gastosMedios / 100
+    const formatGastos = realGastos.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumSignificantDigits: 2
+    })
+    let mediaDePrePagamentos = (totalAppointmentsPayed / totalAppointments ) * 100
+    let structure = `
+    <div class="unionE">
+      <div class="Identifire">
+        <h1>Analytics <strong class="GreenCard">Dashboard</strong></h1>
+        <p>Monitor your <strong class="GreenCard">store</strong> metrics and customer engagement<strong class="pointer">.</strong></p>
+      </div>
+      <div class="dateNasc">
+      <span class="label">Created <strong class="GreenCard">in</strong></span><br>
+      <span class="dateSpan">${dateNasc}</span>
+      </div>
+    </div>
+    <div class="unionE" style="margin: 5vh 5vw; flex-wrap:wrap; max-width: 95vw;">
+    <div class="analyticsInfo"><span class="label">Pending <strong class="GreenCard">Collection:</strong> </span><br><span class="pricer">${
+      formattedBalance
+    }<img src="https://img.icons8.com/?size=100&id=85113&format=png&color=FFFFFF"></span></div>
+    <div class="analyticsInfo"><span class="label"><strong class="GreenCard">Total</strong> visitors  </span><br><span class="Numbera">${
+      visitantes
+    }</span></div>
+    <div class="analyticsInfo"><span class="label"><strong class="GreenCard">Total</strong> Appointments  </span><br><span class="Numbera">${
+      totalAppointments
+    }</span></div>
+    <div class="analyticsInfo"><span class="label"> Total of Paid<strong class="GreenCard"> Appointments</strong> </span><br><span class="Numbera">${
+      totalAppointmentsPayed
+    }</span></div>
+    <div class="analyticsInfo"><span class="label"> Payment<strong class="GreenCard"> Rate</strong> </span><br><span class="Numbera">${
+      Math.ceil(mediaDePrePagamentos)
+    }%</span></div>
+    <div class="analyticsInfo"><span class="label">Total<strong class="GreenCard"> Subscribers</strong>  </span><br><span class="Numbera">${
+      planNumber
+    }</span></div>
+    <div class="analyticsInfo"><span class="label">  <strong class="GreenCard"> Cancelled</strong> Appointments </span><br><span class="Numbera">${
+      Math.ceil(mediaDeCancelamentos)
+    }%</span></div>
+    <div class="analyticsInfo"><span class="label">Average total <strong class="GreenCard">expenditure</strong> </span><br><span class="pricer">R$ ${
+      formatGastos
+    }</span></div>
+    
+    </div>
+    </div>
+    `;
+    return res
+      .status(200)
+      .json({
+        structure: structure,
+        beta: "SOBROU ALGO PARA O BETA FINALMENTE!!!!!!!!",
+      });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ BRUTAL: "SOBROU OQUE PRO BETA", erro: error });
+  }
+});
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
   console.log(`📧 Sistema de recuperação de senha ativo`);

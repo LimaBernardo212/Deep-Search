@@ -81,6 +81,15 @@
           <p>Management</p>
         </div>
         <div class="divAndYourLabel">
+          <div id="services" class="itens" title="Your Project">
+            <img
+              src="https://img.icons8.com/?size=100&id=86131&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Bank</p>
+        </div>
+        <div class="divAndYourLabel">
           <div id="documents" class="itens" title="Documents">
             <img
               src="https://img.icons8.com/?size=100&id=120449&format=png&color=FFFFFF"
@@ -115,11 +124,16 @@
       plans.addEventListener("click", () => {
         window.location.href = "/store-plans";
       });
+      const analitics = document.querySelector("#analitics");
+      analitics.addEventListener("click", () => {
+        window.location.href = "/stores/analitics";
+      })
       const storeData = document.querySelector(".store-content");
       const bbk = document.querySelector("#bbk");
       // bbk.addEventListener("click", () => {
       //   window.location.href = "/home.html";
       // });
+      
       const req = await fetch("/verify/have/stores", {
         method: "GET",
         headers: {
@@ -129,12 +143,7 @@
       if (req.ok) {
         const data = await req.json();
         storeData.appendChild(render(data.returner));
-        const localBtn = document.querySelector(".localSchedule");
-        console.log(localBtn);
-        localBtn.addEventListener("click", () => {
-          const data_name = localBtn.getAttribute("data-name");
-          window.location.href = `/store/:${data_name}`;
-        });
+       
         const apoitBtn = document.querySelectorAll(".confirm");
         const dataSchedule = document.querySelectorAll(".schedule-data");
         load.style.opacity = "0";
@@ -144,20 +153,30 @@
           el.addEventListener("click", async () => {
             try {
               const scheduleMe = dataSchedule[i];
-              const dia = scheduleMe.getAttribute("data-dia");
-              const hora = scheduleMe.getAttribute("data-hour");
-              const loja = scheduleMe.getAttribute("data-storename");
-              const toReq = await fetch("/reembolso/me", {
+              const day = scheduleMe.getAttribute("data-dia");
+              const hour = scheduleMe.getAttribute("data-hour");
+              const store = scheduleMe.getAttribute("data-storename");
+              const funcionario = scheduleMe.getAttribute("data-functionary");
+              const emailC = scheduleMe.getAttribute("data-emailC")
+              const nameC = scheduleMe.getAttribute("data-nameC")
+              const toReq = await fetch("/backMyMoney/me", {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  dia: dia,
-                  hora: hora,
-                  loja: loja,
-                  funcionario: funcionario,
+                  nameC: nameC,
+                  emailC: emailC,
+                  dia:day,
+                  hora: hour,
+                  loja: store,
+                  funcionario:funcionario,
                 }),
               });
-            } catch (error) {}
+              if (toReq.ok){
+                window.location.reload()
+              }
+            } catch (error) {
+              console.log('error')
+            }
           });
         });
         apoitBtn.forEach((el, i) => {
@@ -221,6 +240,17 @@
               }
             }
           });
+        });
+        
+        const cashImg = document.querySelector(".CASH img")
+        cashImg.addEventListener("click", () => {
+          window.location.href = `/store-bank`
+        })
+         const localBtn = document.querySelector(".localSchedule");
+        console.log(localBtn);
+        localBtn.addEventListener("click", () => {
+          const data_name = localBtn.getAttribute("data-name");
+          window.location.href = `/store/:${data_name}`;
         });
         const central_plus = document.querySelector(".central-plus");
         central_plus.addEventListener("click", () => {
