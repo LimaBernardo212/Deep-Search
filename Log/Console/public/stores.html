@@ -60,7 +60,7 @@
               alt=""
             />
           </div>
-          <p>Client</p>
+          <p>Schedules</p>
         </div>
         <div class="divAndYourLabel">
           <div id="plansinapp" class="itens" title="Yours Plans in Stores">
@@ -121,6 +121,10 @@
       const load = document.querySelector("#loading");
       const content = document.querySelector(".content");
       const plans = document.querySelector("#plansinapp");
+      const client = document.querySelector("#clientArea");
+      client.addEventListener("click", () => {
+        window.location.href = "/client/schedules"
+      })
       plans.addEventListener("click", () => {
         window.location.href = "/store-plans";
       });
@@ -186,7 +190,8 @@
             const hora = scheduleMe.getAttribute("data-hour");
             const loja = scheduleMe.getAttribute("data-storename");
             const funcionario = scheduleMe.getAttribute("data-functionary");
-
+            const emailC = scheduleMe.getAttribute("data-emailC")
+              const nameC = scheduleMe.getAttribute("data-nameC")
             try {
               const req = await fetch("/pass/store", {
                 method: "DELETE",
@@ -194,6 +199,8 @@
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                  nameC: nameC,
+                  emailC: emailC,
                   dia: dia,
                   hora: hora,
                   loja: loja,
@@ -241,7 +248,12 @@
             }
           });
         });
-        
+        const central_plus = document.querySelector(".central-plus");
+        if (central_plus){
+          central_plus.addEventListener("click", () => {
+          window.location.href = "/cad/store";
+        });
+        }
         const cashImg = document.querySelector(".CASH img")
         cashImg.addEventListener("click", () => {
           window.location.href = `/store-bank`
@@ -252,10 +264,8 @@
           const data_name = localBtn.getAttribute("data-name");
           window.location.href = `/store/:${data_name}`;
         });
-        const central_plus = document.querySelector(".central-plus");
-        central_plus.addEventListener("click", () => {
-          window.location.href = "/cad/store";
-        });
+        
+        
       }
     });
   </script>

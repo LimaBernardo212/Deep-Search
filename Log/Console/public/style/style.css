@@ -890,6 +890,7 @@ body {
 /*Home Navbar*/
 
 .homenav {
+  z-index: 999;
   display: flex;
   align-items: center;
   height: 8vh;
@@ -1905,6 +1906,7 @@ border: 1px solid var(--cor01Esvoaçada);
 }
 .confirm {
   opacity: 1;
+  z-index: 0;
   width: 36px;
   height: 36px;
   display: flex;
@@ -3382,4 +3384,31 @@ border: 1px solid var(--cor01Esvoaçada);
   font-size: 3em;
   font-family: var(--fontSpace);
   color: var(--cor08);
+}
+.operators{
+  width: 90vw;
+  display: flex;
+  margin-top: 5vh;
+  align-items: center;
+  margin-left: 1.8vw;
+  justify-content: center;
+  padding-bottom: 5vh;
+  border-bottom: 1px solid var(--cor01Esvoaçada);
+}
+.operatorsBottom{
+  width: 8vw;
+  height: 4vh;
+  border-radius: 5px;
+  border: 1px solid var(--cor01Esvoaçada);
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  font-size: 0.8em;
+  display: flex;
+  align-items: center;
+  margin: 0vh 0.5vw;
+  justify-content: center;
+  gap: 3px;
+}
+.operatorselect{
+  background-color: var(--cor03);
 }

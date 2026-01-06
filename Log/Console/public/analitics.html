@@ -60,7 +60,7 @@
               alt=""
             />
           </div>
-          <p>Client</p>
+          <p>Schedule</p>
         </div>
         <div class="divAndYourLabel">
           <div id="plansinapp" class="itens" title="Yours Plans in Stores">
@@ -121,6 +121,10 @@
       const content = document.querySelector(".content");
       const container = document.querySelector(".store-content")
       const plans = document.querySelector("#plansinapp");
+      const client = document.querySelector("#clientArea");
+      client.addEventListener("click", () => {
+        window.location.href = "/client/schedules"
+      })
       plans.addEventListener("click", () => {
         window.location.href = "/store-plans";
       });
