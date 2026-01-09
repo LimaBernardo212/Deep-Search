@@ -78,11 +78,11 @@
         <div class="divAndYourLabel">
           <div id="services" class="itens" title="Your Project">
             <img
-              src="https://img.icons8.com/?size=100&id=92680&format=png&color=FFFFFF"
+              src="https://img.icons8.com/?size=100&id=86844&format=png&color=FFFFFF"
               alt=""
             />
           </div>
-          <p>Management</p>
+          <p>Pref.</p>
         </div>
         <div class="divAndYourLabel">
           <div id="services" class="itens" title="Your Project">
@@ -96,11 +96,11 @@
         <div class="divAndYourLabel">
           <div id="documents" class="itens" title="Documents">
             <img
-              src="https://img.icons8.com/?size=100&id=120449&format=png&color=FFFFFF"
+              src="https://img.icons8.com/?size=100&id=84161&format=png&color=FFFFFF"
               alt=""
             />
           </div>
-          <p>Terminal</p>
+          <p>Manual</p>
         </div>
       </aside>
 
@@ -133,12 +133,12 @@
       const load = document.querySelector("#loading");
       const content = document.querySelector(".content");
       const container = document.querySelector("#todayDiv");
-      const plans = document.querySelector("#plansinapp");
-      const client = document.querySelector("#store");
+      
       const week = document.querySelector("#week");
       const month = document.querySelector("#month");
       const today = document.querySelector("#today");
-
+      const plans = document.querySelector("#plansinapp");
+      const client = document.querySelector("#store");
       client.addEventListener("click", () => {
         window.location.href = "/stores/home";
       });
@@ -149,6 +149,10 @@
       analitics.addEventListener("click", () => {
         window.location.href = "/stores/analitics";
       });
+      const prefs = document.querySelector("#services")
+      prefs.addEventListener("click", () => {
+        window.location.href = '/stores/prefs'
+      })
       let exist1 = false;
       let exist2 = false;
       let exist3 = false;
@@ -170,7 +174,9 @@
 
           container.appendChild(render(html));
           exist1 = true;
-        }
+        }else{
+        window.location.href = `/stores/home`
+      }
         const newContainer = document.querySelector("#weekDiv");
         const opacitor1 = document.querySelector("#opacitor1");
 
@@ -186,7 +192,7 @@
             }, 500);
           }
           if (exist3){
-            const opacitor3 = document.querySelector("#opacitor2")
+            const opacitor3 = document.querySelector("#opacitor3")
             opacitor3.style.opacity = "0";
             setTimeout(() => {
                 opacitor3.style.display = 'none'
@@ -289,6 +295,71 @@
             }, 200);
           }
         })
+        const dataSchedule = document.querySelectorAll(".schedule-data");
+        const apoitBtn = document.querySelectorAll(".confirm");
+        const deleter = document.querySelectorAll(".delete");
+        deleter.forEach((el, i) => {
+          el.addEventListener("click", async () => {
+            try {
+              const scheduleMe = dataSchedule[i];
+              const day = scheduleMe.getAttribute("data-dia");
+              const hour = scheduleMe.getAttribute("data-hour");
+              const store = scheduleMe.getAttribute("data-storename");
+              const funcionario = scheduleMe.getAttribute("data-functionary");
+              const emailC = scheduleMe.getAttribute("data-emailC")
+              const nameC = scheduleMe.getAttribute("data-nameC")
+              const toReq = await fetch("/backMyMoney/me", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  nameC: nameC,
+                  emailC: emailC,
+                  dia:day,
+                  hora: hour,
+                  loja: store,
+                  funcionario:funcionario,
+                }),
+              });
+              if (toReq.ok){
+                window.location.reload()
+              }
+            } catch (error) {
+              console.log('error')
+            }
+          });
+        });
+        apoitBtn.forEach((el, i) => {
+          el.addEventListener("click", async () => {
+            const scheduleMe = dataSchedule[i];
+            const dia = scheduleMe.getAttribute("data-dia");
+            const hora = scheduleMe.getAttribute("data-hour");
+            const loja = scheduleMe.getAttribute("data-storename");
+            const funcionario = scheduleMe.getAttribute("data-functionary");
+            const emailC = scheduleMe.getAttribute("data-emailC")
+              const nameC = scheduleMe.getAttribute("data-nameC")
+            try {
+              const req = await fetch("/pass/store", {
+                method: "DELETE",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  nameC: nameC,
+                  emailC: emailC,
+                  dia: dia,
+                  hora: hora,
+                  loja: loja,
+                  funcionario: funcionario,
+                }),
+              });
+              if (req.ok) {
+                window.location.reload();
+              }
+            } catch (error) {
+              console.error(error);
+            }
+          });
+        });
       } catch (error) {
         console.log("ERORORRORORORO");
       }

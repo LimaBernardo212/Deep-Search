@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log: Hour Update</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <header class="nbu">
+      <button class="nButton" id="back">
+        <img
+          src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF"
+          alt=""
+        />
+      </button>
+    </header>
+    <main class="services-container">
+      <div id="loading"></div>
+      <section class="renderization">
+        <div class="services-tesxt">
+          <h1 id="ob">
+            <strong class="consoleWrite">//</strong>
+            Hour Editor
+            <strong class="pointer">.</strong>
+          </h1>
+          <p>
+            <strong class="consoleWrite">>_</strong>
+            Define your availability and booking windows for
+            <strong class="GreenCard">plans</strong>
+          </p>
+        </div>
+
+        <form action="/hour/updater" method="post" style="margin-top: 2vh;">
+          <div class="hours-calendar" style="margin-top: 2vh;">
+            <div class="hours"></div>
+            <div class="hours-add">
+              <img
+                src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
+                alt=""
+              />
+            </div>
+            <div class="hours-remove">
+              <img
+                src="https://img.icons8.com/?size=100&id=85496&format=png&color=FFFFFF"
+                alt=""
+              />
+            </div>
+          </div>
+        </form>
+        
+      </section>
+      <div class="selectedIndicator" style="opacity: 1; top: 88vh;"><button type="submit">Edit <strong class="consoleWrite">>></strong></button> </div>
+    </main>
+  </body>
+  <script>
+    function createHour() {
+      const row = document.createElement("div");
+      row.classList.add("hour-row");
+      row.innerHTML = `<input type="text" name="hour" id="hour" placeholder="HH:MM">`;
+      return row;
+    }
+    function render(el) {
+      const element = document.createElement("div");
+
+      element.innerHTML = el;
+      return element.children;
+    }
+    function removeHour(el) {
+      const rows = el.querySelectorAll(".hour-row");
+      if (rows.length > 0) {
+        el.removeChild(rows[rows.length - 1]); // remove o último .hour-row
+      }
+    }
+    window.addEventListener("load", async () => {
+      document.querySelector("#back").addEventListener("click", () => {
+        window.history.back();
+      });
+      const ini = await fetch("/updater/hour", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (ini.ok) {
+        const data = await ini.json();
+        const add = document.querySelector(".hours-add");
+        const added = document.querySelector(".hours");
+        const sub = document.querySelector(".hours-remove");
+        const hoursrow = document.querySelector(".hour-row");
+        const loading = document.querySelector("#loading");
+        const btn = document.querySelector(".selectedIndicator")
+        const renderization = document.querySelector(".renderization");
+        const hourCalendar = document.querySelector(".hours-calendar");
+        loading.style.opacity = "0";
+        renderization.style.opacity = "1";
+        const rendered = render(data.html);
+        btn.style.opacity = '1'
+        const form = document.querySelector("form")
+        btn.addEventListener("click", () => {
+            form.submit()
+        })  
+        const childrenArray = Array.from(rendered);
+        for (let child of childrenArray) {
+          added.appendChild(child);
+        }
+        add.addEventListener("click", () => {
+          added.appendChild(createHour());
+        });
+        
+        sub.addEventListener("click", () => {
+            const rows = document.querySelectorAll(".hour-row");
+            if (rows.length > 1){
+                removeHour(added);  
+            }
+        });
+      }
+    });
+  </script>
+</html>

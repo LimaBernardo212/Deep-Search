@@ -88,8 +88,20 @@
     </section>
   </body>
   <script>
-    document.querySelector("#back").addEventListener("click", () => {
-      window.history.back();
+    document.querySelector("#back").addEventListener("click", async () => {
+      const req = await fetch("/bad/payer", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (req.ok) {
+        const data = await req.json();
+        console.log(JSON.stringify(data));
+        window.location.href = `/stores/home`;
+      } else {
+        const data = await req.json();
+        console.log(JSON.stringify(data));
+        window.location.href = `/store/home`;
+      }
     });
     const addBtn = document.querySelector(".imager-add");
     const spawn = document.querySelector(".spawner");

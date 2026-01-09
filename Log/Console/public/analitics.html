@@ -74,11 +74,11 @@
         <div class="divAndYourLabel">
           <div id="services" class="itens" title="Your Project">
             <img
-              src="https://img.icons8.com/?size=100&id=92680&format=png&color=FFFFFF"
+              src="https://img.icons8.com/?size=100&id=86844&format=png&color=FFFFFF"
               alt=""
             />
           </div>
-          <p>Management</p>
+          <p>Pref.</p>
         </div>
         <div class="divAndYourLabel">
           <div id="services" class="itens" title="Your Project">
@@ -92,11 +92,11 @@
         <div class="divAndYourLabel">
           <div id="documents" class="itens" title="Documents">
             <img
-              src="https://img.icons8.com/?size=100&id=120449&format=png&color=FFFFFF"
+              src="https://img.icons8.com/?size=100&id=84161&format=png&color=FFFFFF"
               alt=""
             />
           </div>
-          <p>Terminal</p>
+          <p>Manual</p>
         </div>
       </aside>
 
@@ -132,6 +132,10 @@
       home.addEventListener("click", () => {
         window.location.href = "/stores/home";
       });
+      const prefs = document.querySelector("#services")
+      prefs.addEventListener("click", () => {
+        window.location.href = '/stores/prefs'
+      })
       const ini = await fetch("/analitics",  {
         method: "GET",
         headers: {"Content-Type": "application/json"}
@@ -147,9 +151,9 @@
                 content.style.opacity = '1'
                 container.appendChild(render(structure))
             }, 500);
-            
-        
-        
+      }
+      else{
+        window.location.href = `/stores/home`
       }
     });
   </script>

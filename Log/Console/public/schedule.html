@@ -121,7 +121,7 @@
         <div id="loading"></div>
 
         <div class="content">
-          <div class="your-schedules"></div>
+          <div class="store-content"></div>
         </div>
       </main>
     </section>
@@ -155,7 +155,7 @@ console.log(contenter);
       return element;
     }
     window.addEventListener("load", async () => {
-      const schedule = document.querySelector(".your-schedules");
+      const schedule = document.querySelector(".store-content");
       const req = await fetch("/return/data/schedule", {
         method: "GET",
         headers: {

@@ -12,89 +12,28 @@
     />
   </head>
   <body>
-    <header class="homenav">
-      <div class="consoleImge">
-        <img
-          src="https://img.icons8.com/?size=100&id=85099&format=png&color=FFFFFF"
-          alt=""
-          id="bbk"
-        />
-      </div>
-      <div class="accounter">
-        <div class="back" id="back">
-          <img src="/img/().png" alt="" />
-        </div>
-      </div>
+    <header class="nbu">
+        <button class="nButton" id="back">
+            <img src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF" alt="">
+        </button>
     </header>
-
-    <section class="userPOV">
-      <aside class="leftBar">
-        <div class="divAndYourLabel">
-          <div id="store" class="itens" title="store">
-            <img
-              src="https://img.icons8.com/?size=100&id=92137&format=png&color=FFFFFF"
-              alt=""
-            />
-          </div>
-          <p>Home</p>
+      <main class="services-container">
+        <div class="services-tesxt">
+          <h1 id="ob">
+            <strong class="consoleWrite">>></strong>
+           Plan registration
+            <strong class="pointer">.</strong>
+          </h1>
+          <p>
+            <strong class="consoleWrite">>_</strong>
+            Register your store's
+            <strong class="GreenCard">plans</strong>
+          </p>
         </div>
-        <div class="divAndYourLabel">
-          <div id="analitics" class="itens" title="Your Schedules">
-            <img
-              src="https://img.icons8.com/?size=100&id=98067&format=png&color=FFFFFF"
-              alt=""
-            />
-          </div>
-          <p>Analytics</p>
-        </div>
-        <div class="divAndYourLabel">
-          <div id="clientArea" class="itens" title="Your Treatments">
-            <img
-              src="https://img.icons8.com/?size=100&id=88302&format=png&color=FFFFFF"
-              alt=""
-            />
-          </div>
-          <p>Client</p>
-        </div>
-        <div class="divAndYourLabel">
-          <div
-            id="plansinapp"
-            class="itenSelected itens"
-            title="Yours Plans in Stores"
-          >
-            <img
-              src="https://img.icons8.com/?size=100&id=86440&format=png&color=FFFFFF"
-              alt=""
-            />
-          </div>
-          <p>Plans</p>
-        </div>
-        <div class="divAndYourLabel">
-          <div id="services" class="itens" title="Your Project">
-            <img
-              src="https://img.icons8.com/?size=100&id=92680&format=png&color=FFFFFF"
-              alt=""
-            />
-          </div>
-          <p>Management</p>
-        </div>
-        <
-        <div class="divAndYourLabel">
-          <div id="documents" class="itens" title="Documents">
-            <img
-              src="https://img.icons8.com/?size=100&id=120449&format=png&color=FFFFFF"
-              alt=""
-            />
-          </div>
-          <p>Terminal</p>
-        </div>
-      </aside>
-
-      <main class="infoContent">
         <!-- <div id="loading"></div> -->
 
-        <div class="content" style="opacity: 1">
-          <form action="/plans/register/bank" method="post">
+        
+          <!-- <form action="/plans/register/bank" method="post">
             <input
               type="text"
               name="holder_name"
@@ -127,46 +66,83 @@
             />
             <input type="text" name="tax_id" id="tax-id" placeholder="tax_id" />
             <button type="submit">Send</button>
+          </form> -->
+          <form action="/plans/register/plans" method="post" id="contenterForm">
+            <section id="contenterFormer">
+              <div id="contentForm">
+                <div class="unionE">
+                  <input
+                    type="text"
+                    name="name_product"
+                    id="name_product"
+                    placeholder="Plan Name"
+                  />
+                  <input
+                    type="text"
+                    name="price_product"
+                    id="price_product"
+                    placeholder="Plan Product"
+                  />
+                </div>
+                <textarea
+                  name="description"
+                  id="description"
+                  placeholder="Description"
+                  style="margin-left: 0;"
+                ></textarea>
+              
+              </div>
+              
+            </section>
+            <div id="adder"><img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt=""></div>
+             
           </form>
-          <form action="/plans/register/plans" method="post" id="contentForm">
-            <input
-              type="text"
-              name="name_product"
-              id="name_product"
-              placeholder="name_product"
-            />
-            <input
-              type="number"
-              name="price_product"
-              id="price_product"
-              placeholder="price_product"
-            />
-            <textarea
-              name="description"
-              id="description"
-              placeholder="description"
-            ></textarea>
-            
-            <button type="submit">Send</button>
-          </form>
-          <div id="adder"><img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt=""></div>
-        </div>
-      </main>
+          <div class="selectedIndicator" style="opacity: 1;"><button type="submit">Create <strong class="consoleWrite">>></strong></button> </div>
+         
+        
     </section>
   </body>
   <script>
     function createPlan() {
       const service = document.createElement("div");
       service.classList.add("PlanerDiv");
-      service.innerHTML = `<input type="text" name="name_product" id="name_product" placeholder="name_product">
-                <input type="number" name="price_product" id="price_product" placeholder="price_product">
-                <textarea name="description" id="description" placeholder="description"></textarea>`;
+      service.innerHTML = `<div id="contentForm">
+              <div class="unionE">
+                <input
+                  type="text"
+                  name="name_product"
+                  id="name_product"
+                  placeholder="Plan Name"
+                />
+                <input
+                  type="text"
+                  name="price_product"
+                  id="price_product"
+                  placeholder="Plan Product"
+                />
+              </div>
+              <textarea
+                name="description"
+                id="description"
+                placeholder="Description"
+                style="margin-left: 0;"
+              ></textarea>
+              
+            </div>`;
       return service;
     }
+    document.querySelector('#back').addEventListener('click', () => {
+            window.history.back();
+        });
     const adder = document.querySelector("#adder");
-    const container = document.querySelector("#contentForm")
+    const container = document.querySelector("#contenterFormer")
+    const selectedIndicatorBtn = document.querySelector(".selectedIndicator")
+    const form = document.querySelector("#contenterForm")
     adder.addEventListener("click", () => {
       container.appendChild(createPlan())
+    })
+    selectedIndicatorBtn.addEventListener("click", () => {
+      form.submit()
     })
   </script>
 </html>

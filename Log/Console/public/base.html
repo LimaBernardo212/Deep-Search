@@ -46,7 +46,7 @@
           });
 
           if (!request.ok) return;
-
+          
           const data = await request.json();
           const html = data.htmlPage;
           const name = data.StoreName;
@@ -68,6 +68,9 @@
           servicesBtn.addEventListener("click", () => {
             window.location.href = "#forScrollPreguiçosos";
           });
+          document.querySelector('#back').addEventListener('click', () => {
+            window.history.back();
+        });
           servicesDiv.forEach((el, i) => {
             el.addEventListener("click", () => {
               el.classList.toggle("servicesSelected");
