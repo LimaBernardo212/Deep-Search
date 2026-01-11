@@ -25,6 +25,41 @@
     </style>
 
     <script>
+      function timeToMinutes(time) {
+        const [horas, minutos] = time.toString().split(":");
+       
+        return parseInt(horas) * 60 + parseInt(minutos);
+
+
+      }
+
+      // Função para converter minutos de volta para "HH:MM"
+      function minutesToTime(totalMinutes) {
+        const horas = Math.floor(totalMinutes / 60);
+        const minutos = totalMinutes % 60;
+        return `${String(horas).padStart(2, "0")}:${String(minutos).padStart(
+          2,
+          "0"
+        )}`;
+      }
+
+      // Função principal que calcula o tempo total
+      function totalTime(timeArray, hours) {
+        if (!timeArray || timeArray.length === 0) {
+          return "00:00";
+        }
+
+        // Soma todos os tempos convertidos em minutos
+        const totalMinutos = timeArray.reduce((total, tempo) => {
+          return total + timeToMinutes(tempo);
+        }, 0);
+         const [hh, mm] = hours.toString().split(':')
+         const hhmm = parseInt(hh) * 60 + parseInt(mm)
+         const finishTime = hhmm + totalMinutos
+        // Converte de volta para formato HH:MM
+        return minutesToTime(finishTime);
+      }
+
       document.addEventListener("DOMContentLoaded", async () => {
         const body = document.querySelector("body");
 
@@ -46,15 +81,17 @@
           });
 
           if (!request.ok) return;
-          
+
           const data = await request.json();
           const html = data.htmlPage;
           const name = data.StoreName;
           const service = data.serviceName;
           const closedDays = data.closedDays;
-          const price = data.prices
-          let priceArray = []
+          const price = data.prices;
+          const time = data.time;
+          let priceArray = [];
           let simpleArray = [];
+          let timeArray = [];
           document.title = name;
 
           body.appendChild(render(html));
@@ -68,9 +105,9 @@
           servicesBtn.addEventListener("click", () => {
             window.location.href = "#forScrollPreguiçosos";
           });
-          document.querySelector('#back').addEventListener('click', () => {
+          document.querySelector("#back").addEventListener("click", () => {
             window.history.back();
-        });
+          });
           servicesDiv.forEach((el, i) => {
             el.addEventListener("click", () => {
               el.classList.toggle("servicesSelected");
@@ -78,13 +115,20 @@
               if (simpleArray.includes(service[i])) {
                 const index = simpleArray.indexOf(service[i]);
                 if (index !== -1) simpleArray.splice(index, 1);
+                priceArray.pop();
               } else {
                 simpleArray.push(service[i]);
-                priceArray.push(parseInt(price[i], 10) * 100)
+                priceArray.push(parseFloat(price[i], 10) * 100);
+                timeArray.push(time[i]);
               }
 
               if (simpleArray.length !== 0) {
-                counterOfSelected.innerHTML = `Services Selected: ${simpleArray.length}`;
+                let totalPrice = priceArray.reduce((ac, av) => {
+                  return ac + av;
+                }, 0);
+                counterOfSelected.innerHTML = `Services Selected: ${
+                  simpleArray.length
+                } <br>  Total Price: R$ ${totalPrice / 100}`;
                 selected.style.opacity = 1;
               } else {
                 selected.style.opacity = 0;
@@ -95,14 +139,14 @@
           Plan.forEach((el, i) => {
             el.addEventListener("click", async () => {
               const plan = el.getAttribute("data-name");
-              const price = el.getAttribute("data-price")
+              const price = el.getAttribute("data-price");
               try {
                 const req = await fetch("/pay/plans/buy", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
                     plan: plan,
-                    price: parseInt(price, 10) * 100
+                    price: parseInt(price, 10) * 100,
                   }),
                 });
                 if (req.ok) {
@@ -115,7 +159,7 @@
                   console.error(data);
                 }
               } catch (error) {
-                console.log("Deu ruim")
+                console.log("Deu ruim");
               }
             });
           });
@@ -125,15 +169,15 @@
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  storeName: name
-                })
+                  storeName: name,
+                }),
               });
 
               if (!fetcher.ok) return;
 
               const data = await fetcher.json();
               const calendar = data.calendario;
-              const data18Mais = data.datas_proibidas
+              const data18Mais = data.datas_proibidas;
               const oldCalendar = document.querySelector(".calendar");
               if (oldCalendar) oldCalendar.remove();
               const div = document.createElement("div");
@@ -159,13 +203,16 @@
                 typeof closedDays === "string"
                   ? closedDays.split(",").map((d) => d.trim())
                   : closedDays;
-              
+
               for (let i = 0; i < calendar.length; i++) {
                 const dia = calendar[i].dia;
                 const mes = calendar[i].mes;
-                let query = `${dia}/${mes}`
+                let query = `${dia}/${mes}`;
                 const nomeDia = calendar[i].nomeDia;
-                if (!closedDaysArray.includes(nomeDia) && !data18Mais.includes(query) ) {
+                if (
+                  !closedDaysArray.includes(nomeDia) &&
+                  !data18Mais.includes(query)
+                ) {
                   let code = `
                     <div class="day">
                       <div class="DavidJoneDay"
@@ -326,9 +373,10 @@
                         });
                       });
                       indicatorB.addEventListener("click", async () => {
-                        let totalPrice = priceArray.reduce((ac,av) => {
-                          return ac + av
-                        }, 0)
+                        let totalPrice = priceArray.reduce((ac, av) => {
+                          return ac + av;
+                        }, 0);
+                        let totalTimer = totalTime(timeArray, arrayO.join(""))
                         const req = await fetch("/schedule", {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
@@ -338,7 +386,8 @@
                             choiceDay: arrayD,
                             services: simpleArray,
                             storeName: name,
-                            price: totalPrice
+                            price: totalPrice,
+                            time: totalTimer,
                           }),
                         });
                         if (req.ok) {

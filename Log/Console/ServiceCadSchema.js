@@ -8,6 +8,7 @@ const ServiceCadSchema = new mongoose.Schema({
     serviceName: Array,
     serviceDesc: Array,
     servicePrice: Array,
+    servicesTime: Array,
     serviceImagePath: { type: Array, default: [] },
     serviceImageMeta: { type: Array, default: [] },
 });

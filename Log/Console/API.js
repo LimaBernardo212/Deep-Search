@@ -67,22 +67,22 @@ app.use((err, req, res, next) => {
 });
 
 // ✅ CORRIGIDO: Transporter com SSL configurado
-var transport = nodemailer.createTransport({
-  host: "sandbox.smtp.mailtrap.io",
-  port: 2525,
-  auth: {
-    user: "d357f63add29f7",
-    pass: "fc32811f387516",
-  },
-});
-// ✅ Testa conexão ao iniciar
-transport.verify((error, success) => {
-  if (error) {
-    console.error("❌ Erro na configuração do email:", error.message);
-  } else {
-    console.log("✅ Servidor de email pronto para enviar mensagens");
-  }
-});
+// var transport = nodemailer.createTransport({
+//   host: "sandbox.smtp.mailtrap.io",
+//   port: 2525,
+//   auth: {
+//     user: "d357f63add29f7",
+//     pass: "fc32811f387516",
+//   },
+// });
+// // ✅ Testa conexão ao iniciar
+// transport.verify((error, success) => {
+//   if (error) {
+//     console.error("❌ Erro na configuração do email:", error.message);
+//   } else {
+//     console.log("✅ Servidor de email pronto para enviar mensagens");
+//   }
+// });
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -146,135 +146,135 @@ function tokenVerify(req, res, next) {
 }
 
 // ✅ NOVA FUNÇÃO: Enviar email de recuperação COM TOKEN
-async function enviarEmailRecuperacao(email, resetToken) {
-  const resetUrl = `http://localhost:3000/reset-password.html`;
+// async function enviarEmailRecuperacao(email, resetToken) {
+//   const resetUrl = `http://localhost:3000/reset-password.html`;
 
-  const emailOptions = {
-    from: "log.tools.app@gmail.com",
-    to: email,
-    subject: "Password recovery",
-    html: `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    body { 
+//   const emailOptions = {
+//     from: "log.tools.app@gmail.com",
+//     to: email,
+//     subject: "Password recovery",
+//     html: `
+//             <!DOCTYPE html>
+//             <html>
+//             <head>
+//                 <style>
+//                     body { 
                         
-                        background-color: #0D0D0D;
-                        margin: 0;
-                        padding: 0;
-                        display: flex;
-                        justify-content: center;
-                        height: 100vh;
-                        width: 100vw;
-                        overflow: hidden;
-                    }
-                    .container { 
-                        height: 100vh;
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: center;
-                        padding: 20px;
-                        background-color: transparent;
-                        border-radius: 10px;
-                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                    }
-                    .GreenCard{
-    color: #238C6E;
-    font-family: Arial, Helvetica, sans-serif;
-}
-                    .pointer{
-    width: 3vw;
-    height: 3vh;
+//                         background-color: #0D0D0D;
+//                         margin: 0;
+//                         padding: 0;
+//                         display: flex;
+//                         justify-content: center;
+//                         height: 100vh;
+//                         width: 100vw;
+//                         overflow: hidden;
+//                     }
+//                     .container { 
+//                         height: 100vh;
+//                         display: flex;
+//                         flex-direction: column;
+//                         justify-content: center;
+//                         padding: 20px;
+//                         background-color: transparent;
+//                         border-radius: 10px;
+//                         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+//                     }
+//                     .GreenCard{
+//     color: #238C6E;
+//     font-family: Arial, Helvetica, sans-serif;
+// }
+//                     .pointer{
+//     width: 3vw;
+//     height: 3vh;
    
-    margin-left: 5px;
-    font-family: Arial, Helvetica, sans-serif;
-    background-color: #f2f2f2;
-    color: #f2f2f2;
-    animation-name: pisk;
-    animation-duration: 0.7s;
-    animation-iteration-count: infinite;
-    animation-timing-function: steps(1);
+//     margin-left: 5px;
+//     font-family: Arial, Helvetica, sans-serif;
+//     background-color: #f2f2f2;
+//     color: #f2f2f2;
+//     animation-name: pisk;
+//     animation-duration: 0.7s;
+//     animation-iteration-count: infinite;
+//     animation-timing-function: steps(1);
     
-}
-@keyframes pisk {
-    0%{
-        opacity: 0;
-    }
-    50%{
-        opacity: 1;
-    }
-    100%{
-        opacity: 0;
-    }
+// }
+// @keyframes pisk {
+//     0%{
+//         opacity: 0;
+//     }
+//     50%{
+//         opacity: 1;
+//     }
+//     100%{
+//         opacity: 0;
+//     }
     
-}
+// }
 
-                    .header {
-                        text-align: center;
-                        padding: 20px 0;
-                        color: #f2f2f2;
-                        font-family: Arial, Helvetica, sans-serif;
-                        border-bottom: 2px solid #238C6E;
-                        margin-bottom: 20px;
-                    }
+//                     .header {
+//                         text-align: center;
+//                         padding: 20px 0;
+//                         color: #f2f2f2;
+//                         font-family: Arial, Helvetica, sans-serif;
+//                         border-bottom: 2px solid #238C6E;
+//                         margin-bottom: 20px;
+//                     }
                     
                     
-                    .link-box {
-                        background-color: #238C6E;
-                        padding: 10px;
-                        border-radius: 5px;
-                        word-break: break-all;
-                        font-size: 12px;
-                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                        color: #f2f2f2;
-                    }
-                    .container p{
-                        color: #f2f2f2;
-                        margin: 5px;
-                        font-family: Arial, Helvetica, sans-serif;
-                    }
-                    #diferent{
-                        margin: 20px;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h2>Password <strong class="GreenCard">Recovery</strong><strong class="pointer">||</strong></h2>
-                    </div>
+//                     .link-box {
+//                         background-color: #238C6E;
+//                         padding: 10px;
+//                         border-radius: 5px;
+//                         word-break: break-all;
+//                         font-size: 12px;
+//                         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+//                         color: #f2f2f2;
+//                     }
+//                     .container p{
+//                         color: #f2f2f2;
+//                         margin: 5px;
+//                         font-family: Arial, Helvetica, sans-serif;
+//                     }
+//                     #diferent{
+//                         margin: 20px;
+//                     }
+//                 </style>
+//             </head>
+//             <body>
+//                 <div class="container">
+//                     <div class="header">
+//                         <h2>Password <strong class="GreenCard">Recovery</strong><strong class="pointer">||</strong></h2>
+//                     </div>
                     
-                    <p>Hi,</p>
-                    <p>How are you?</p>
+//                     <p>Hi,</p>
+//                     <p>How are you?</p>
                     
-                    <p>
-                        You requested a password reset at https://log.bussiness
-                    </p>
+//                     <p>
+//                         You requested a password reset at https://log.bussiness
+//                     </p>
                     
-                    <p id="diferent">Paste the code below on our website and reset your password:</p>
-                    <div class="link-box">${resetToken}</div>
+//                     <p id="diferent">Paste the code below on our website and reset your password:</p>
+//                     <div class="link-box">${resetToken}</div>
                     
-                </div>
-            </body>
-            </html>
-        `,
-  };
+//                 </div>
+//             </body>
+//             </html>
+//         `,
+//   };
 
-  // ✅ IMPORTANTE: Retorna a Promise para poder tratar erros
-  return await transport.sendMail(emailOptions);
-}
-async function functionaryEmail(email, msg) {
-  const emailOptions = {
-    from: "log.tools.app@gmail.com",
-    to: email,
-    subject: "Update your appointment",
-    html: msg,
-  };
+//   // ✅ IMPORTANTE: Retorna a Promise para poder tratar erros
+//   return await transport.sendMail(emailOptions);
+// }
+// async function functionaryEmail(email, msg) {
+//   const emailOptions = {
+//     from: "log.tools.app@gmail.com",
+//     to: email,
+//     subject: "Update your appointment",
+//     html: msg,
+//   };
 
-  // ✅ IMPORTANTE: Retorna a Promise para poder tratar erros
-  return await transport.sendMail(emailOptions);
-}
+//   // ✅ IMPORTANTE: Retorna a Promise para poder tratar erros
+//   return await transport.sendMail(emailOptions);
+// }
 function criptografar(datas) {
   const iv = crypto.randomBytes(16);
   const cypher = crypto.createCipheriv(
@@ -932,7 +932,9 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
     const servicePricesRaw = toArray(
       req.body["servicePrice[]"] ?? req.body.servicePrice
     );
-
+    const servicesTime = toArray(
+      req.body["servicesTime[]"] ?? req.body.servicesTime
+    )
     const files = req.files || [];
 
     const total =
@@ -1003,6 +1005,7 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
       serviceName: serviceNames,
       serviceDesc: serviceDescs,
       servicePrice: servicePricesRaw,
+      servicesTime: servicesTime,
       serviceImagePath: imagePaths ?? null,
       serviceImageMeta: imageMeta ?? null,
     });
@@ -1096,6 +1099,10 @@ app.post("/api/selected/fun", tokenVerify, async (req, res) => {
     functionarysName: nameOfFunctionarys,
   });
 });
+function timeToMinutes(time) {
+      const [horas, minutos] = time.split(":").map(Number);
+      return horas * 60 + minutos;
+    }
 app.post("/api/selected/hours", tokenVerify, async (req, res) => {
   const { name, email } = req.user;
   const { storeName, functionary, day } = req.body;
@@ -1120,7 +1127,6 @@ app.post("/api/selected/hours", tokenVerify, async (req, res) => {
       functionary: functionary,
       day: day,
     });
-
     const scheduledHours = reqScheudle.map((schedule) => schedule.hour);
     for (let i = 0; i < hoursTobeDiv.length; i++) {
       if (day === query) {
@@ -1131,10 +1137,22 @@ app.post("/api/selected/hours", tokenVerify, async (req, res) => {
           continue;
         }
       }
-      if (!scheduledHours.includes(hoursTobeDiv[i])) {
-        const outlierBase = `<br><div class="ourhours" data-hour="${hoursTobeDiv[i]}">${hoursTobeDiv[i]}</div>`;
+      let blocked = false
+      for( const schedule of reqScheudle){
+        const inicioAgendamento = timeToMinutes(schedule.hour);
+        const fimAgendamento = timeToMinutes(schedule.finishHour);
+        const horarioAtual = timeToMinutes(hoursTobeDiv[i]);
+
+        if (horarioAtual >= inicioAgendamento && horarioAtual < fimAgendamento){
+          blocked = true
+          break;
+        }
+         if (!blocked){
+          const outlierBase = `<br><div class="ourhours" data-hour="${hoursTobeDiv[i]}">${hoursTobeDiv[i]}</div>`;
         hoursArray.push(outlierBase);
+         }
       }
+     
     }
 
     console.log(hoursArray);
@@ -1146,7 +1164,12 @@ app.post("/api/selected/hours", tokenVerify, async (req, res) => {
       ok: "ok",
       render: html,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({
+      error: error
+    });
+  }
 });
 app.post("/render/days", tokenVerify, async (req, res) => {
   const { storeName } = req.body;
@@ -1285,14 +1308,17 @@ app.post("/schedule", tokenVerify, async (req, res) => {
     services,
     storeName,
     price,
+    time
   } = req.body;
   try {
     const realStoreName = storeName.replaceAll(" ", "/");
+    
     const cadSchedule = await scheduleSchema.create({
       name: name,
       email: email,
       functionary: choiceFunctionary.join(", "),
       hour: choiceHour.join(", "),
+      finishHour: time,
       services: services,
       day: choiceDay.join(", "),
       storeName: realStoreName,
@@ -1570,7 +1596,7 @@ app.post("/schedule", tokenVerify, async (req, res) => {
     }
     mtp.scheduleNumber += 1;
     await mtp.save();
-    functionaryEmail(functionaryMail, msg);
+    //functionaryEmail(functionaryMail, msg);
     return res.status(200).json({
       sucess: "Sucess",
       redirect: `/pay/app/${scheduleId}`,
@@ -1650,6 +1676,11 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
       const functionary = schedule.functionary;
       const randomSymbol = [">_", ">>", "//"];
       let random = Math.floor(Math.random() * 3);
+      let price = schedule.totalPrice / 100
+        let totalPrice = price.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })
       if (schedule.payed) {
         let htmlD = `
         <div class="union">
@@ -1662,7 +1693,7 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
           <div class="schedule-Fun"><strong class="GreenCard" style="margin-bottom: 10px;">Professional:</strong> ${functionary}</div>
           <div class="schedule-Dam">
           <strong class="GreenCard">Services:</strong><br><strong class="jsonWrite">{</strong><br>
-            <div class="schedule-services">${cS.join(" ,")}</p></div>
+            <div class="schedule-services">${cS.splice(0, 3).join(" ,")},<br> ...</p></div>
             <br>
             <strong class="jsonWrite">}</strong>
           </div>
@@ -1676,14 +1707,17 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
                 src="https://img.icons8.com/?size=100&id=83149&format=png&color=FFFFFF"
               />
             </div>
-          <div class="schedule-dayEHour">
-                <div class="schedule-Day">
-                   <strong class="dayEHour">${day}</strong>
+          <div class="columnUnion">
+            <strong class="pricery">R$ ${totalPrice}</strong>
+            <div class="schedule-dayEHour">
+                  <div class="schedule-Day">
+                     <strong class="dayEHour">${day}</strong>
+                  </div>
+                  <div class="schedule-Hour">
+                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${schedule.finishHour}</strong>
+                  </div>
                 </div>
-                <div class="schedule-Hour">
-                   <strong class="dayEHour">${hour}</strong>
-                </div>
-              </div>
+          </div>
                 </div>
               </div>
         </div>
@@ -1701,7 +1735,7 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
         <div class="schedule-Fun"><strong class="GreenCard" style="margin-bottom: 10px;">Professional:</strong> ${functionary}</div>
         <div class="schedule-Dam">
         <strong class="GreenCard">Services:</strong><br><strong class="jsonWrite">{</strong><br>
-          <div class="schedule-services">${cS.join(" ,")}</p></div>
+          <div class="schedule-services">${cS.splice(0,3).join(" ,")}<br>...</p></div>
           <br>
           <strong class="jsonWrite">}</strong>
         </div>
@@ -1716,14 +1750,17 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
               src="https://img.icons8.com/?size=100&id=83149&format=png&color=FFFFFF"
             />
           </div>
-        <div class="schedule-dayEHour">
-              <div class="schedule-Day">
-                 <strong class="dayEHour">${day}</strong>
-              </div>
-              <div class="schedule-Hour">
-                 <strong class="dayEHour">${hour}</strong>
-              </div>
-            </div>
+        <div class="columnUnion">
+            <strong class="pricery">R$ ${totalPrice}</strong>
+            <div class="schedule-dayEHour">
+                  <div class="schedule-Day">
+                     <strong class="dayEHour">${day}</strong>
+                  </div>
+                  <div class="schedule-Hour">
+                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${schedule.finishHour}</strong>
+                  </div>
+                </div>
+          </div>
       </div>
     </div>
       `;
@@ -2909,13 +2946,14 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
     let count = 0;
     const serviceName = servicesData.map((doc) => doc.serviceName).flat();
     const imgPath = storeData.storeImagePath;
+    const timeArr = []
     for (let i = 0; i < servicesData.length; i++) {
       const servicesDoc = servicesData[i];
       const names = servicesDoc.serviceName;
       const desc = servicesDoc.serviceDesc;
       const prices = servicesDoc.servicePrice;
       const imgPath2 = servicesDoc.serviceImagePath;
-
+      const time = servicesDoc.servicesTime
       for (let j = 0; j < names.length; j++) {
         let structure = `
                 <div class="Service">
@@ -2934,6 +2972,7 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
         </div>`;
         count++;
         priceArray.push(prices[j]);
+        timeArr.push(time[j])
         htmlArray.push(structure);
       }
     }
@@ -3042,6 +3081,7 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
       closedDays: storeData.closedDays,
       returner: returnS,
       prices: priceArray,
+      time: timeArr,
     });
   } catch (error) {
     return res.status(500).json({ error: "Server error" });
@@ -3848,7 +3888,7 @@ app.get("/schedule/success", async (req, res) => {
           error: error,
         });
       }
-      functionaryEmail(verifyEmail.functionarysEmail, msg);
+      //functionaryEmail(verifyEmail.functionarysEmail, msg);
       return res.redirect("/schedule/home");
     }
   } catch (error) {
@@ -4709,6 +4749,11 @@ app.get("/week-schedules", tokenVerify, async (req, res) => {
         let emailC = daySchedule[s].email;
         let value = daySchedule[s].totalPrice / 100;
         let services = daySchedule[s].services;
+        let price = daySchedule[s].totalPrice / 100
+        let totalPrice = price.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })
         let storeNamer = storeName.replaceAll("/", " ");
         let cS = [];
         for (let j = 0; j < services.length; j++) {
@@ -4720,9 +4765,9 @@ app.get("/week-schedules", tokenVerify, async (req, res) => {
         }
         const randomSymbol = ["$", "#", ">>"];
         let random = Math.floor(Math.random() * 3);
-        if (weekSchedules[s].payed) {
+        if (daySchedule[s].payed) {
           let structure = `<div class="union">
-          <div class="payed-symbol" title="Previously paid"> <img src="https://img.icons8.com/?size=100&id=122142&format=png&color=FFFFFF"></div>
+          
               <div class="schedule-content schedule-payed">
                 <div class="schedule-data" data-dia="${day}" data-hour="${hour}" data-storeName="${storeName}" data-functionary="${functionary}" data-nameC="${nameC}" data-emailC="${emailC}">
           <div class="schedule-StoreName" ><strong class="consoleWrite">${
@@ -4740,18 +4785,20 @@ app.get("/week-schedules", tokenVerify, async (req, res) => {
           
                 </div>
                 <div class="lateralInfos">
-          <div class="delete" style="opacity:0;">
-              <img
-                src="https://img.icons8.com/?size=100&id=95771&format=png&color=FFFFFF"
-              />
+          <div class="delete">
+               <img src="https://img.icons8.com/?size=100&id=122142&format=png&color=FFFFFF">
             </div>
-          <div class="schedule-dayEHour">
-                <div class="schedule-Day">
-                 <strong class="dayEHour">${day}</strong>
-              </div>
-                 <div class="schedule-Hour">
-                 <strong class="dayEHour">${hour}</strong>
-              </div>
+          <div class="columnUnion">
+            <strong class="pricery">R$ ${totalPrice}</strong>
+            <div class="schedule-dayEHour">
+                  <div class="schedule-Day">
+                     <strong class="dayEHour">${day}</strong>
+                  </div>
+                  <div class="schedule-Hour">
+                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${daySchedule[s].finishHour}</strong>
+                  </div>
+                </div>
+          </div>
               </div>
                 </div>
               </div>
@@ -4783,14 +4830,17 @@ app.get("/week-schedules", tokenVerify, async (req, res) => {
               />
             </div>
             
-        <div class="schedule-dayEHour">
-              <div class="schedule-Day">
-                 <strong class="dayEHour"> ${day}</strong>
-              </div>
-              <div class="schedule-Hour">
-                 <strong class="dayEHour">${hour}</strong>
-              </div>
-            </div>
+        <div class="columnUnion">
+            <strong class="pricery">R$ ${totalPrice}</strong>
+            <div class="schedule-dayEHour">
+                  <div class="schedule-Day">
+                     <strong class="dayEHour">${day}</strong>
+                  </div>
+                  <div class="schedule-Hour">
+                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${daySchedule[s].finishHour}</strong>
+                  </div>
+                </div>
+          </div>
       </div>
     </div>
       `;
@@ -4872,6 +4922,11 @@ app.get("/month-schedules", tokenVerify, async (req, res) => {
         let emailC = daySchedule[s].email;
         let value = daySchedule[s].totalPrice / 100;
         let services = daySchedule[s].services;
+        let price = daySchedule[s].totalPrice / 100
+        let totalPrice = price.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })
         let storeNamer = storeName.replaceAll("/", " ");
         let cS = [];
         for (let j = 0; j < services.length; j++) {
@@ -4883,9 +4938,9 @@ app.get("/month-schedules", tokenVerify, async (req, res) => {
         }
         const randomSymbol = ["$", "#", ">>"];
         let random = Math.floor(Math.random() * 3);
-        if (weekSchedules[s].payed) {
+        if (daySchedule[s].payed) {
           let structure = `<div class="union">
-          <div class="payed-symbol" title="Previously paid"> <img src="https://img.icons8.com/?size=100&id=122142&format=png&color=FFFFFF"></div>
+          
               <div class="schedule-content schedule-payed">
                 <div class="schedule-data" data-dia="${day}" data-hour="${hour}" data-storeName="${storeName}" data-functionary="${functionary}" data-nameC="${nameC}" data-emailC="${emailC}">
           <div class="schedule-StoreName" ><strong class="consoleWrite">${
@@ -4903,19 +4958,20 @@ app.get("/month-schedules", tokenVerify, async (req, res) => {
           
                 </div>
                 <div class="lateralInfos">
-          <div class="delete" style="opacity:0;">
-              <img
-                src="https://img.icons8.com/?size=100&id=95771&format=png&color=FFFFFF"
-              />
+          <div class="delete">
+               <img src="https://img.icons8.com/?size=100&id=122142&format=png&color=FFFFFF">
             </div>
-          <div class="schedule-dayEHour">
-                <div class="schedule-Day">
-                 <strong class="dayEHour">${day}</strong>
-              </div>
-                 <div class="schedule-Hour">
-                 <strong class="dayEHour">${hour}</strong>
-              </div>
-              </div>
+          <div class="columnUnion">
+            <strong class="pricery">R$ ${totalPrice}</strong>
+            <div class="schedule-dayEHour">
+                  <div class="schedule-Day">
+                     <strong class="dayEHour">${day}</strong>
+                  </div>
+                  <div class="schedule-Hour">
+                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${daySchedule[s].finishHour}</strong>
+                  </div>
+                </div>
+          </div>
                 </div>
               </div>
         </div>`;
@@ -4946,14 +5002,17 @@ app.get("/month-schedules", tokenVerify, async (req, res) => {
               />
             </div>
             
-        <div class="schedule-dayEHour">
-              <div class="schedule-Day">
-                 <strong class="dayEHour">${day}</strong>
-              </div>
-              <div class="schedule-Hour">
-                 <strong class="dayEHour">${hour}</strong>
-              </div>
-            </div>
+       <div class="columnUnion">
+            <strong class="pricery">R$ ${totalPrice}</strong>
+            <div class="schedule-dayEHour">
+                  <div class="schedule-Day">
+                     <strong class="dayEHour">${day}</strong>
+                  </div>
+                  <div class="schedule-Hour">
+                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${daySchedule[s].finishHour}</strong>
+                  </div>
+                </div>
+          </div>
       </div>
     </div>
       `;

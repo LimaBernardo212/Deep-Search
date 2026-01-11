@@ -1836,7 +1836,8 @@ border: 1px solid var(--cor01Esvoaçada);
   border: 1px solid var(--cor01Esvoaçada);
   border-radius: 20px;
   width: 40vw;
-  height: 48vh;
+  min-height: 49vh;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1846,6 +1847,7 @@ border: 1px solid var(--cor01Esvoaçada);
   margin-bottom: 3vh;
 }
 .schedule-payed{
+  min-height: 48vh;
   border:  1px solid var(--cor13);
 }
 .payed-symbol:hover{
@@ -1859,7 +1861,7 @@ border: 1px solid var(--cor01Esvoaçada);
   width: 44px;
   height: 44px;
   border-radius: 5px;
-  transform: translateX(1vw) translateY(2vh);
+  transform: translateX(1vw) translateY(1vh);
 }
 .payed-symbol img{
   width: 32px;
@@ -1902,7 +1904,7 @@ border: 1px solid var(--cor01Esvoaçada);
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  height: 43vh;
+  min-height: 43vh;
 }
 .confirm {
   opacity: 1;
@@ -1940,7 +1942,7 @@ border: 1px solid var(--cor01Esvoaçada);
 }
 
 .schedule-dayEHour{
-  width: 6vw;
+  width: 8vw;
   height: 6vw;
   display: flex;
   justify-content: center;
@@ -1949,6 +1951,13 @@ border: 1px solid var(--cor01Esvoaçada);
   border: 1px solid var(--cor01Esvoaçada);
   border-radius: 10px;
   margin-right: 1vw;
+}
+.pricery{
+  font-family: var(--fontSpace);
+   color: var(--cor05);
+  border-radius: 10px;
+  margin-left: -15px;
+  margin-bottom: 2vh;
 }
 .schedule-Day{
   padding-bottom: 10px;
@@ -2853,9 +2862,9 @@ border: 1px solid var(--cor01Esvoaçada);
   border: 1px solid var(--cor01Esvoaçada);
   margin: 3vh 0 1vh 1vw;
   height: 10vh;
-  width: 7vw;
+  width: 10vw;
+  text-align: center;
   border-radius: 5px;
-  padding-left: 3vh;
   font-size: 1.5em;
 }
 .services-outer h2{
@@ -3587,12 +3596,12 @@ border: 1px solid var(--cor01Esvoaçada);
   justify-content: center;
   flex-direction: column;
   /* border: 1px solid var(--cor01Esvoaçada); */
-  border-radius: 50%;
+  
   margin: 1.5vw;
 }
 .prefservicesImg{
   width: 36px;
-  border-radius: 50%;
+  border-radius: 5px;
 }
 .prefservicesEdit{
   width: 32px;
@@ -3755,4 +3764,20 @@ background-color: var(--cor04);
 }
 .renderization{
   opacity: 0;
+}
+#servicesTime{
+  width: 17vw;
+  height: 5vh;
+  padding: 0 5px;
+  font-family: var(--fontRoboto);
+  background-color: var(--cor00);
+  border: 1px solid var(--cor01Esvoaçada);
+  color: var(--cor05);
+  border-radius: 5px;
+}
+#servicesTime:focus{
+  outline: none;
+}
+#servicesTime option{
+ color: var(--cor04);
 }
