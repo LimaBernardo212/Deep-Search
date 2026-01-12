@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Partner employee registration</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <header class="nbu">
+      <button class="nButton" id="back">
+        <img
+          src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF"
+          alt=""
+        />
+      </button>
+    </header>
+    <section class="services-container" style="padding-left: 3vw">
+      <div>
+        <h1 id="ob">
+          <strong class="consoleWrite">$</strong>Team
+          <strong class="GreenCard">Members</strong>
+        </h1>
+        <p class="pcf">
+          Set up your team to start using the
+          <strong class="GreenCard">platform</strong
+          ><strong class="pointer">.</strong>
+        </p>
+      </div>
+      <form
+        action="/cadFunctionary"
+        style="
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          margin-left: 8vw;
+        "
+        method="post"
+        enctype="multipart/form-data"
+      >
+        <div class="spawner">
+          <div class="functionary-base">
+            <div class="imager" style="width: 15vw; height: 30vh">
+              <span>Drag <strong class="GreenCard">or</strong> Select</span>
+              <img
+                src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
+                alt=""
+              />
+              <input type="file" name="image[]" id="image" />
+            </div>
+            <div class="inputer">
+              <input
+                type="text"
+                name="functionaryName[]"
+                id="functionaryName"
+                placeholder="Member Name:"
+              />
+              <input
+                type="email"
+                name="functionaryEmail[]"
+                id="functionaryEmail"
+                placeholder="Member Email:"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="imager-add imager" style="width: 10vw; height: 20vh">
+          <img
+            src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
+            alt=""
+          />
+        </div>
+        
+      </form>
+      <div
+          class="selectedIndicatorA"
+          style="opacity: 1; top: 88vh; left: 87vw;"
+        >
+          <button type="submit">
+            Register<strong class="consoleWrite">>></strong>
+          </button>
+        </div>
+    </section>
+  </body>
+  <script>
+    document.querySelector("#back").addEventListener("click", async () => {
+      const req = await fetch("/bad/payer", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (req.ok) {
+        const data = await req.json();
+        console.log(JSON.stringify(data));
+        window.location.href = `/stores/home`;
+      } else {
+        const data = await req.json();
+        console.log(JSON.stringify(data));
+        window.location.href = `/store/home`;
+      }
+    });
+    const addBtn = document.querySelector(".imager-add");
+    const spawn = document.querySelector(".spawner");
+
+    function createElement() {
+      const row = document.createElement("div");
+      row.classList.add("hour-row");
+      row.innerHTML = `<div class="functionary-base">
+                    <div class="imager" style="width: 15vw; height: 30vh; ">
+                        <span>Drag <strong class="GreenCard">or</strong> Select</span>
+                        <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt="">
+                        <input type="file" name="image[]" id="image" style="opacity: 0;" />
+                    </div>
+                    <div class="inputer">
+                        <input type="text" name="functionaryName[]" id="functionaryName" placeholder="Member Name:">
+                        <input type="email" name="functionaryEmail[]" id="functionaryEmail" placeholder="Member Email:">
+                    </div>
+                </div>`;
+      const imager = row.querySelector(".imager");
+      setupListeners(imager);
+      return row;
+    }
+    function setupListeners(el) {
+      const serviceInput = document.querySelectorAll(".imager");
+      const fileContent = el.querySelector(`#image`);
+      const fileInput = el.querySelector("input[type='file']");
+      let selectedFile = null;
+      el.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      el.addEventListener("drop", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          handleFiles(files[0]);
+        }
+      });
+      fileInput.addEventListener("change", (e) => {
+        if (e.target.files.length > 0) {
+          handleFiles(e.target.files[0]);
+        }
+      });
+      function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length > 0) {
+          handleFiles(files[0]);
+        }
+      }
+      function handleFiles(files) {
+        selectedFile = files;
+        console.log(selectedFile);
+        const reader = new FileReader();
+        const img = el.querySelector(".imager");
+
+        reader.onload = (e) => {
+          el.innerHTML = `
+                        <span>File Selected</span>
+                        <img src="${e.target.result}" alt="">
+                        <input type="file" name="image[]" id="image" style="opacity: 0;" />
+                    `;
+          const newInput = el.querySelector("input[type='file']");
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(selectedFile);
+          newInput.files = dataTransfer.files;
+
+          setupListeners(el);
+        };
+        reader.readAsDataURL(files);
+      }
+    }
+    const imager = document.querySelector(".imager");
+    setupListeners(imager);
+    addBtn.addEventListener("click", () => {
+      spawn.appendChild(createElement());
+    });
+    const selectedIndicatorA = document.querySelector(".selectedIndicatorA");
+    const form = document.querySelector("form");
+      selectedIndicatorA.addEventListener("click", () => {
+        form.submit();
+      });
+  </script>
+</html>

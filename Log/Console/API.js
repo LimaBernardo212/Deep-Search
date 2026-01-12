@@ -2981,9 +2981,14 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
       const desc = plansData.planDescription;
       const realName = plansData.planName;
       const price = plansData.planPrice;
-
+      
       console.log("EU: \n" + name, desc, realName, price);
       for (let pd = 0; pd < name.length; pd++) {
+        let priceP = price[pd] / 100
+      let totalPrice = priceP.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })
         let structure = `
         <div class="Basic Plan ${name[pd].replaceAll(
           " ",
@@ -2992,7 +2997,7 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
           realName[pd]
         }" data-price="${price[pd]}">
           <h1 class="Price"><strong class="GreenCard">$</strong>${
-            price[pd]
+            totalPrice
           }</h1>
           <div class="beneficios">
             <p><strong class="consoleWrite">>></strong>${desc[pd]}</p>
@@ -3106,7 +3111,7 @@ app.post("/pay/plans/buy", tokenVerify, async (req, res) => {
             product_data: {
               name: plan,
             },
-            unit_amount: price,
+            unit_amount: price / 100,
             recurring: {
               // ✅ OBRIGATÓRIO para subscription
               interval: "month", // ou 'year', 'week', 'day'
@@ -3363,82 +3368,151 @@ app.post("/plans/register/bank", tokenVerify, async (req, res) => {
 app.post("/plans/register/plans", tokenVerify, async (req, res) => {
   const { name, email } = req.user;
   const { name_product, price_product, description } = req.body;
-  console.log(
-    "All Datas Recived: " + name,
-    email,
-    name_product,
-    price_product,
-    description
-  );
+  
+  console.log('📦 Cadastro de Plans - Dados recebidos:');
+  console.log('name_product:', name_product);
+  console.log('price_product:', price_product);
+  console.log('description:', description);
+  
   try {
     const findYourStore = await StoreCad.findOne({
       name: name,
       email: email,
     });
+
+    if (!findYourStore) {
+      return res.status(404).json({ error: "Loja não encontrada" });
+    }
+
     let storeName = findYourStore.storeName.replaceAll("/", " ");
     let productInStripeNameArray = [];
-    if (!findYourStore) {
-      return res.status(404).json({ nenhuma: "Loja encontrada no seu nome" });
-    }
     const stripeId = [];
+    const pricesInCents = []; // ✅ Array para salvar preços em centavos
     const planCode = findYourStore.model;
 
+    // ============================================
+    // PROCESSAR MÚLTIPLOS PLANS
+    // ============================================
     if (Array.isArray(name_product)) {
       for (let i = 0; i < name_product.length; i++) {
         const productInStripeName = `${storeName}:${name_product[i]}:${findYourStore.model}`;
 
+        // ✅ CORREÇÃO: Converter vírgula para ponto
+        const priceStr = String(price_product[i]).trim().replace(",", ".");
+        const priceValue = parseFloat(priceStr);
+        
+        // Validar
+        if (isNaN(priceValue) || priceValue <= 0) {
+          console.error(`❌ Preço inválido no índice ${i}:`, price_product[i]);
+          return res.status(400).json({ 
+            error: `Preço inválido para "${name_product[i]}": ${price_product[i]}` 
+          });
+        }
+        
+        const unitAmount = Math.round(priceValue * 100);
+        console.log(`💰 Plan ${i}: ${name_product[i]} = R$ ${priceValue.toFixed(2)} (${unitAmount} centavos)`);
+
+        // Validar description
+        const productDescription = description[i] && String(description[i]).trim() !== '' 
+          ? description[i] 
+          : 'Plano de assinatura'; // Valor padrão
+
+        // Criar produto no Stripe
         const stripeProduct = await stripe.products.create({
           name: productInStripeName,
-          description: description[i],
+          description: productDescription,
           metadata: {
             storeOwner: name,
             ownerEmail: email,
           },
         });
 
+        // Criar preço no Stripe
         const stripeProductPrice = await stripe.prices.create({
           product: stripeProduct.id,
-          unit_amount: Math.round(
-            parseFloat(price_product[i].replace(",", ".")) * 100
-          ),
+          unit_amount: unitAmount,
           currency: "brl",
           recurring: {
             interval: "month",
           },
         });
+
         stripeId.push(stripeProduct.id);
         productInStripeNameArray.push(productInStripeName);
+        pricesInCents.push(unitAmount); // ✅ Salvar em centavos
       }
-    } else {
+    } 
+    // ============================================
+    // PROCESSAR PLAN ÚNICO
+    // ============================================
+    else {
       const productInStripeName = `${storeName}:${name_product}:${findYourStore.model}`;
 
+      // ✅ CORREÇÃO: Converter vírgula para ponto
+      const priceStr = String(price_product).trim().replace(",", ".");
+      const priceValue = parseFloat(priceStr);
+      
+      // Validar
+      if (isNaN(priceValue) || priceValue <= 0) {
+        console.error('❌ Preço inválido:', price_product);
+        return res.status(400).json({ 
+          error: `Preço inválido: ${price_product}` 
+        });
+      }
+      
+      const unitAmount = Math.round(priceValue * 100);
+      console.log(`💰 Plan único: ${name_product} = R$ ${priceValue.toFixed(2)} (${unitAmount} centavos)`);
+
+      // Validar description
+      const productDescription = description && String(description).trim() !== '' 
+        ? description 
+        : 'Plano de assinatura'; // Valor padrão
+
+      // Criar produto no Stripe
       const stripeProduct = await stripe.products.create({
         name: productInStripeName,
-        description: description,
+        description: productDescription,
         metadata: {
           storeOwner: name,
           ownerEmail: email,
         },
       });
 
+      // Criar preço no Stripe
       const stripeProductPrice = await stripe.prices.create({
         product: stripeProduct.id,
-        unit_amount: price_product * 100,
+        unit_amount: unitAmount,
         currency: "brl",
         recurring: {
           interval: "month",
         },
       });
+
       stripeId.push(stripeProduct.id);
       productInStripeNameArray.push(productInStripeName);
+      pricesInCents.push(unitAmount); // ✅ Salvar em centavos
     }
+
+    // ============================================
+    // VERIFICAR SE JÁ EXISTE
+    // ============================================
     const verify = await plansSchema.findOne({
       storeName: findYourStore.storeName,
-      planName: productInStripeNameArray,
+      planName: { $in: productInStripeNameArray },
     });
+
     if (verify) {
-      return res.status(400).json({ error: "Ja existe :(" });
+      return res.status(400).json({ error: "Plano já existe" });
     }
+
+    // ============================================
+    // CADASTRAR NO BANCO
+    // ============================================
+    console.log('💾 Salvando no DB:', {
+      planName: productInStripeNameArray,
+      planPrice: pricesInCents,
+      planOriginalName: Array.isArray(name_product) ? name_product : [name_product],
+    });
 
     const cadInDB = await plansSchema.create({
       name: name,
@@ -3446,20 +3520,29 @@ app.post("/plans/register/plans", tokenVerify, async (req, res) => {
       storeName: findYourStore.storeName,
       planCode: planCode,
       planName: productInStripeNameArray,
-      planOriginalName: name_product,
-      planPrice: price_product,
-      planDescription: description,
+      planOriginalName: Array.isArray(name_product) ? name_product : [name_product],
+      planPrice: pricesInCents, // ✅ SALVAR EM CENTAVOS
+      planDescription: Array.isArray(description) ? description : [description],
       planStripeCode: stripeId,
     });
+
     if (!cadInDB) {
-      return res.status(400).json({ error: "No cadastro" });
+      return res.status(400).json({ error: "Erro ao cadastrar no banco" });
     }
+
+    console.log('✅ Plans cadastrados com sucesso!');
     return res.status(200).redirect("/store-plans");
+
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "No servidor", msg: error });
+    console.error('❌ Erro no cadastro:', error);
+    return res.status(500).json({ 
+      error: "Erro no servidor", 
+      msg: error.message 
+    });
   }
 });
+
+
 app.get("/pay/app/:scheduleId", tokenVerify, async (req, res) => {
   return res.sendFile(path.join(__dirname, "public", "paywithapp.html"));
 });
@@ -4076,7 +4159,10 @@ app.get("/render/stores/plan", tokenVerify, async (req, res) => {
             "/",
             " "
           )}</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>${
-            price[j]
+            (price[j] / 100).toLocaleString("pt-BR", {
+              maximumFractionDigits: 2,
+              minimumFractionDigits: 2
+            })
           }</div></div>
         <div class="cancel-plan"  data-name="${
           plan[j]
@@ -4178,13 +4264,13 @@ console.log(plan,store,index,code)
     findStripeId.planPrice.splice(index, 1);
     findStripeId.planDescription.splice(index, 1);
     findStripeId.planStripeCode.splice(index, 1);
-    if (findStripeId.planCode.length == 0) {
+    
+    await findStripeId.save();
+    if (findStripeId.planName.length === 0) {
       const deleter = await plansSchema.findOneAndDelete({
         name: name,
         email: email,
-        storeName: store,
-        planName: plan,
-        planCode: code
+        storeName: store
       });
       if (!deleter) {
         console.log('error no deleter')
@@ -4196,8 +4282,6 @@ console.log(plan,store,index,code)
         ok: "OK",
       });
     }
-    await findStripeId.save();
-
     return res.status(200).json({
       ok: "OK",
     });
@@ -5071,15 +5155,19 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
       const storePlan = plans.storeName;
       const plan = plans.planName;
 
-      const price = plans.planPrice;
+      const price = plans.planPrice[i] / 100;
+      const trueFormat = price.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })
       const planName = plan[i].split(":");
       const planNamer = planName[1];
       let html = `<div class="columnUnion">
-        <div class="myPlan" style="margin: 3vh;"><div class="plan-name">${planNamer}<div class="store-name-plan"><strong class="consoleWrite">#</strong>${storePlan.replaceAll(
+        <div class="myPlan temPlan" style="margin: 3vh;"><div class="plan-name">${planNamer}<div class="store-name-plan"><strong class="consoleWrite">#</strong>${storePlan.replaceAll(
         "/",
         " "
       )}</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>${
-        price[i]
+       trueFormat
       }</div></div>
         <div class="ocultEditor"><img src="https://img.icons8.com/?size=100&id=89802&format=png&color=FFFFFF" alt="" style="width:24px; height:24px;"></div>
       </div>
@@ -5088,6 +5176,14 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
     }
 
     console.log(planArray);
+    }
+    else{
+      let html = `<div class="columnUnion">
+        <div class="myPlan" style="margin: 3vh;"><div class="plan-name">Don't have Plans<div class="store-name-plan"><strong class="consoleWrite">#</strong>You</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>00,00</div></div>
+        <div class="ocultEditor"><img src="https://img.icons8.com/?size=100&id=89802&format=png&color=FFFFFF" alt="" style="width:24px; height:24px;"></div>
+      </div>
+      `;
+      planArray.push(html);
     }
     const hour = await HoursStorage.findOne({
       storeName: store.storeName,
@@ -5313,6 +5409,678 @@ app.post("/hour/updater", tokenVerify, async (req, res) => {
         .json({ message: "ERRO NO SERVER", eror: error });
   }
 })
+app.get("/updater/plans", tokenVerify, async (req, res) => {
+  const {name, email} = req.user;
+  try {
+    const plans = await plansSchema.findOne({
+      name: name,
+      email: email
+    })
+    if (!plans){
+      console.log('FINDPLAN')
+      return res.status(404).json({
+        error: "FINDPLAN"
+      })
+    }
+    let planArray = []
+    for (let i = 0; i < plans.planName.length; i++) {
+      const storePlan = plans.storeName;
+      const plan = plans.planName;
+
+      const price = plans.planPrice[i];
+      const planName = plan[i].split(":");
+      const planNamer = planName[1];
+      const planDes = plans.planDescription[i]
+      const realP = (price / 100).toLocaleString("pt-BR", {
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2
+      })
+      let html = `<div id="contentForm" class="hour-row">
+                <div class="unionE">
+                  <input
+                    type="text"
+                    name="name_product"
+                    id="name_product"
+                    placeholder="Plan Name"
+                    value="${planNamer}"
+                  />
+                  <input
+                    type="text"
+                    name="price_product"
+                    id="price_product"
+                    placeholder="Plan Product"
+                    value="${realP}"
+                  />
+                </div>
+                <textarea
+                  name="description"
+                  id="description"
+                  placeholder="Description"
+                  style="margin-left: 0;"
+                  
+                >${planDes}</textarea>
+              
+              </div></div>
+      `;
+      planArray.push(html);
+    }
+    console.log(planArray.join(""))
+    return res.status(200).json({
+      html: `<div class="unionE">${planArray.join("")}</div>`
+    })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({
+        error: error
+      })
+  }
+})
+app.post("/plan/updater", tokenVerify, async (req, res) => {
+  const {name, email} = req.user;
+  const {name_product, price_product, description} = req.body;
+  
+  console.log('📦 Dados recebidos:');
+  console.log('name_product:', name_product);
+  console.log('price_product:', price_product);
+  console.log('description:', description);
+  
+  try {
+    const findYourStore = await StoreCad.findOne({
+      name: name,
+      email: email,
+    });
+    
+    if (!findYourStore) {
+      return res.status(404).json({ error: "Loja não encontrada" });
+    }
+    
+    let storeName = findYourStore.storeName.replaceAll("/", " ");
+    let productInStripeNameArray = [];
+    const stripeId = [];
+    const planCode = findYourStore.model;
+
+    // ============================================
+    // PROCESSAR ARRAY DE PLANS
+    // ============================================
+    if (Array.isArray(name_product)) {
+      for (let i = 0; i < name_product.length; i++) {
+        const productInStripeName = `${storeName}:${name_product[i]}:${findYourStore.model}`;
+
+        // ✅ CORREÇÃO: Converter vírgula para ponto e validar
+        const priceStr = String(price_product[i]).replace(",", ".");
+        const priceValue = parseFloat(priceStr);
+        
+        if (isNaN(priceValue) || priceValue <= 0) {
+          console.error(`❌ Preço inválido no índice ${i}:`, price_product[i]);
+          return res.status(400).json({ 
+            error: `Preço inválido para "${name_product[i]}": ${price_product[i]}` 
+          });
+        }
+        
+        const unitAmount = Math.round(priceValue * 100);
+        console.log(`💰 Plan ${i}: ${name_product[i]} = R$ ${priceValue} (${unitAmount} centavos)`);
+
+        const stripeProduct = await stripe.products.create({
+          name: productInStripeName,
+          metadata: {
+            storeOwner: name,
+            ownerEmail: email,
+          },
+        });
+
+        const stripeProductPrice = await stripe.prices.create({
+          product: stripeProduct.id,
+          unit_amount: unitAmount,
+          currency: "brl",
+          recurring: {
+            interval: "month",
+          },
+        });
+        
+        stripeId.push(stripeProduct.id);
+        productInStripeNameArray.push(productInStripeName);
+      }
+    } 
+    // ============================================
+    // PROCESSAR PLAN ÚNICO
+    // ============================================
+    else {
+      const productInStripeName = `${storeName}:${name_product}:${findYourStore.model}`;
+
+      // ✅ CORREÇÃO: Converter vírgula para ponto e validar
+      const priceStr = String(price_product).replace(",", ".");
+      const priceValue = parseFloat(priceStr);
+      
+      if (isNaN(priceValue) || priceValue <= 0) {
+        console.error('❌ Preço inválido:', price_product);
+        return res.status(400).json({ 
+          error: `Preço inválido: ${price_product}` 
+        });
+      }
+      
+      const unitAmount = Math.round(priceValue * 100);
+      console.log(`💰 Plan único: ${name_product} = R$ ${priceValue} (${unitAmount} centavos)`);
+
+      const stripeProduct = await stripe.products.create({
+        name: productInStripeName,
+        metadata: {
+          storeOwner: name,
+          ownerEmail: email,
+        },
+      });
+
+      const stripeProductPrice = await stripe.prices.create({
+        product: stripeProduct.id,
+        unit_amount: unitAmount,
+        currency: "brl",
+        recurring: {
+          interval: "month",
+        },
+      });
+      
+      stripeId.push(stripeProduct.id);
+      productInStripeNameArray.push(productInStripeName);
+    }
+    
+    // ✅ CORREÇÃO: Converter preços para centavos
+    const pricesInCents = Array.isArray(price_product)
+      ? price_product.map(p => {
+          const val = parseFloat(String(p).replace(",", "."));
+          return Math.round(val * 100);
+        })
+      : [Math.round(parseFloat(String(price_product).replace(",", ".")) * 100)];
+    
+    console.log('💾 Salvando no DB:', pricesInCents);
+
+    // ============================================
+    // ATUALIZAR NO BANCO
+    // ============================================
+    const updater = await plansSchema.findOneAndUpdate(
+      {
+        name: name,
+        email: email,
+      }, 
+      {
+        $set: {
+          planName: productInStripeNameArray,
+          planOriginalName: Array.isArray(name_product) ? name_product : [name_product],
+          planPrice: pricesInCents,
+          planDescription: Array.isArray(description) ? description : [description],
+          planStripeCode: stripeId
+        }
+      },
+      { new: true }
+    );
+    
+    if (!updater) {
+      return res.status(400).json({ error: "Nenhum cadastro encontrado" });
+    }
+    
+    console.log('✅ Plans atualizados com sucesso!');
+    return res.status(200).redirect("/stores/prefs");
+    
+  } catch (error) {
+    console.error('❌ Erro no updater:', error);
+    return res.status(500).json({ 
+      error: "Erro no servidor", 
+      msg: error.message 
+    });
+  }
+});
+app.get("/updater/services", tokenVerify, async (req, res) => {
+  const {name, email} = req.user;
+  try {
+    const services = await ServicesCad.findOne({
+      name: name, 
+      email: email
+    })
+    if (!services){
+      console.log("IN SERVICES")
+      return res.status(404).json({
+        error: 'IN SERVICES'
+      })
+    }
+    let htmlArr = []
+    for (let i = 0; i < services.serviceName.length; i++) {
+      let stcr = `<div class="ServiceDiv">
+        <div class="ServiceInput">
+              <div class="imageServiceInput">
+                <img
+                  src="${services.serviceImagePath[i]}"
+                  alt=""
+                />
+                <input type="file" name="image" id="image" />
+              </div>
+              <div class="servicesInfos">
+                <input
+                  type="text"
+                  name="serviceName"
+                  id="serviceName"
+                  placeholder="Service Name:"
+                  value="${services.serviceName[i]}"
+                />
+                <textarea
+                  name="serviceDesc"
+                  id="serviceDesc"
+                  placeholder="Write a description for your service with a maximum of 100 characters."
+                  maxlength="100"
+                >${services.serviceDesc[i]}</textarea>
+                <span class="Caracters">
+                  Caracters:
+                  <strong class="GreenCard">0</strong>
+                  /
+                  <strong class="GreenCard">100</strong>
+                </span>
+        <select name="servicesTime" id="servicesTime">
+          <option value="${services.servicesTime[i]}">${services.servicesTime[i]}</option>
+          <option value="00:10">10min</option>
+          <option value="00:15">15min</option>
+                    <option value="00:30">30min</option>
+                    <option value="00:45">45min</option>
+                    <option value="01:00">1h</option>
+                    <option value="01:30">1:30h</option>
+                    <option value="02:00">2h</option>
+                    <option value="02:30">2:30h</option>
+                    <option value="03:00">3h</option>
+                    <option value="03:30">3:30h</option>
+                    <option value="04:00">4h</option>
+                    <option value="04:30">4:30h</option>
+                    <option value="05:00">5h</option>
+                  </select>
+                <h2 style="display: flex; align-items: center;">
+                  <img src="https://img.icons8.com/?size=100&id=123084&format=png&color=FFFFFF" alt="" style="width:32px;margin-top:12px;">
+                  <input type="text" name="servicePrice" id="servicePrice" value="${services.servicePrice[i]}" />
+                </h2>
+              </div>
+            </div>
+      </div>`;
+          htmlArr.push(stcr)
+    }
+    return res.status(200).json({
+      html: htmlArr.join("")
+    })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({
+     error: error
+    })
+  }
+})
+app.post("/services/updater", tokenVerify, upload.any(), async(req, res)=> {
+  try {
+    await ensureUploadsDir();
+
+    console.log("Body keys:", Object.keys(req.body));
+    console.log(
+      "Files:",
+      (req.files || []).map((f, idx) => ({
+        idx,
+        fieldname: f.fieldname,
+        originalname: f.originalname,
+        mimetype: f.mimetype,
+        size: f.size,
+      }))
+    );
+
+    const { name, email } = req.user;
+    const findStore = await StoreCad.findOne({ email: email });
+    if (!findStore) {
+      console.log(name, email);
+      return res.status(400).json({
+        message: "Loja não encontrada para o usuário autenticado",
+        name: name,
+        email: email,
+      });
+    }
+
+    const toArray = (v) => (Array.isArray(v) ? v : v !== undefined ? [v] : []);
+
+    const serviceNames = toArray(
+      req.body["serviceName[]"] ?? req.body.serviceName
+    );
+    const serviceDescs = toArray(
+      req.body["serviceDesc[]"] ?? req.body.serviceDesc
+    );
+    const servicePricesRaw = toArray(
+      req.body["servicePrice[]"] ?? req.body.servicePrice
+    );
+    const servicesTime = toArray(
+      req.body["servicesTime[]"] ?? req.body.servicesTime
+    );
+    const index = req.body["index"]
+    
+    const files = req.files || [];
+
+    const total =
+      Math.max(
+        serviceNames.length,
+        serviceDescs.length,
+        servicePricesRaw.length
+      ) || 0;
+
+    if (
+      total === 0 &&
+      !serviceNames.length &&
+      !serviceDescs.length &&
+      !servicePricesRaw.length
+    ) {
+      return res.status(400).json({ message: "Nenhum serviço enviado." });
+    }
+
+    // ✅ BUSCAR DADOS ANTIGOS PRIMEIRO
+    const existingStore = await ServicesCad.findOne({
+      name: name,
+      email: email,
+      storeName: findStore.storeName
+    });
+    
+    if (!existingStore) {
+      return res
+        .status(404)
+        .json({ message: "Nenhuma entrada válida de serviço encontrada." });
+    }
+
+    // ✅ PROCESSAR NOVAS IMAGENS
+    const newImagePaths = [];
+    const newImageMeta = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+
+      try {
+        const processed = await processImageToWebp(file.buffer, {
+          maxWidth: 1024,
+          maxHeight: 1024,
+          quality: 80,
+        });
+
+        const saved = await saveBufferToDisk(
+          processed.buffer,
+          processed.format,
+          "service"
+        );
+        
+        const imageInfo = {
+          storage: "disk",
+          path: saved.relPath,
+          filename: saved.fileName,
+          format: processed.format,
+          width: processed.width,
+          height: processed.height,
+          sizeBytes: processed.sizeBytes,
+        };
+        
+        newImagePaths.push(saved.relPath);
+        newImageMeta.push(imageInfo);
+      } catch (imgErr) {
+        console.warn("Falha ao processar imagem do serviço:", imgErr.message);
+        newImagePaths.push(null);
+        newImageMeta.push(null);
+      }
+    }
+
+    console.log("Novas imagePaths:", newImagePaths);
+    console.log("Imagens antigas:", existingStore.serviceImagePath);
+
+    // ✅ MESCLAR IMAGENS ANTIGAS COM NOVAS
+    const finalImagePaths = [];
+    const finalImageMeta = [];
+
+    for (let i = 0; i < serviceNames.length; i++) {
+      // Se tem imagem nova nesse índice, usa ela
+      if (newImagePaths[i]) {
+        finalImagePaths.push(newImagePaths[i]);
+        finalImageMeta.push(newImageMeta[i]);
+      } 
+      // Se não tem imagem nova, mantém a antiga (se existir)
+      else if (existingStore.serviceImagePath && existingStore.serviceImagePath[i]) {
+        finalImagePaths.push(existingStore.serviceImagePath[i]);
+        finalImageMeta.push(existingStore.serviceImageMeta[i]);
+      }
+      // Se não tem nem nova nem antiga, usa null
+      else {
+        finalImagePaths.push(null);
+        finalImageMeta.push(null);
+      }
+    }
+
+    console.log("Imagens finais mescladas:", finalImagePaths);
+
+    // ✅ ATUALIZAR NO BANCO
+    const newServiceData = await ServicesCad.findOneAndUpdate(
+      {
+        name: name,
+        email: email,
+      }, 
+      {
+        storeName: findStore.storeName,
+        storeEmail: findStore.storeEmail,
+        phone: findStore.phone,
+        serviceName: serviceNames,
+        serviceDesc: serviceDescs,
+        servicePrice: servicePricesRaw,
+        servicesTime: servicesTime,
+        serviceImagePath: finalImagePaths,
+        serviceImageMeta: finalImageMeta,
+      },
+      { new: true }  // ✅ Retorna o documento atualizado
+    );
+
+    if (!newServiceData) {
+      return res
+        .status(400)
+        .json({ message: "Erro ao atualizar serviços." });
+    }
+
+    console.log(`✅ ${serviceNames.length} serviço(s) atualizado(s). ${newImagePaths.length} imagem(ns) nova(s).`);
+    return res.redirect("/stores/prefs");
+
+  } catch (error) {
+    console.error("Erro ao atualizar serviços:", error);
+    return res.status(500).json({
+      message: "Erro ao processar a atualização de serviços.",
+      error: error.message,
+    });
+  }
+});
+app.get("/updater/team", tokenVerify, async (req, res) => {
+  const {name, email} = req.user
+  try {
+    const fnct = await functionaryCad.findOne({
+      name: name,
+      email: email
+    })
+    if (!fnct){
+      console.log('FNCT')
+      return res.status(404).json({
+        EROR: 'FNCT'
+      })
+    }
+    let htmlArr = []
+    for (let i = 0; i < fnct.functionarysName.length; i++) {
+      let stcr = `<div class="ServiceDiv">
+        <div class="functionary-base">
+                      <div class="imager" style="width: 15vw; height: 30vh; ">
+                          <span>Drag <strong class="GreenCard">or</strong> Select</span>
+                          <img src="${fnct.functionaryImagePath[i]}" alt="">
+                          <input type="file" name="image[]" id="image" style="opacity: 0;" />
+                      </div>
+                      <div class="inputer">
+                          <input type="text" name="functionaryName[]" id="functionaryName" placeholder="Member Name:" value="${fnct.functionarysName[i]}">
+                          <input type="email" name="functionaryEmail[]" id="functionaryEmail" placeholder="Member Email:" value="${fnct.functionarysEmail[i]}" style="width: 15vw;">
+                      </div>
+                  </div>
+      </div>`
+      htmlArr.push(stcr)
+    }
+    return res.status(200).json({
+      html: htmlArr.join(" ")
+    })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({
+        EROR: error
+      })
+  }
+})
+app.post("/team/updater", tokenVerify, upload.any(), async (req, res) => {
+  const { name, email } = req.user;
+
+  try {
+    await ensureUploadsDir();
+
+    console.log("Body keys:", Object.keys(req.body));
+    console.log(
+      "Files:",
+      (req.files || []).map((f, idx) => ({
+        idx,
+        fieldname: f.fieldname,
+        originalname: f.originalname,
+        mimetype: f.mimetype,
+        size: f.size,
+      }))
+    );
+
+    const findStore = await StoreCad.findOne({ name: name, email: email });
+    if (!findStore) {
+      console.log(name, email);
+      return res.status(400).json({
+        message: "Loja não encontrada",
+        name: name,
+        email: email,
+      });
+    }
+
+    const toArray = (v) => (Array.isArray(v) ? v : v !== undefined ? [v] : []);
+
+    const functionaryName = toArray(
+      req.body["functionaryName[]"] ?? req.body.functionaryName
+    );
+    const functionaryEmail = toArray(
+      req.body["functionaryEmail[]"] ?? req.body.functionaryEmail
+    );
+
+    const files = req.files || [];
+
+    const total =
+      Math.max(functionaryName.length, functionaryEmail.length) || 0;
+
+    if (total === 0 && !functionaryName.length && !functionaryEmail.length) {
+      return res.status(400).json({ message: "Nenhum funcionário enviado" });
+    }
+
+    // ✅ BUSCAR DADOS ANTIGOS PRIMEIRO
+    const fnct = await functionaryCad.findOne({
+      name: name,
+      email: email
+    });
+    
+    if (!fnct) {
+      console.log('Funcionário não encontrado');
+      return res.status(404).json({ message: "Nenhum funcionário encontrado" });
+    }
+
+    // ✅ PROCESSAR NOVAS IMAGENS
+    const newImagePaths = [];
+    const newImageMeta = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+
+      try {
+        const processed = await processImageToWebp(file.buffer, {
+          maxWidth: 1024,
+          maxHeight: 1024,
+          quality: 80,
+        });
+
+        const saved = await saveBufferToDisk(
+          processed.buffer,
+          processed.format,
+          "functionary"
+        );
+
+        const imageInfo = {
+          storage: "disk",
+          path: saved.relPath,
+          filename: saved.fileName,
+          format: processed.format,
+          width: processed.width,
+          height: processed.height,
+          sizeBytes: processed.sizeBytes,
+        };
+
+        newImagePaths.push(saved.relPath);
+        newImageMeta.push(imageInfo);
+      } catch (imgErr) {
+        console.warn("Falha ao processar imagem:", imgErr.message);
+        newImagePaths.push(null);
+        newImageMeta.push(null);
+      }
+    }
+
+    console.log("Novas imagePaths:", newImagePaths);
+    console.log("Imagens antigas:", fnct.functionaryImagePath);
+
+    // ✅ MESCLAR IMAGENS ANTIGAS COM NOVAS
+    const finalImagePaths = [];
+    const finalImageMeta = [];
+
+    for (let i = 0; i < functionaryName.length; i++) {
+      // Se tem imagem nova nesse índice, usa ela
+      if (newImagePaths[i]) {
+        finalImagePaths.push(newImagePaths[i]);
+        finalImageMeta.push(newImageMeta[i]);
+      } 
+      // Se não tem imagem nova, mantém a antiga (se existir)
+      else if (fnct.functionaryImagePath && fnct.functionaryImagePath[i]) {
+        finalImagePaths.push(fnct.functionaryImagePath[i]);
+        finalImageMeta.push(fnct.functionaryImageMeta[i]);
+      }
+      // Se não tem nem nova nem antiga, usa placeholder
+      else {
+        finalImagePaths.push(null);
+        finalImageMeta.push(null);
+      }
+    }
+
+    console.log("Imagens finais mescladas:", finalImagePaths);
+
+    // ✅ ATUALIZAR NO BANCO
+    const newFunctionary = await functionaryCad.findOneAndUpdate(
+      {
+        name: name,
+        email: email,
+      }, 
+      {
+        storeName: findStore.storeName,
+        storeEmail: findStore.storeEmail,
+        phone: findStore.phone,
+        functionarysName: functionaryName,
+        functionarysEmail: functionaryEmail,
+        functionaryImagePath: finalImagePaths,
+        functionaryImageMeta: finalImageMeta,
+      },
+      { new: true }  // ✅ Retorna o documento atualizado
+    );
+
+    if (!newFunctionary) {
+      return res.status(400).json({ 
+        message: "Erro ao atualizar funcionários" 
+      });
+    }
+
+    console.log(`✅ ${functionaryName.length} funcionário(s) atualizado(s)`);
+    return res.redirect("/stores/prefs");
+
+  } catch (error) {
+    console.error("Erro ao atualizar funcionários:", error);
+    return res.status(500).json({
+      message: "Erro ao processar a atualização.",
+      error: error.message,
+    });
+  }
+});
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
   console.log(`📧 Sistema de recuperação de senha ativo`);

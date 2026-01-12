@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log: Services Update</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <header class="nbu">
+      <button class="nButton" id="back">
+        <img
+          src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF"
+          alt=""
+        />
+      </button>
+    </header>
+    <main class="services-container">
+      <div id="loading"></div>
+      <section class="renderization">
+        <div class="services-tesxt">
+          <h1 id="ob">
+            <strong class="consoleWrite">#</strong>Update
+            <span class="GreenCard">Services</span>
+          </h1>
+          <p>
+            Manage and configure your services<strong class="pointer"
+              >.</strong
+            >
+          </p>
+        </div>
+        <form action="/services/updater" method="post" enctype="multipart/form-data">
+          <input type="text" name="index" id="index" style="display: none; opacity: 1;">
+            <section id="contenterFormer" style="min-height: 60vh;">
+            </section>
+            <div class="centralNB">
+                <div id="adder">
+                  <img
+                    src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
+                    alt=""
+                  />
+                </div>
+                <div id="remover">
+                  <img
+                    src="https://img.icons8.com/?size=100&id=85496&format=png&color=FFFFFF"
+                    alt=""
+                  />
+                </div>
+            </div>
+        </form>
+        <div class="selectedIndicator" style="opacity: 1; top: 88vh; position: sticky;"><button type="submit">Edit <strong class="consoleWrite">>></strong></button> </div>
+      </section>
+    </main>
+  </body>
+</html>
+<script>
+
+    function render(el) {
+      const element = document.createElement("div");
+      element.classList.add("ServiceDiv");
+      element.innerHTML = el;
+      return element.children;
+    }
+    function createElement() {
+      const row = document.createElement("div");
+      row.classList.add("ServiceDiv");
+      row.innerHTML = `<div class="ServiceInput">
+            <div class="imageServiceInput">
+              <img
+                src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
+                alt=""
+              />
+              <input type="file" name="image" id="image" />
+            </div>
+            
+            <div class="servicesInfos">
+              <input
+                type="text"
+                name="serviceName"
+                id="serviceName"
+                placeholder="Service Name:"
+              />
+
+              <textarea
+                name="serviceDesc"
+                id="serviceDesc"
+                placeholder="Write a description for your service with a maximum of 100 characters."
+                maxlength="100"
+              ></textarea>
+
+              <span class="Caracters">
+                Caracters:
+                <strong class="GreenCard">0</strong>
+                /
+                <strong class="GreenCard">100</strong>
+              </span>
+<select name="servicesTime" id="servicesTime">
+  <option value="00:00">Choose the service duration</option>
+  <option value="00:10">10min</option>
+  <option value="00:15">15min</option>
+                  <option value="00:30">30min</option>
+                  <option value="00:45">45min</option>
+                  <option value="01:00">1h</option>
+                  <option value="01:30">1:30h</option>
+                  <option value="02:00">2h</option>
+                  <option value="02:30">2:30h</option>
+                  <option value="03:00">3h</option>
+                  <option value="03:30">3:30h</option>
+                  <option value="04:00">4h</option>
+                  <option value="04:30">4:30h</option>
+                  <option value="05:00">5h</option>
+                </select>
+              <h2 style="display: flex; align-items: center;">
+                <img src="https://img.icons8.com/?size=100&id=123084&format=png&color=FFFFFF" alt="">
+                <input type="text" name="servicePrice" id="servicePrice" />
+              </h2>
+            </div>
+          </div>`;
+          const newTextarea = row.querySelector("textarea");
+        const newSpan = row.querySelector(".Caracters");
+          const index = document.querySelector("#index").value
+          index += 1
+        newTextarea.addEventListener("input", () => {
+          let n = newTextarea.value.length;
+          newSpan.innerHTML = `Caracters: <strong class="GreenCard">${n}</strong> / <strong class="GreenCard">100</strong>`
+        });
+      const imager = row.querySelector(".imageServiceInput");
+      setupListeners(imager);
+      return row;
+    }
+    function setupListeners(el) {
+      const serviceInput = document.querySelectorAll(".ServiceInput");
+        const fileContent = el.querySelector(`#image`);
+        const fileInput = el.querySelector("#image");
+        let selectedFile = null;
+        el.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        });
+        el.addEventListener("drop", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            handleFiles(files[0]);
+          }
+        });
+        fileInput.addEventListener("change", (e) => {
+          if (e.target.files.length > 0) {
+            handleFiles(e.target.files[0]);
+          }
+        });
+        function handleDrop(e) {
+          const dt = e.dataTransfer;
+          const files = dt.files;
+          if (files.length > 0) {
+            handleFiles(files[0]);
+          }
+        }
+        function handleFiles(files) {
+          selectedFile = files;
+          console.log(selectedFile);
+          const reader = new FileReader();
+          
+          el.style.transition = "0.001s all";
+          reader.onload = (e) => {
+            el.style.border = "1px solid transparent";
+            el.style.backgroundColor = "transparent";
+            el.innerHTML = `
+            <div class="imageServiceAtt">
+              <img
+                src="${e.target.result}"
+                alt=""
+                accept="image/*"
+                
+              />
+              <input type="file" name="image" id="image" />
+            </div>`;
+
+            const serviceInput_img = el.querySelector(".imageServiceInput img");
+            const newInput = el.querySelector("#image");
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(selectedFile);
+            newInput.files = dataTransfer.files;
+          };
+          reader.readAsDataURL(files);
+        }
+    }
+    function removeHour(container) {
+      const rows = container.querySelectorAll(".ServiceDiv");
+      if (rows.length > 1) {
+        container.removeChild(rows[rows.length - 1]);
+        const index = document.querySelector("#index").value
+        index -= 1
+        console.log("🗑️ Service removido. Restam:", rows.length - 1);
+      }
+    }
+    window.addEventListener("load", async () => {
+      const loading = document.querySelector("#loading");
+      const container = document.querySelector("#contenterFormer");
+      const renderization = document.querySelector(".renderization");
+      const form = document.querySelector("form");
+      const selectedIndicatorBtn = document.querySelector(
+        ".selectedIndicator button"
+      );
+      const ini = await fetch("/updater/services", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (ini.ok) {
+        const data = await ini.json();
+        const html = data.html;
+
+        if (loading) loading.style.opacity = "0";
+        if (container) container.style.opacity = "1";
+        if (renderization) renderization.style.opacity = "1";
+        const rendered = render(data.html);
+        const childrenArray = Array.from(rendered);
+        const index = document.querySelector("#index")
+        for (let child of childrenArray) {
+          const childImager = child.querySelector(".imageServiceInput");
+          container.appendChild(child);
+          index += 1
+          setupListeners(childImager);
+        }
+        const adder = document.querySelector("#adder");
+        const remover = document.querySelector("#remover");
+
+        adder?.addEventListener("click", () => {
+          const newRow = createElement();
+          container.appendChild(newRow);
+          console.log("➕ Novo service adicionado");
+        });
+
+        remover?.addEventListener("click", () => {
+          const rows = container.querySelectorAll(".ServiceDiv");
+          if (rows.length > 1) {
+            removeHour(container);
+          } else {
+            console.warn("⚠️ Mínimo de 1 service necessário");
+          }
+        });
+        const btn = document.querySelector(".selectedIndicator");
+        btn.addEventListener("click", () => {
+          form.submit();
+        });
+      }
+    });
+</script>

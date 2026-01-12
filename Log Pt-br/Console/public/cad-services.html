@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log: Services Register</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <header class="nbu">
+      <button class="nButton" id="back">
+        <img
+          src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF"
+          alt=""
+        />
+      </button>
+    </header>
+
+    <section class="services-container">
+      <div class="services-outer">
+        <div class="services-tesxt">
+          <h1 id="ob">
+            <strong class="consoleWrite">>></strong>
+            Service Registration
+            <strong class="pointer">.</strong>
+          </h1>
+          <p>
+            <strong class="consoleWrite">>_</strong>
+            Register your store's
+            <strong class="GreenCard">services</strong>
+          </p>
+        </div>
+
+        <form
+          action="/servicesCad"
+          class="servicesForm"
+          method="post"
+          enctype="multipart/form-data"
+        >
+          <div class="ServiceInput">
+            <div class="imageServiceInput">
+              <img
+                src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
+                alt=""
+              />
+              <input type="file" name="image" id="image" />
+            </div>
+            <div class="servicesInfos">
+              <input
+                type="text"
+                name="serviceName"
+                id="serviceName"
+                placeholder="Service Name:"
+              />
+              <textarea
+                name="serviceDesc"
+                id="serviceDesc"
+                placeholder="Write a description for your service with a maximum of 100 characters."
+                maxlength="100"
+              ></textarea>
+              <span class="Caracters">Caracters: <strong class="GreenCard">0</strong> / <strong class="GreenCard">100</strong></span>
+
+                <select name="servicesTime" id="servicesTime">
+                  <option value="00:00">Choose the service duration</option>
+                  <option value="00:10">10min</option>
+                  <option value="00:15">15min</option>
+                  <option value="00:30">30min</option>
+                  <option value="00:45">45min</option>
+                  <option value="01:00">1 h</option>
+                  <option value="01:30">1:30h</option>
+                  <option value="02:00">2h</option>
+                  <option value="02:30">2:30h</option>
+                  <option value="03:00">3h</option>
+                  <option value="03:30">3:30h</option>
+                  <option value="04:00">4h</option>
+                  <option value="04:30">4:30h</option>
+                  <option value="05:00">5h</option>
+                </select>
+           
+              <h2 style="display: flex; align-items: center">
+                <img
+                  src="https://img.icons8.com/?size=100&id=123084&format=png&color=FFFFFF"
+                  alt=""
+                />
+                <input type="text" name="servicePrice" id="servicePrice" />
+              </h2>
+            </div>
+          </div>
+        </form>
+        <div class="wid">
+          <div class="central-plus" style="height: 50vh; width: 30vw;" id="adder">
+            <div class="label-plus">
+              <p>Add new<strong class="GreenCard">Service</strong></p>
+            </div>
+            <div class="img-plus">
+              <img
+                src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="selectedIndicatorA" style="opacity: 1">
+        <button type="submit">
+          Register Services<strong class="consoleWrite">>></strong>
+        </button>
+      </div>
+    </section>
+
+    <script>
+      function createService() {
+        const service = document.createElement("div");
+        service.classList.add("ServiceDiv");
+        service.innerHTML = `<div class="ServiceInput">
+            <div class="imageServiceInput">
+              <img
+                src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
+                alt=""
+              />
+              <input type="file" name="image" id="image" />
+            </div>
+
+            <div class="servicesInfos">
+              <input
+                type="text"
+                name="serviceName"
+                id="serviceName"
+                placeholder="Service Name:"
+              />
+
+              <textarea
+                name="serviceDesc"
+                id="serviceDesc"
+                placeholder="Write a description for your service with a maximum of 100 characters."
+                maxlength="100"
+              ></textarea>
+
+              <span class="Caracters">
+                Caracters:
+                <strong class="GreenCard">0</strong>
+                /
+                <strong class="GreenCard">100</strong>
+              </span>
+<select name="servicesTime" id="servicesTime">
+  <option value="00:00">Choose the service duration</option>
+  <option value="00:10">10min</option>
+  <option value="00:15">15min</option>
+                  <option value="00:30">30min</option>
+                  <option value="00:45">45min</option>
+                  <option value="01:00">1h</option>
+                  <option value="01:30">1:30h</option>
+                  <option value="02:00">2h</option>
+                  <option value="02:30">2:30h</option>
+                  <option value="03:00">3h</option>
+                  <option value="03:30">3:30h</option>
+                  <option value="04:00">4h</option>
+                  <option value="04:30">4:30h</option>
+                  <option value="05:00">5h</option>
+                </select>
+              <h2 style="display: flex; align-items: center;">
+                <img src="https://img.icons8.com/?size=100&id=123084&format=png&color=FFFFFF" alt="">
+                <input type="text" name="servicePrice" id="servicePrice" />
+              </h2>
+            </div>
+          </div>`;
+        const newTextarea = service.querySelector("textarea");
+        const newSpan = service.querySelector(".Caracters");
+
+        newTextarea.addEventListener("input", () => {
+          let n = newTextarea.value.length;
+          newSpan.innerHTML = `Caracters: <strong class="GreenCard">${n}</strong> / <strong class="GreenCard">100</strong>`
+        });
+        setupListeners(service);
+        return service;
+      }
+
+      function setupListeners(el) {
+        const serviceInput = document.querySelectorAll(".ServiceInput");
+        const fileContent = el.querySelector(`#image`);
+        const fileInput = el.querySelector("#image");
+        let selectedFile = null;
+        el.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        });
+        el.addEventListener("drop", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            handleFiles(files[0]);
+          }
+        });
+        fileInput.addEventListener("change", (e) => {
+          if (e.target.files.length > 0) {
+            handleFiles(e.target.files[0]);
+          }
+        });
+        function handleDrop(e) {
+          const dt = e.dataTransfer;
+          const files = dt.files;
+          if (files.length > 0) {
+            handleFiles(files[0]);
+          }
+        }
+        function handleFiles(files) {
+          selectedFile = files;
+          console.log(selectedFile);
+          const reader = new FileReader();
+          const serviceInput = el.querySelector(".imageServiceInput");
+          serviceInput.style.transition = "0.001s all";
+          reader.onload = (e) => {
+            serviceInput.style.border = "1px solid transparent";
+            serviceInput.style.backgroundColor = "transparent";
+            serviceInput.innerHTML = `
+            <div class="imageServiceAtt">
+              <img
+                src="${e.target.result}"
+                alt=""
+                accept="image/*"
+                
+              />
+              <input type="file" name="image" id="image" />
+            </div>`;
+
+            const serviceInput_img = el.querySelector(".imageServiceInput img");
+            const newInput = el.querySelector("#image");
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(selectedFile);
+            newInput.files = dataTransfer.files;
+          };
+          reader.readAsDataURL(files);
+        }
+      }
+      document.querySelector("#back").addEventListener("click", async () => {
+      const req = await fetch("/bad/payer", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (req.ok) {
+        const data = await req.json();
+        console.log(JSON.stringify(data));
+        window.location.href = `/stores/home`;
+      } else {
+        const data = await req.json();
+        console.log(JSON.stringify(data));
+        window.location.href = `/store/home`;
+      }
+    });
+      const serviceInput = document.querySelector(".ServiceInput");
+      setupListeners(serviceInput);
+      const container = document.querySelector(".servicesForm");
+      const adder = document.querySelector("#adder");
+      adder.addEventListener("click", () => {
+        container.appendChild(createService());
+      });
+      const txtArea = document.querySelector("textarea");
+      const span = document.querySelector(".Caracters");
+      const selectedIndicatorA = document.querySelector(".selectedIndicatorA");
+      txtArea.addEventListener("input", () => {
+        let n = txtArea.value.length;
+        span.innerHTML = `Caracters: <strong class="GreenCard">${n}</strong> / <strong class="GreenCard">100</strong>`
+      })
+        const form = document.querySelector(".servicesForm");
+      selectedIndicatorA.addEventListener("click", () => {
+        form.submit();
+      });
+    </script>
+  </body>
+</html>

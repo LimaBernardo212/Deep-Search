@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Schedule registration</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <header class="nb">
+      <button class="nButton" id="back">
+        <img
+          src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF"
+          alt=""
+        />
+      </button>
+    </header>
+    <section class="cad-hours-section">
+      <div>
+        <h1 id="ob">
+          <strong class="consoleWrite">#</strong>Available Hours<strong
+            class="pointer"
+            >.</strong
+          >
+        </h1>
+        <p class="pcf">
+          Configure the days and hours of operation for your
+          <strong class="GreenCard">establishment.</strong>
+        </p>
+      </div>
+      <form action="/horarioCad" method="post">
+        <div class="hours-calendar">
+          <div class="hours">
+            <input type="text" name="hour" id="hour" placeholder="HH:MM" />
+          </div>
+          <div class="hours-add">
+            <img
+              src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+        </div>
+        <div class="selectedIndicatorC" style="top: 88vh;">
+    
+            <button type="submit">Register Store<strong class="consoleWrite">>></strong></button>
+  </div>
+      </form>
+      
+    </section>
+  </body>
+  <script>
+    document.querySelector("#back").addEventListener("click", async () => {
+      const req = await fetch("/bad/payer", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (req.ok) {
+        const data = await req.json();
+        console.log(JSON.stringify(data));
+        window.location.href = `/stores/home`;
+      } else {
+        const data = await req.json();
+        console.log(JSON.stringify(data));
+        window.location.href = `/store/home`;
+      }
+    });
+    const add = document.querySelector(".hours-add");
+    const added = document.querySelector(".hours");
+    function createHour() {
+      const row = document.createElement("div");
+      row.classList.add("hour-row");
+      row.innerHTML = `<input type="text" name="hour" id="hour" placeholder="HH:MM">`;
+      return row;
+    }
+    add.addEventListener("click", () => {
+      added.appendChild(createHour());
+    });
+  </script>
+</html>

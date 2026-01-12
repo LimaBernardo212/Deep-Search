@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log: Home</title>
+    <link
+      rel="shortcut icon"
+      href="favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+    <link rel="stylesheet" href="style/style.css" />
+  </head>
+  <body>
+    <header class="homenav">
+      <div class="consoleImg">
+        <img src="img/().png" alt="" />
+      </div>
+
+      <div class="account">
+        <div class="person" id="people">
+          <img
+            src="https://img.icons8.com/?size=100&id=85147&format=png&color=FFFFFF"
+            alt=""
+          />
+        </div>
+        <div class="settings" id="sett">
+          <img
+            src="https://img.icons8.com/?size=100&id=83214&format=png&color=FFFFFF"
+            alt=""
+          />
+        </div>
+      </div>
+    </header>
+    <section class="userPOV">
+      <aside class="leftBar">
+        <div class="divAndYourLabel">
+          <div id="home" class="itenSelected itens" title="Home">
+            <img
+              src="https://img.icons8.com/?size=100&id=86527&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Home</p>
+        </div>
+
+        <div class="divAndYourLabel">
+          <div id="schedule" class="itens" title="Your Schedules">
+            <img
+              src="https://img.icons8.com/?size=100&id=116296&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Schedules</p>
+        </div>
+
+        <div class="divAndYourLabel">
+          <div id="treatments" class="itens" title="Your Treatments">
+            <img
+              src="https://img.icons8.com/?size=100&id=86312&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Treatments</p>
+        </div>
+
+        <div class="divAndYourLabel">
+          <div id="plansinapp" class="itens" title="Yours Plans in Stores">
+            <img
+              src="https://img.icons8.com/?size=100&id=86440&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Plans</p>
+        </div>
+
+        <div class="divAndYourLabel">
+          <div id="projects" class="itens" title="Your Project">
+            <img
+              src="https://img.icons8.com/?size=100&id=85615&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Projects</p>
+        </div>
+
+        <div class="divAndYourLabel">
+          <div id="documents" class="itens" title="Documents">
+            <img
+              src="https://img.icons8.com/?size=100&id=98397&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Docs</p>
+        </div>
+
+        <div class="divAndYourLabel moreIten">
+  <div id="more" class="itens" title="more">
+    <img
+      src="https://img.icons8.com/?size=100&id=85501&format=png&color=FFFFFF"
+      alt=""
+    />
+  </div>
+  <div class="more-content">
+    <div class="API">
+      <div class="APIimg">
+        <img src="https://img.icons8.com/?size=100&id=85950&format=png&color=FFFFFF" alt="">
+      </div>
+      <div class="APIlabel">API</div>
+    </div>
+    <div class="API">
+      <div class="APIimg">
+        <img src="https://img.icons8.com/?size=100&id=86134&format=png&color=FFFFFF" alt="">
+      </div>
+      <div class="APIlabel">Stores</div>
+    </div>
+  </div>
+</div>
+      </aside>
+      <main class="infoContent">
+        <div id="loading"></div>
+        <div class="content">
+          <div class="searcher">
+            <form action="" method="POST" id="searchForm">
+              <input
+                type="text"
+                name="search"
+                id="search"
+                placeholder="Search using name or PIN:"
+              />
+              <input type="submit" style="display: none;">
+                
+              </button>
+            </form>
+          </div>
+          <div class="store-content"></div>
+        </div>
+      </main>
+    </section>
+  </body>
+  <script>
+    const content = document.querySelector(".content");
+    const loading = document.querySelector("#loading");
+    const storecontent = document.querySelector(".store-content");
+    
+    const schedule = document.querySelector("#schedule")
+    const more = document.querySelector(".moreIten");
+    const contenter = document.querySelector(".more-content");
+    const plans = document.querySelector("#plansinapp")
+    plans.addEventListener("click", () => {
+      window.location.href = `/my/plan`
+    })
+    const projects = document.querySelector("#documents");
+    projects.addEventListener('click', () => {
+        window.location.href = '/stores/home'
+      })
+    more.addEventListener("click", () => {
+      console.log(more); // Deve mostrar o elemento
+console.log(contenter);
+      window.location.href = "/more"
+    })
+    schedule.addEventListener('click', () => {
+      console.log('Sensacional d+ serio muito top')
+      window.location.href = '/schedule/home';
+    })
+    function createStores(el) {
+      const element = document.createElement("div");
+      element.classList.add("storeRow");
+      element.innerHTML = el;
+      return element;
+    }
+    window.addEventListener("load", async () => {
+      const req = await fetch("/return/data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          also: "Also",
+        }),
+      });
+      if (req.ok) {
+        const data = await req.json();
+        const objects = data.return;
+        const storeNames = data.storeName;
+        loading.style.opacity = 0;
+        
+        setTimeout(() => {
+          loading.style.display = "none";
+          content.style.display = "flex";
+          setTimeout(() => {
+            content.style.opacity = 1;
+          }, 250);
+          objects.forEach((el, i) => {
+            storecontent.appendChild(createStores(el));
+          });
+          
+          const stored = document.querySelectorAll(".store");
+        stored.forEach((el, i) => {
+            el.addEventListener("click", async () => {
+                try {
+                    const request = await fetch('/store/page', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        storeName: storeNames[i]
+                    })
+                });
+                if (request.ok){
+                    const response = await request.json();
+                    console.log('Success:', response);
+                    const redirect = response.redirect;
+                    window.location.href = redirect;
+                } else {
+                    console.log('Algo deu errado', request.status);
+                }
+                } catch (error) {
+                   console.log('Error:', error); 
+                }
+            });
+        })
+        }, 750);
+        
+      } else {
+        console.log("Algo deu errado", req.status);
+      }
+      
+    });
+  </script>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log: Store: Your Plans</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <header class="homenav">
+      <div class="consoleImg">
+        <img src="/img/().png" alt="" />
+      </div>
+
+      <div class="account">
+        <div class="person" id="people">
+          <img
+            src="https://img.icons8.com/?size=100&id=85147&format=png&color=FFFFFF"
+            alt=""
+          />
+        </div>
+        <div class="settings" id="sett">
+          <img
+            src="https://img.icons8.com/?size=100&id=83214&format=png&color=FFFFFF"
+            alt=""
+          />
+        </div>
+      </div>
+    </header>
+
+    <section class="userPOV">
+      <aside class="leftBar">
+        <div class="divAndYourLabel">
+          <div id="store" class="itens" title="store">
+            <img
+              src="https://img.icons8.com/?size=100&id=92137&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Home</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="analitics" class="itens" title="Your Schedules">
+            <img
+              src="https://img.icons8.com/?size=100&id=98067&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Analytics</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="clientArea" class="itens" title="Your Treatments">
+            <img
+              src="https://img.icons8.com/?size=100&id=88302&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Schedule</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div
+            id="plansinapp"
+            class="itenSelected itens"
+            title="Yours Plans in Stores"
+          >
+            <img
+              src="https://img.icons8.com/?size=100&id=86440&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Plans</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="services" class="itens" title="Your Project">
+            <img
+              src="https://img.icons8.com/?size=100&id=86844&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Pref.</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="services" class="itens" title="Your Project">
+            <img
+              src="https://img.icons8.com/?size=100&id=86131&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Bank</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="documents" class="itens" title="Documents">
+            <img
+              src="https://img.icons8.com/?size=100&id=84161&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Manual</p>
+        </div>
+      </aside>
+
+      <main class="infoContent">
+        <div id="loading"></div>
+
+        <div class="content">
+          <div class="store-content"></div>
+        </div>
+      </main>
+    </section>
+  </body>
+  <script>
+
+    
+    function render(el) {
+      const element = document.createElement("div");
+      element.classList.add("scheduleData");
+      element.innerHTML = el;
+      return element;
+    }
+    window.addEventListener("load", async () => {
+      const client = document.querySelector("#clientArea");
+      client.addEventListener("click", () => {
+        window.location.href = "/client/schedules"
+      })
+      const plans = document.querySelector("#plansinapp");
+      const store = document.querySelector("#store");
+      store.addEventListener("click", () => {
+        window.location.href = "/stores/home";
+      });
+      plans.addEventListener("click", () => {
+        window.location.href = "/store-plans";
+      });
+      const analitics = document.querySelector("#analitics");
+      analitics.addEventListener("click", () => {
+        window.location.href = "/stores/analitics";
+      });
+      const prefs = document.querySelector("#services")
+      prefs.addEventListener("click", () => {
+        window.location.href = '/stores/prefs'
+      })
+      const bbk = document.querySelector("#bbk");
+      const container = document.querySelector(".content")
+      const load = document.querySelector('#loading')
+      const content = document.querySelector(".store-content")
+      // bbk.addEventListener("click", () => {
+      //   window.location.href = "/stores/home";
+      // });
+      const req = await fetch("/render/stores/plan", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (req.ok){
+        const data = await req.json()
+        console.log(JSON.stringify(data))
+        content.appendChild(render(data.html))
+        load.style.opacity = '0'
+        setTimeout(() => {
+            load.style.display = 'none'
+            container.style.opacity = '1'
+        }, 500);
+        
+        const delete_plan = document.querySelectorAll(".cancel-plan")
+        delete_plan.forEach((el, i) => {
+            el.addEventListener("click", async () => { 
+                const plan = el.getAttribute('data-name')
+                const store = el.getAttribute('data-store')
+                const index = el.getAttribute("data-index")
+                const code = el.getAttribute("data-code")
+                const request = await fetch("/delete/plan", {
+                    method: 'POST',
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        plan: plan,
+                        store: store,
+                        index: index,
+                        code: code
+                    })
+                })
+                if (request.ok){
+                    window.location.reload()
+                }
+            })
+        })
+        const centralPlus = document.querySelector(".central-plus")
+        centralPlus.addEventListener("click", () => {
+          window.location.href = `/create/plans`
+        })
+      }
+    })
+  </script>
+</html>

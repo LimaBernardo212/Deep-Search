@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log: Plans</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <header class="nbu">
+        <button class="nButton" id="back">
+            <img src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF" alt="">
+        </button>
+    </header>
+      <main class="services-container">
+        <div class="services-tesxt">
+          <h1 id="ob">
+            <strong class="consoleWrite">>></strong>
+           Plan registration
+            <strong class="pointer">.</strong>
+          </h1>
+          <p>
+            <strong class="consoleWrite">>_</strong>
+            Register your store's
+            <strong class="GreenCard">plans</strong>
+          </p>
+        </div>
+        <!-- <div id="loading"></div> -->
+
+        
+          <!-- <form action="/plans/register/bank" method="post">
+            <input
+              type="text"
+              name="holder_name"
+              id="holder_name"
+              placeholder="Holder Name: "
+            />
+            <input
+              type="text"
+              name="holder_type"
+              id="holder_type"
+              placeholder="holder_type"
+            />
+            <input
+              type="text"
+              name="bank_code"
+              id="bank_code"
+              placeholder="bank_code"
+            />
+            <input
+              type="text"
+              name="branch_code"
+              id="branch_code"
+              placeholder="branch_code"
+            />
+            <input
+              type="text"
+              name="account_number"
+              id="account_number"
+              placeholder="account_number"
+            />
+            <input type="text" name="tax_id" id="tax-id" placeholder="tax_id" />
+            <button type="submit">Send</button>
+          </form> -->
+          <form action="/plans/register/plans" method="post" id="contenterForm">
+            <section id="contenterFormer">
+              <div id="contentForm">
+                <div class="unionE">
+                  <input
+                    type="text"
+                    name="name_product"
+                    id="name_product"
+                    placeholder="Plan Name"
+                  />
+                  <input
+                    type="text"
+                    name="price_product"
+                    id="price_product"
+                    placeholder="Plan Product"
+                  />
+                </div>
+                <textarea
+                  name="description"
+                  id="description"
+                  placeholder="Description"
+                  style="margin-left: 0;"
+                ></textarea>
+              
+              </div>
+              
+            </section>
+            <div id="adder"><img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt=""></div>
+             
+          </form>
+          <div class="selectedIndicator" style="opacity: 1;"><button type="submit">Create <strong class="consoleWrite">>></strong></button> </div>
+         
+        
+    </section>
+  </body>
+  <script>
+    function createPlan() {
+      const service = document.createElement("div");
+      service.classList.add("PlanerDiv");
+      service.innerHTML = `<div id="contentForm">
+              <div class="unionE">
+                <input
+                  type="text"
+                  name="name_product"
+                  id="name_product"
+                  placeholder="Plan Name"
+                />
+                <input
+                  type="text"
+                  name="price_product"
+                  id="price_product"
+                  placeholder="Plan Product"
+                />
+              </div>
+              <textarea
+                name="description"
+                id="description"
+                placeholder="Description"
+                style="margin-left: 0;"
+              ></textarea>
+              
+            </div>`;
+      return service;
+    }
+    document.querySelector('#back').addEventListener('click', () => {
+            window.history.back();
+        });
+    const adder = document.querySelector("#adder");
+    const container = document.querySelector("#contenterFormer")
+    const selectedIndicatorBtn = document.querySelector(".selectedIndicator")
+    const form = document.querySelector("#contenterForm")
+    adder.addEventListener("click", () => {
+      container.appendChild(createPlan())
+    })
+    selectedIndicatorBtn.addEventListener("click", () => {
+      form.submit()
+    })
+  </script>
+</html>

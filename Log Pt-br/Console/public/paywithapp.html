@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log: Pay via App</title>
+    <link rel="stylesheet" href="/style/style.css">
+    <link rel="shortcut icon" href="/favicons/favicon-32x32.png" type="image/x-icon">
+</head>
+<body>
+    <section class="choice">
+        <div class="window">
+            <div>
+                <h1><strong class="consoleWrite">$</strong>Do you wish to make the <strong class="GreenCard">payment?</strong></h1>
+                <p><strong class="GreenCard"> Pay</strong> through the app and optimize your time on the day of your <strong class="GreenCard">appointment<strong class="pointer">.</strong> </strong></p>
+                <div class="windowButtons"><button id="y">Continue</button> or <button id="n">Back</button></div>
+            </div>
+        </div>
+    </section>
+</body>
+<script>
+    const yes = document.querySelector("#y")
+    const no = document.querySelector("#n")
+    const pathname = window.location.pathname;
+    const id = pathname.split('/').pop()
+    no.addEventListener("click", () => {
+        window.location.href = "/schedule/home"
+    })
+    yes.addEventListener("click", async () => {
+        const req = await fetch("/pay/schedule", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                id: id
+            })
+        })
+        if (req.ok){
+            const data = await req.json()
+            console.log(JSON.stringify(data))
+            const checkoutUrl = data.checkoutUrl
+            window.location.href = checkoutUrl
+        }
+    })
+</script>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log: Team Update</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <header class="nbu">
+      <button class="nButton" id="back">
+        <img
+          src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF"
+          alt=""
+        />
+      </button>
+    </header>
+    <main class="services-container">
+      <div id="loading"></div>
+      <section class="renderization">
+        <div class="services-tesxt">
+          <h1 id="ob">
+            <strong class="consoleWrite">#</strong>Update your
+            <span class="GreenCard">Team</span>
+          </h1>
+          <p>
+            Manage and configure your team<strong class="pointer">.</strong>
+          </p>
+        </div>
+        <form action="/team/updater" method="post" enctype="multipart/form-data">
+          <section id="contenterFormer" style="min-height: 60vh"></section>
+          <div class="centralNB">
+            <div id="adder">
+              <img
+                src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
+                alt=""
+              />
+            </div>
+            <div id="remover">
+              <img
+                src="https://img.icons8.com/?size=100&id=85496&format=png&color=FFFFFF"
+                alt=""
+              />
+            </div>
+          </div>
+        </form>
+        <div
+          class="selectedIndicator"
+          style="opacity: 1; top: 88vh; position: sticky"
+        >
+          <button type="submit">
+            Edit <strong class="consoleWrite">>></strong>
+          </button>
+        </div>
+      </section>
+    </main>
+  </body>
+  <script>
+    function render(el) {
+      const element = document.createElement("div");
+      element.innerHTML = el;
+
+      return element.children;
+    }
+    function createElement() {
+      const row = document.createElement("div");
+      row.classList.add("ServiceDiv");
+      row.innerHTML = `<div class="functionary-base">
+                    <div class="imager" style="width: 15vw; height: 30vh; ">
+                        <span>Drag <strong class="GreenCard">or</strong> Select</span>
+                        <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt="">
+                        <input type="file" name="image[]" id="image" style="opacity: 0;" />
+                    </div>
+                    <div class="inputer">
+                        <input type="text" name="functionaryName[]" id="functionaryName" placeholder="Member Name:">
+                        <input type="email" name="functionaryEmail[]" id="functionaryEmail" placeholder="Member Email:">
+                    </div>
+                </div>`;
+      const imager = row.querySelector(".imager");
+      setupListeners(imager);
+      return row;
+    }
+    function setupListeners(el) {
+      const serviceInput = document.querySelectorAll(".imager");
+      const fileContent = el.querySelector(`#image`);
+      const fileInput = el.querySelector("input[type='file']");
+      let selectedFile = null;
+      el.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      el.addEventListener("drop", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          handleFiles(files[0]);
+        }
+      });
+      fileInput.addEventListener("change", (e) => {
+        if (e.target.files.length > 0) {
+          handleFiles(e.target.files[0]);
+        }
+      });
+      function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length > 0) {
+          handleFiles(files[0]);
+        }
+      }
+      function handleFiles(files) {
+        selectedFile = files;
+        console.log(selectedFile);
+        const reader = new FileReader();
+        const img = el.querySelector(".imager");
+
+        reader.onload = (e) => {
+          el.innerHTML = `
+                        
+                        <span>Drag <strong class="GreenCard">or</strong> Select</span>
+                        <img src="${e.target.result}" alt="">
+                        <input type="file" name="image[]" id="image" style="opacity: 0;" />
+                    
+                    `;
+          const newInput = el.querySelector("input[type='file']");
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(selectedFile);
+          newInput.files = dataTransfer.files;
+
+          setupListeners(el);
+        };
+        reader.readAsDataURL(files);
+      }
+    }
+    function removeHour(container) {
+      const rows = container.querySelectorAll(".ServiceDiv");
+      if (rows.length > 1) {
+        container.removeChild(rows[rows.length - 1]);
+        console.log("🗑️ Service removido. Restam:", rows.length - 1);
+      }
+    }
+    window.addEventListener("load", async () => {
+      const loading = document.querySelector("#loading");
+      const container = document.querySelector("#contenterFormer");
+      const renderization = document.querySelector(".renderization");
+      const form = document.querySelector("form");
+      const selectedIndicatorBtn = document.querySelector(
+        ".selectedIndicator button"
+      );
+      const ini = await fetch("/updater/team", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (ini.ok) {
+        const data = await ini.json();
+        const html = data.html;
+
+        if (loading) loading.style.opacity = "0";
+        if (container) container.style.opacity = "1";
+        if (renderization) renderization.style.opacity = "1";
+        const rendered = render(data.html);
+        const childrenArray = Array.from(rendered);
+        for (let child of childrenArray) {
+          const childImager = child.querySelector(".imager");
+          container.appendChild(child);
+          setupListeners(childImager);
+        }
+        const adder = document.querySelector("#adder");
+        const remover = document.querySelector("#remover");
+
+        adder?.addEventListener("click", () => {
+          const newRow = createElement();
+          container.appendChild(newRow);
+          console.log("➕ Novo service adicionado");
+        });
+
+        remover?.addEventListener("click", () => {
+          const rows = container.querySelectorAll(".ServiceDiv");
+          if (rows.length > 1) {
+            removeHour(container);
+          } else {
+            console.warn("⚠️ Mínimo de 1 service necessário");
+          }
+        });
+        const btn = document.querySelector(".selectedIndicator");
+        btn.addEventListener("click", () => {
+          form.submit();
+        });
+      }
+    });
+  </script>
+</html>

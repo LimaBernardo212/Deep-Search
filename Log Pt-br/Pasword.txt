@@ -1,0 +1,132 @@
+qVgwJUlmvAoOZtQz
+------------------------------
+mongodb+srv://bernardolimarodrigues4_db_user:qVgwJUlmvAoOZtQz@cluster0.kcxhcwf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+------------------------------
+Login 👍
+Agendamentos
+---------------------------------
+<Section Code>
+async function carregarUsuario() {
+      try {
+        const res = await fetch("/api/me", { credentials: "include" });
+        if (res.status === 401) {
+          // Não autenticado: redirecione para login
+          window.location.href = "/login.html";
+          return;
+        }
+        if (!res.ok) {
+          throw new Error("Falha ao obter usuário");
+        }
+        const data = await res.json();
+        const sec = document.getElementById("user-section");
+        sec.classList.remove("muted");
+        sec.innerHTML = `
+          <div><strong>Nome:</strong> ${data.name ?? "-"}</div>
+          <div><strong>Email:</strong> ${data.email ?? "-"}</div>
+          <div><strong>Perfil:</strong> ${data.isStore ? "Loja" : "Cliente"}</div>
+        `;
+      } catch (e) {
+        console.error("Falha ao carregar usuário:", e);
+        const sec = document.getElementById("user-section");
+        if (sec) sec.textContent = "Erro ao carregar usuário.";
+      }
+    }
+
+    async function logout() {
+      try {
+        await fetch("/logout", { method: "POST", credentials: "include" });
+        window.location.href = "/login.html";
+      } catch (e) {
+        console.error("Falha no logout:", e);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("logout-btn").addEventListener("click", logout);
+      carregarUsuario();
+///////////////////////////////////////////////
+
+Google client ID:
+633112521248-muv37pdhnpbqdaeatden6mat5m04c3g6.apps.googleusercontent.com
+Google secret ID:
+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
+/////////////////////////////////////////////////////////////////
+
+        // Google Sign-In
+        function handleCredentialResponse(res) {
+            try {
+                const decodeFn = typeof jwt_decode !== 'undefined' ? jwt_decode : jwtDecode;
+                const data = decodeFn(res.credential);
+                
+                console.log('✅ Login Google bem-sucedido!');
+                console.log('Dados do usuário:', data);
+                
+                // Enviar para backend
+                fetch('/api/login/authGoogle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: data.email,
+                        name: data.name,
+                        sub: data.sub,
+                        picture: data.picture
+                    })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    console.log('✅ Backend respondeu:', result);
+                    
+                    if (result.msg === 'Sucesss' || result.msg === 'SUPER SUCESS') {
+                        alert('Login Google realizado com sucesso!');
+                        window.location.href = '/home';
+                    } else {
+                        alert('Erro: ' + (result.msg || 'Erro desconhecido'));
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Erro no backend:', error);
+                    alert('Erro ao comunicar com o servidor');
+                });
+            } catch (error) {
+                console.error('❌ Erro ao decodificar token:', error);
+                alert('Erro ao processar login do Google');
+            }
+        }
+        
+        // Inicializar Google Sign-In
+        window.onload = function () {
+            console.log('🚀 Inicializando Google Sign-In...');
+            
+            google.accounts.id.initialize({
+                client_id: "633112521248-muv37pdhnpbqdaeatden6mat5m04c3g6.apps.googleusercontent.com",
+                callback: handleCredentialResponse,
+                auto_select: false,
+                cancel_on_tap_outside: true
+            });
+            
+            google.accounts.id.renderButton(
+                document.getElementById("buttonDiv"),
+                { 
+                    type: "standard",
+                    shape: "pill",
+                    theme: "outline",
+                    text: "continue_with",
+                    size: "large",
+                    locale: "en-US",
+                    logo_alignment: "left"
+                }
+            );
+            
+            google.accounts.id.prompt();
+        };
+///////////////////////////////////////////////
+Email:
+P9Y8QGAZHY58FF5KFXVH3GFN
+///////////////////////////////
+Email code:
+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
+//////////////////////////////////
+stmp token
+1b9ed99ce0418735e7b20a2028b001ac

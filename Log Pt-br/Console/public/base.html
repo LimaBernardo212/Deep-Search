@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log : Home</title>
+
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+
+    <style>
+      body {
+        background-image: linear-gradient(
+          to bottom,
+          #0d0d0d,
+          #0d0d0d,
+          #0d0d0d,
+          #042326
+        );
+      }
+    </style>
+
+    <script>
+      function timeToMinutes(time) {
+        const [horas, minutos] = time.toString().split(":");
+       
+        return parseInt(horas) * 60 + parseInt(minutos);
+
+
+      }
+
+      // Função para converter minutos de volta para "HH:MM"
+      function minutesToTime(totalMinutes) {
+        const horas = Math.floor(totalMinutes / 60);
+        const minutos = totalMinutes % 60;
+        return `${String(horas).padStart(2, "0")}:${String(minutos).padStart(
+          2,
+          "0"
+        )}`;
+      }
+
+      // Função principal que calcula o tempo total
+      function totalTime(timeArray, hours) {
+        if (!timeArray || timeArray.length === 0) {
+          return "00:00";
+        }
+
+        // Soma todos os tempos convertidos em minutos
+        const totalMinutos = timeArray.reduce((total, tempo) => {
+          return total + timeToMinutes(tempo);
+        }, 0);
+         const [hh, mm] = hours.toString().split(':')
+         const hhmm = parseInt(hh) * 60 + parseInt(mm)
+         const finishTime = hhmm + totalMinutos
+        // Converte de volta para formato HH:MM
+        return minutesToTime(finishTime);
+      }
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const body = document.querySelector("body");
+
+        function render(el) {
+          const element = document.createElement("div");
+          element.classList.add("all");
+          element.innerHTML = el;
+          return element;
+        }
+
+        let url = window.location.pathname;
+        url = url.replace(/:\w+/g, (match) => match.slice(1));
+        try {
+          const request = await fetch(`/api${url}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!request.ok) return;
+
+          const data = await request.json();
+          const html = data.htmlPage;
+          const name = data.StoreName;
+          const service = data.serviceName;
+          const closedDays = data.closedDays;
+          const price = data.prices;
+          const time = data.time;
+          let priceArray = [];
+          let simpleArray = [];
+          let timeArray = [];
+          document.title = name;
+
+          body.appendChild(render(html));
+
+          const servicesDiv = document.querySelectorAll(".Service");
+          const selected = document.querySelector(".selectedIndicator");
+          const button = document.querySelector(".selectedIndicator button");
+          const services_content = document.querySelector(".services-content");
+          const counterOfSelected = document.querySelector(".counter");
+          const servicesBtn = document.querySelector(".servicesBtn");
+          servicesBtn.addEventListener("click", () => {
+            window.location.href = "#forScrollPreguiçosos";
+          });
+          document.querySelector("#back").addEventListener("click", () => {
+            window.history.back();
+          });
+          servicesDiv.forEach((el, i) => {
+            el.addEventListener("click", () => {
+              el.classList.toggle("servicesSelected");
+
+              if (simpleArray.includes(service[i])) {
+                const index = simpleArray.indexOf(service[i]);
+                if (index !== -1) simpleArray.splice(index, 1);
+                priceArray.pop();
+              } else {
+                simpleArray.push(service[i]);
+                priceArray.push(parseFloat(price[i], 10) * 100);
+                timeArray.push(time[i]);
+              }
+
+              if (simpleArray.length !== 0) {
+                let totalPrice = priceArray.reduce((ac, av) => {
+                  return ac + av;
+                }, 0);
+                counterOfSelected.innerHTML = `Services Selected: ${
+                  simpleArray.length
+                } <br>  Total Price: R$ ${totalPrice / 100}`;
+                selected.style.opacity = 1;
+              } else {
+                selected.style.opacity = 0;
+              }
+            });
+          });
+          const Plan = document.querySelectorAll(".Plan");
+          Plan.forEach((el, i) => {
+            el.addEventListener("click", async () => {
+              const plan = el.getAttribute("data-name");
+              const price = el.getAttribute("data-price");
+              try {
+                const req = await fetch("/pay/plans/buy", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    plan: plan,
+                    price: parseInt(price, 10) * 100,
+                  }),
+                });
+                if (req.ok) {
+                  console.log("Aparentemente deu tudo certo");
+                  const data = await req.json();
+                  const url = data.url;
+                  window.location.href = url;
+                } else {
+                  const data = await req.json();
+                  console.error(data);
+                }
+              } catch (error) {
+                console.log("Deu ruim");
+              }
+            });
+          });
+          button.addEventListener("click", async () => {
+            try {
+              const fetcher = await fetch("/render/days", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  storeName: name,
+                }),
+              });
+
+              if (!fetcher.ok) return;
+
+              const data = await fetcher.json();
+              const calendar = data.calendario;
+              const data18Mais = data.datas_proibidas;
+              const oldCalendar = document.querySelector(".calendar");
+              if (oldCalendar) oldCalendar.remove();
+              const div = document.createElement("div");
+              div.classList.add("daySistem");
+              servicesDiv.forEach((el) => {
+                el.style.opacity = "0";
+                setTimeout(() => {
+                  el.remove();
+                }, 500);
+              });
+              services_content.appendChild(div);
+              const daySistem = document.querySelector(".daySistem");
+              daySistem.style.opacity = "0";
+              selected.style.opacity = "0";
+
+              setTimeout(() => {
+                daySistem.style.display = "none";
+                selected.style.display = "none";
+              }, 500);
+
+              let codeArray = [];
+              const closedDaysArray =
+                typeof closedDays === "string"
+                  ? closedDays.split(",").map((d) => d.trim())
+                  : closedDays;
+
+              for (let i = 0; i < calendar.length; i++) {
+                const dia = calendar[i].dia;
+                const mes = calendar[i].mes;
+                let query = `${dia}/${mes}`;
+                const nomeDia = calendar[i].nomeDia;
+                if (
+                  !closedDaysArray.includes(nomeDia) &&
+                  !data18Mais.includes(query)
+                ) {
+                  let code = `
+                    <div class="day">
+                      <div class="DavidJoneDay"
+                           data-dia="${dia}"
+                           data-mes="${mes}">
+                        ${dia}/${mes}
+                      </div>
+                    </div>`;
+                  codeArray.push(code);
+                }
+              }
+
+              const codeHtml = `
+                <section class="calendar">
+                  <div class="txtCalendar">
+                    Now, select a
+                    <strong class="GreenCard">day</strong><strong class="pointer">.</strong>
+                  </div>
+
+                  <div class="calendarLine">
+                    <div class="backer">
+                      <img src="https://img.icons8.com/?size=100&id=85099&format=png&color=FFFFFF">
+                    </div>
+
+                    <div class="linerDays">
+                      <div class="scroll">${codeArray.join("")}</div>
+                    </div>
+
+                    <div class="nexter">
+                      <img src="https://img.icons8.com/?size=100&id=85099&format=png&color=FFFFFF">
+                    </div>
+                  </div>
+                </section>
+                <button class="nxtBtn"> Next <strong class="consoleWrite"> >></strong></button>`;
+
+              services_content.appendChild(render(codeHtml));
+
+              let currentP = 0;
+              const backer = document.querySelector(".backer");
+              const scroll = document.querySelector(".scroll");
+              const nexter = document.querySelector(".nexter");
+              const david = document.querySelectorAll(".DavidJoneDay");
+
+              let arrayD = [];
+
+              backer.addEventListener("click", () => {
+                currentP += 5;
+                if (currentP > 50) currentP = 50;
+                scroll.style.transform = `translateX(${currentP}vw)`;
+              });
+
+              nexter.addEventListener("click", () => {
+                currentP -= 5;
+                if (currentP < -50) currentP = -50;
+                scroll.style.transform = `translateX(${currentP}vw)`;
+              });
+              const nextBtn = document.querySelector(".nxtBtn");
+              david.forEach((el) => {
+                el.addEventListener("click", () => {
+                  david.forEach((d) => d.classList.remove("davidISelect"));
+                  arrayD.splice(0);
+
+                  const dia = el.getAttribute("data-dia");
+                  const mes = el.getAttribute("data-mes");
+
+                  el.classList.add("davidISelect");
+                  arrayD.push(`${dia}/${mes}`);
+
+                  console.log(arrayD);
+                  nextBtn.style.opacity = "1";
+                });
+              });
+              nextBtn.addEventListener("click", async () => {
+                const req = await fetch("/api/selected/fun", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    services: simpleArray,
+                    storeName: name,
+                  }),
+                });
+                if (req.ok) {
+                  const calendar = document.querySelector(".calendar");
+                  calendar.style.opacity = "0";
+                  nextBtn.style.opacity = "0";
+                  setTimeout(() => {
+                    nextBtn.style.display = "none";
+                    calendar.remove();
+                  }, 500);
+                  const data = await req.json();
+                  const codeHtml = data.code;
+
+                  services_content.appendChild(render(codeHtml));
+
+                  const fun = document.querySelectorAll(".functionaryBaseDiv");
+                  let arrayF = [];
+                  const indicatorA = document.querySelector(
+                    ".selectedIndicatorA"
+                  );
+                  fun.forEach((el, i) => {
+                    el.addEventListener("click", () => {
+                      fun.forEach((f) => {
+                        f.classList.remove("clientSelect");
+                      });
+                      arrayF.splice(0);
+                      const nameOf = el.getAttribute("name-of");
+
+                      el.classList.add("clientSelect");
+                      arrayF.push(`${nameOf}`);
+
+                      console.log(arrayF);
+                      indicatorA.style.opacity = "1";
+                    });
+                  });
+                  indicatorA.addEventListener("click", async () => {
+                    const req = await fetch("/api/selected/hours", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        storeName: name,
+                        functionary: arrayF.join(""),
+                        day: arrayD.join(""),
+                      }),
+                    });
+                    if (req.ok) {
+                      const data = await req.json();
+                      const htmlPager = data.render;
+                      const hoursSistem =
+                        document.querySelector(".hoursSistem");
+                      indicatorA.style.opacity = "0";
+                      hoursSistem.style.opacity = "0";
+                      setTimeout(() => {
+                        indicatorA.style.display = "none";
+                        hoursSistem.remove();
+                      }, 500);
+                      services_content.appendChild(render(htmlPager));
+
+                      const ourHours = document.querySelectorAll(".ourhours");
+                      const indicatorB = document.querySelector(
+                        ".selectedIndicatorB"
+                      );
+                      let arrayO = [];
+                      ourHours.forEach((el, i) => {
+                        el.addEventListener("click", () => {
+                          ourHours.forEach((o) =>
+                            o.classList.remove("hourSelect")
+                          );
+
+                          arrayO.splice(0);
+                          const dataHour = el.getAttribute("data-hour");
+
+                          el.classList.add("hourSelect");
+                          arrayO.push(`${dataHour}`);
+                          indicatorB.style.opacity = "1";
+                          console.log(arrayO);
+                        });
+                      });
+                      indicatorB.addEventListener("click", async () => {
+                        let totalPrice = priceArray.reduce((ac, av) => {
+                          return ac + av;
+                        }, 0);
+                        let totalTimer = totalTime(timeArray, arrayO.join(""))
+                        const req = await fetch("/schedule", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            choiceFunctionary: arrayF,
+                            choiceHour: arrayO,
+                            choiceDay: arrayD,
+                            services: simpleArray,
+                            storeName: name,
+                            price: totalPrice,
+                            time: totalTimer,
+                          }),
+                        });
+                        if (req.ok) {
+                          const data = await req.json();
+                          const urlForRedirect = data.redirect;
+                          window.location.href = urlForRedirect;
+                        }
+                      });
+                    }
+                  });
+                }
+              });
+            } catch (error) {
+              console.error(error);
+            }
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    </script>
+  </head>
+
+  <body></body>
+</html>
