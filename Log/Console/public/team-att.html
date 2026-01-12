@@ -32,7 +32,7 @@
             Manage and configure your team<strong class="pointer">.</strong>
           </p>
         </div>
-        <form action="/team/updater" method="post" enctype="multipart/form-data">
+        <form action="/team/updater" method="post" enctype="multipart/form-data" id="mainForm">
           <section id="contenterFormer" style="min-height: 60vh"></section>
           <div class="centralNB">
             <div id="adder">
@@ -53,7 +53,7 @@
           class="selectedIndicator"
           style="opacity: 1; top: 88vh; position: sticky"
         >
-          <button type="submit">
+          <button type="button" id="submitBtn">
             Edit <strong class="consoleWrite">>></strong>
           </button>
         </div>
@@ -64,36 +64,37 @@
     function render(el) {
       const element = document.createElement("div");
       element.innerHTML = el;
-
       return element.children;
     }
+
     function createElement() {
       const row = document.createElement("div");
       row.classList.add("ServiceDiv");
       row.innerHTML = `<div class="functionary-base">
-                    <div class="imager" style="width: 15vw; height: 30vh; ">
-                        <span>Drag <strong class="GreenCard">or</strong> Select</span>
-                        <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt="">
-                        <input type="file" name="image[]" id="image" style="opacity: 0;" />
-                    </div>
-                    <div class="inputer">
-                        <input type="text" name="functionaryName[]" id="functionaryName" placeholder="Member Name:">
-                        <input type="email" name="functionaryEmail[]" id="functionaryEmail" placeholder="Member Email:">
-                    </div>
-                </div>`;
-      const imager = row.querySelector(".imager");
-      setupListeners(imager);
+        <div class="imager" style="width: 15vw; height: 30vh;">
+          <span>Drag <strong class="GreenCard">or</strong> Select</span>
+          <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt="">
+          <input type="file" name="image[]" class="imageInput" style="opacity: 0;width: 15vw; height: 30vh; position:absolute; z-index:9999;" accept="image/*" "/>
+        </div>
+        <div class="inputer">
+          <input type="text" name="functionaryName[]" placeholder="Member Name:">
+          <input type="email" name="functionaryEmail[]" placeholder="Member Email:">
+        </div>
+      </div>`;
+      
+      
       return row;
     }
+
     function setupListeners(el) {
-      const serviceInput = document.querySelectorAll(".imager");
-      const fileContent = el.querySelector(`#image`);
-      const fileInput = el.querySelector("input[type='file']");
+      const fileInput = el.querySelector(".imageInput");
       let selectedFile = null;
+
       el.addEventListener("dragover", (e) => {
         e.preventDefault();
         e.stopPropagation();
       });
+
       el.addEventListener("drop", (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -102,82 +103,160 @@
           handleFiles(files[0]);
         }
       });
+
       fileInput.addEventListener("change", (e) => {
         if (e.target.files.length > 0) {
           handleFiles(e.target.files[0]);
         }
       });
-      function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        if (files.length > 0) {
-          handleFiles(files[0]);
-        }
-      }
-      function handleFiles(files) {
-        selectedFile = files;
-        console.log(selectedFile);
+
+      function handleFiles(file) {
+        selectedFile = file;
         const reader = new FileReader();
-        const img = el.querySelector(".imager");
 
         reader.onload = (e) => {
           el.innerHTML = `
-                        
-                        <span>Drag <strong class="GreenCard">or</strong> Select</span>
-                        <img src="${e.target.result}" alt="">
-                        <input type="file" name="image[]" id="image" style="opacity: 0;" />
-                    
-                    `;
-          const newInput = el.querySelector("input[type='file']");
+            <span>Drag <strong class="GreenCard">or</strong> Select</span>
+            <img src="${e.target.result}" alt="">
+            <input type="file" name="image[]" class="imageInput" style="opacity: 0;" accept="image/*" />
+          `;
+
+          const newInput = el.querySelector(".imageInput");
           const dataTransfer = new DataTransfer();
           dataTransfer.items.add(selectedFile);
           newInput.files = dataTransfer.files;
 
+          console.log("✅ Imagem carregada:", selectedFile.name);
           setupListeners(el);
         };
-        reader.readAsDataURL(files);
+        reader.readAsDataURL(file);
       }
     }
+
     function removeHour(container) {
       const rows = container.querySelectorAll(".ServiceDiv");
       if (rows.length > 1) {
         container.removeChild(rows[rows.length - 1]);
-        console.log("🗑️ Service removido. Restam:", rows.length - 1);
+        console.log("🗑️ Membro removido. Restam:", rows.length - 1);
       }
     }
+
+    // Criar arquivo placeholder
+    function createPlaceholder(index) {
+      const blob = new Blob([''], { type: 'application/octet-stream' });
+      return new File([blob], `placeholder_${index}.tmp`, { type: 'application/octet-stream' });
+    }
+
+    // Converter URL de imagem para File
+    async function urlToFile(url, index) {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const filename = `existing_${index}.${blob.type.split('/')[1] || 'jpg'}`;
+        return new File([blob], filename, { type: blob.type });
+      } catch (error) {
+        console.warn(`⚠️ Erro ao converter imagem ${index}:`, error);
+        return createPlaceholder(index);
+      }
+    }
+
     window.addEventListener("load", async () => {
       const loading = document.querySelector("#loading");
       const container = document.querySelector("#contenterFormer");
       const renderization = document.querySelector(".renderization");
-      const form = document.querySelector("form");
-      const selectedIndicatorBtn = document.querySelector(
-        ".selectedIndicator button"
-      );
+      const form = document.querySelector("#mainForm");
+      const submitBtn = document.querySelector("#submitBtn");
+
       const ini = await fetch("/updater/team", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
+
       if (ini.ok) {
         const data = await ini.json();
-        const html = data.html;
 
         if (loading) loading.style.opacity = "0";
         if (container) container.style.opacity = "1";
         if (renderization) renderization.style.opacity = "1";
+
         const rendered = render(data.html);
         const childrenArray = Array.from(rendered);
-        for (let child of childrenArray) {
+
+        // ✅ PROCESSAR MEMBROS EXISTENTES
+        for (let i = 0; i < childrenArray.length; i++) {
+          const child = childrenArray[i];
+
           const childImager = child.querySelector(".imager");
+          const img = childImager?.querySelector("img");
+          
+          // ⚠️ IMPORTANTE: Buscar o input ANTES de renomear
+          let imageInput = child.querySelector('input[type="file"]');
+          
+          if (!imageInput) {
+            console.error(`❌ [${i}] Input de arquivo não encontrado!`);
+            container.appendChild(child);
+            continue;
+          }
+
+          // Renomear inputs para array notation
+          const functionaryName = child.querySelector('[name="functionaryName"]');
+          const functionaryEmail = child.querySelector('[name="functionaryEmail"]');
+
+          if (functionaryName) functionaryName.name = "functionaryName[]";
+          if (functionaryEmail) functionaryEmail.name = "functionaryEmail[]";
+          
+          imageInput.name = "image[]";
+          imageInput.classList.add("imageInput");
+
+          // ✅ CONVERTER IMAGEM EXISTENTE PARA FILE
+          if (img && img.src && !img.src.includes("icons8")) {
+            try {
+              const imageFile = await urlToFile(img.src, i);
+              const dataTransfer = new DataTransfer();
+              dataTransfer.items.add(imageFile);
+              imageInput.files = dataTransfer.files;
+              console.log(`📎 [${i}] Imagem existente convertida:`, imageFile.name, `(${imageFile.size} bytes)`);
+            } catch (error) {
+              console.warn(`⚠️ [${i}] Falha ao converter imagem, usando placeholder`);
+              const placeholder = createPlaceholder(i);
+              const dataTransfer = new DataTransfer();
+              dataTransfer.items.add(placeholder);
+              imageInput.files = dataTransfer.files;
+            }
+          } else {
+            // Sem imagem válida, adicionar placeholder
+            const placeholder = createPlaceholder(i);
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(placeholder);
+            imageInput.files = dataTransfer.files;
+            console.log(`📎 [${i}] Placeholder adicionado (sem imagem)`);
+          }
+
           container.appendChild(child);
-          setupListeners(childImager);
+          if (childImager) {
+            setupListeners(childImager);
+          }
         }
+
         const adder = document.querySelector("#adder");
         const remover = document.querySelector("#remover");
 
         adder?.addEventListener("click", () => {
           const newRow = createElement();
+          const allRows = container.querySelectorAll(".ServiceDiv");
+          const newIndex = allRows.length;
+
+          // Adicionar placeholder ao novo membro
+          const newImageInput = newRow.querySelector(".imageInput");
+          const placeholder = createPlaceholder(newIndex);
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(placeholder);
+          newImageInput.files = dataTransfer.files;
+
           container.appendChild(newRow);
-          console.log("➕ Novo service adicionado");
+          console.log(`➕ Novo membro adicionado com placeholder no índice ${newIndex}`);
+          const imager = newRow.querySelector(".imager");
+            setupListeners(imager);
         });
 
         remover?.addEventListener("click", () => {
@@ -185,11 +264,48 @@
           if (rows.length > 1) {
             removeHour(container);
           } else {
-            console.warn("⚠️ Mínimo de 1 service necessário");
+            console.warn("⚠️ Mínimo de 1 membro necessário");
           }
         });
-        const btn = document.querySelector(".selectedIndicator");
-        btn.addEventListener("click", () => {
+
+        submitBtn?.addEventListener("click", (e) => {
+          e.preventDefault();
+
+          console.log("\n📤 PREPARANDO ENVIO DO TEAM...");
+
+          // ✅ GARANTIR QUE TODOS TÊM ARQUIVO (mesmo que placeholder)
+          const allMembers = container.querySelectorAll(".ServiceDiv");
+
+          allMembers.forEach((member, idx) => {
+            const imageInput = member.querySelector(".imageInput");
+
+            if (!imageInput.files || imageInput.files.length === 0) {
+              const placeholder = createPlaceholder(idx);
+              const dataTransfer = new DataTransfer();
+              dataTransfer.items.add(placeholder);
+              imageInput.files = dataTransfer.files;
+              console.log(`📎 [${idx}] Placeholder adicionado (estava vazio)`);
+            }
+          });
+
+          // Debug final
+          console.log("\n📊 RESUMO FINAL DO TEAM:");
+          console.log("Total de membros:", allMembers.length);
+
+          const allFileInputs = form.querySelectorAll('input[type="file"]');
+          console.log("Total de file inputs:", allFileInputs.length);
+
+          allFileInputs.forEach((input, idx) => {
+            const file = input.files[0];
+            const isPlaceholder = file && (
+              file.name.startsWith('placeholder_') || 
+              file.size === 0
+            );
+            console.log(
+              `[${idx}] ${file ? file.name : 'SEM ARQUIVO'} - ${file ? file.size : 0} bytes${isPlaceholder ? ' (placeholder)' : ''}`
+            );
+          });
+
           form.submit();
         });
       }

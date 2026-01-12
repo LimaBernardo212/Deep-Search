@@ -29,226 +29,327 @@
             <span class="GreenCard">Services</span>
           </h1>
           <p>
-            Manage and configure your services<strong class="pointer"
-              >.</strong
-            >
+            Manage and configure your services<strong class="pointer">.</strong>
           </p>
         </div>
-        <form action="/services/updater" method="post" enctype="multipart/form-data">
-          <input type="text" name="index" id="index" style="display: none; opacity: 1;">
-            <section id="contenterFormer" style="min-height: 60vh;">
-            </section>
-            <div class="centralNB">
-                <div id="adder">
-                  <img
-                    src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
-                    alt=""
-                  />
-                </div>
-                <div id="remover">
-                  <img
-                    src="https://img.icons8.com/?size=100&id=85496&format=png&color=FFFFFF"
-                    alt=""
-                  />
-                </div>
+        <form action="/services/updater" method="post" enctype="multipart/form-data" id="mainForm">
+          <section id="contenterFormer" style="min-height: 60vh;"></section>
+          <div class="centralNB">
+            <div id="adder">
+              <img
+                src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
+                alt=""
+              />
             </div>
+            <div id="remover">
+              <img
+                src="https://img.icons8.com/?size=100&id=85496&format=png&color=FFFFFF"
+                alt=""
+              />
+            </div>
+          </div>
         </form>
-        <div class="selectedIndicator" style="opacity: 1; top: 88vh; position: sticky;"><button type="submit">Edit <strong class="consoleWrite">>></strong></button> </div>
+        <div class="selectedIndicator" style="opacity: 1; top: 88vh; position: sticky;">
+          <button type="button" id="submitBtn">Edit <strong class="consoleWrite">>></strong></button>
+        </div>
       </section>
     </main>
   </body>
 </html>
 <script>
+  function render(el) {
+    const element = document.createElement("div");
+    element.innerHTML = el;
+    return element.children;
+  }
 
-    function render(el) {
-      const element = document.createElement("div");
-      element.classList.add("ServiceDiv");
-      element.innerHTML = el;
-      return element.children;
-    }
-    function createElement() {
-      const row = document.createElement("div");
-      row.classList.add("ServiceDiv");
-      row.innerHTML = `<div class="ServiceInput">
-            <div class="imageServiceInput">
-              <img
-                src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
-                alt=""
-              />
-              <input type="file" name="image" id="image" />
-            </div>
-            
-            <div class="servicesInfos">
-              <input
-                type="text"
-                name="serviceName"
-                id="serviceName"
-                placeholder="Service Name:"
-              />
+  function createElement() {
+    const row = document.createElement("div");
+    row.classList.add("ServiceDiv");
+    row.innerHTML = `<div class="ServiceInput">
+      <div class="imageServiceInput">
+        <img
+          src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
+          alt=""
+        />
+        <input type="file" name="image[]" class="imageInput" />
+      </div>
+      
+      <div class="servicesInfos">
+        <input
+          type="text"
+          name="serviceName[]"
+          placeholder="Service Name:"
+        />
 
-              <textarea
-                name="serviceDesc"
-                id="serviceDesc"
-                placeholder="Write a description for your service with a maximum of 100 characters."
-                maxlength="100"
-              ></textarea>
+        <textarea
+          name="serviceDesc[]"
+          placeholder="Write a description for your service with a maximum of 100 characters."
+          maxlength="100"
+        ></textarea>
 
-              <span class="Caracters">
-                Caracters:
-                <strong class="GreenCard">0</strong>
-                /
-                <strong class="GreenCard">100</strong>
-              </span>
-<select name="servicesTime" id="servicesTime">
-  <option value="00:00">Choose the service duration</option>
-  <option value="00:10">10min</option>
-  <option value="00:15">15min</option>
-                  <option value="00:30">30min</option>
-                  <option value="00:45">45min</option>
-                  <option value="01:00">1h</option>
-                  <option value="01:30">1:30h</option>
-                  <option value="02:00">2h</option>
-                  <option value="02:30">2:30h</option>
-                  <option value="03:00">3h</option>
-                  <option value="03:30">3:30h</option>
-                  <option value="04:00">4h</option>
-                  <option value="04:30">4:30h</option>
-                  <option value="05:00">5h</option>
-                </select>
-              <h2 style="display: flex; align-items: center;">
-                <img src="https://img.icons8.com/?size=100&id=123084&format=png&color=FFFFFF" alt="">
-                <input type="text" name="servicePrice" id="servicePrice" />
-              </h2>
-            </div>
-          </div>`;
-          const newTextarea = row.querySelector("textarea");
-        const newSpan = row.querySelector(".Caracters");
-          const index = document.querySelector("#index").value
-          index += 1
-        newTextarea.addEventListener("input", () => {
-          let n = newTextarea.value.length;
-          newSpan.innerHTML = `Caracters: <strong class="GreenCard">${n}</strong> / <strong class="GreenCard">100</strong>`
-        });
-      const imager = row.querySelector(".imageServiceInput");
-      setupListeners(imager);
-      return row;
-    }
-    function setupListeners(el) {
-      const serviceInput = document.querySelectorAll(".ServiceInput");
-        const fileContent = el.querySelector(`#image`);
-        const fileInput = el.querySelector("#image");
-        let selectedFile = null;
-        el.addEventListener("dragover", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        });
-        el.addEventListener("drop", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const files = e.dataTransfer.files;
-          if (files.length > 0) {
-            handleFiles(files[0]);
-          }
-        });
-        fileInput.addEventListener("change", (e) => {
-          if (e.target.files.length > 0) {
-            handleFiles(e.target.files[0]);
-          }
-        });
-        function handleDrop(e) {
-          const dt = e.dataTransfer;
-          const files = dt.files;
-          if (files.length > 0) {
-            handleFiles(files[0]);
-          }
-        }
-        function handleFiles(files) {
-          selectedFile = files;
-          console.log(selectedFile);
-          const reader = new FileReader();
-          
-          el.style.transition = "0.001s all";
-          reader.onload = (e) => {
-            el.style.border = "1px solid transparent";
-            el.style.backgroundColor = "transparent";
-            el.innerHTML = `
-            <div class="imageServiceAtt">
-              <img
-                src="${e.target.result}"
-                alt=""
-                accept="image/*"
-                
-              />
-              <input type="file" name="image" id="image" />
-            </div>`;
+        <span class="Caracters">
+          Caracters:
+          <strong class="GreenCard">0</strong>
+          /
+          <strong class="GreenCard">100</strong>
+        </span>
 
-            const serviceInput_img = el.querySelector(".imageServiceInput img");
-            const newInput = el.querySelector("#image");
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(selectedFile);
-            newInput.files = dataTransfer.files;
-          };
-          reader.readAsDataURL(files);
-        }
-    }
-    function removeHour(container) {
-      const rows = container.querySelectorAll(".ServiceDiv");
-      if (rows.length > 1) {
-        container.removeChild(rows[rows.length - 1]);
-        const index = document.querySelector("#index").value
-        index -= 1
-        console.log("🗑️ Service removido. Restam:", rows.length - 1);
-      }
-    }
-    window.addEventListener("load", async () => {
-      const loading = document.querySelector("#loading");
-      const container = document.querySelector("#contenterFormer");
-      const renderization = document.querySelector(".renderization");
-      const form = document.querySelector("form");
-      const selectedIndicatorBtn = document.querySelector(
-        ".selectedIndicator button"
-      );
-      const ini = await fetch("/updater/services", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (ini.ok) {
-        const data = await ini.json();
-        const html = data.html;
+        <select name="servicesTime[]">
+          <option value="00:00">Choose the service duration</option>
+          <option value="00:10">10min</option>
+          <option value="00:15">15min</option>
+          <option value="00:30">30min</option>
+          <option value="00:45">45min</option>
+          <option value="01:00">1h</option>
+          <option value="01:30">1:30h</option>
+          <option value="02:00">2h</option>
+          <option value="02:30">2:30h</option>
+          <option value="03:00">3h</option>
+          <option value="03:30">3:30h</option>
+          <option value="04:00">4h</option>
+          <option value="04:30">4:30h</option>
+          <option value="05:00">5h</option>
+        </select>
+        
+        <h2 style="display: flex; align-items: center;">
+          <img src="https://img.icons8.com/?size=100&id=123084&format=png&color=FFFFFF" alt="" style="width:32px;margin-top:12px;">
+          <input type="text" name="servicePrice[]" />
+        </h2>
+      </div>
+    </div>`;
 
-        if (loading) loading.style.opacity = "0";
-        if (container) container.style.opacity = "1";
-        if (renderization) renderization.style.opacity = "1";
-        const rendered = render(data.html);
-        const childrenArray = Array.from(rendered);
-        const index = document.querySelector("#index")
-        for (let child of childrenArray) {
-          const childImager = child.querySelector(".imageServiceInput");
-          container.appendChild(child);
-          index += 1
-          setupListeners(childImager);
-        }
-        const adder = document.querySelector("#adder");
-        const remover = document.querySelector("#remover");
+    const newTextarea = row.querySelector("textarea");
+    const newSpan = row.querySelector(".Caracters");
+    newTextarea.addEventListener("input", () => {
+      let n = newTextarea.value.length;
+      newSpan.innerHTML = `Caracters: <strong class="GreenCard">${n}</strong> / <strong class="GreenCard">100</strong>`;
+    });
 
-        adder?.addEventListener("click", () => {
-          const newRow = createElement();
-          container.appendChild(newRow);
-          console.log("➕ Novo service adicionado");
-        });
+    const imager = row.querySelector(".imageServiceInput");
+    setupListeners(imager);
+    return row;
+  }
 
-        remover?.addEventListener("click", () => {
-          const rows = container.querySelectorAll(".ServiceDiv");
-          if (rows.length > 1) {
-            removeHour(container);
-          } else {
-            console.warn("⚠️ Mínimo de 1 service necessário");
-          }
-        });
-        const btn = document.querySelector(".selectedIndicator");
-        btn.addEventListener("click", () => {
-          form.submit();
-        });
+  function setupListeners(el) {
+    const fileInput = el.querySelector(".imageInput");
+    let selectedFile = null;
+
+    el.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    el.addEventListener("drop", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFiles(files[0]);
       }
     });
+
+    fileInput.addEventListener("change", (e) => {
+      if (e.target.files.length > 0) {
+        handleFiles(e.target.files[0]);
+      }
+    });
+
+    function handleFiles(file) {
+      selectedFile = file;
+      const reader = new FileReader();
+      
+      el.style.transition = "0.001s all";
+      reader.onload = (e) => {
+        el.style.border = "1px solid transparent";
+        el.style.backgroundColor = "transparent";
+        
+        const imgElement = el.querySelector("img");
+        if (imgElement) {
+          imgElement.src = e.target.result;
+        }
+
+        // Atribuir arquivo ao input
+        const currentInput = el.querySelector(".imageInput");
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(selectedFile);
+        currentInput.files = dataTransfer.files;
+        
+        console.log("✅ Imagem carregada:", selectedFile.name);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function removeHour(container) {
+    const rows = container.querySelectorAll(".ServiceDiv");
+    if (rows.length > 1) {
+      container.removeChild(rows[rows.length - 1]);
+      console.log("🗑️ Service removido. Restam:", rows.length - 1);
+    }
+  }
+
+  // Criar arquivo placeholder
+  function createPlaceholder(index) {
+    const blob = new Blob([''], { type: 'application/octet-stream' });
+    return new File([blob], `placeholder_${index}.tmp`, { type: 'application/octet-stream' });
+  }
+
+  // Converter URL de imagem para File
+  async function urlToFile(url, index) {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const filename = `existing_${index}.${blob.type.split('/')[1] || 'jpg'}`;
+      return new File([blob], filename, { type: blob.type });
+    } catch (error) {
+      console.warn(`⚠️ Erro ao converter imagem ${index}:`, error);
+      return createPlaceholder(index);
+    }
+  }
+
+  window.addEventListener("load", async () => {
+    const loading = document.querySelector("#loading");
+    const container = document.querySelector("#contenterFormer");
+    const renderization = document.querySelector(".renderization");
+    const form = document.querySelector("#mainForm");
+    const submitBtn = document.querySelector("#submitBtn");
+
+    const ini = await fetch("/updater/services", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (ini.ok) {
+      const data = await ini.json();
+
+      if (loading) loading.style.opacity = "0";
+      if (container) container.style.opacity = "1";
+      if (renderization) renderization.style.opacity = "1";
+
+      const rendered = render(data.html);
+      const childrenArray = Array.from(rendered);
+
+      // ✅ PROCESSAR SERVIÇOS EXISTENTES
+      for (let i = 0; i < childrenArray.length; i++) {
+        const child = childrenArray[i];
+        
+        // Renomear inputs para array notation
+        const serviceName = child.querySelector('[name="serviceName"]');
+        const serviceDesc = child.querySelector('[name="serviceDesc"]');
+        const servicePrice = child.querySelector('[name="servicePrice"]');
+        const servicesTime = child.querySelector('[name="servicesTime"]');
+        const imageInput = child.querySelector('[name="image"]');
+        
+        if (serviceName) serviceName.name = "serviceName[]";
+        if (serviceDesc) serviceDesc.name = "serviceDesc[]";
+        if (servicePrice) servicePrice.name = "servicePrice[]";
+        if (servicesTime) servicesTime.name = "servicesTime[]";
+        if (imageInput) {
+          imageInput.name = "image[]";
+          imageInput.classList.add("imageInput");
+        }
+
+        const childImager = child.querySelector(".imageServiceInput");
+        const img = child.querySelector(".imageServiceInput img");
+        
+        // ✅ CONVERTER IMAGEM EXISTENTE PARA FILE
+        if (img && img.src && !img.src.includes("icons8")) {
+          try {
+            const imageFile = await urlToFile(img.src, i);
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(imageFile);
+            imageInput.files = dataTransfer.files;
+            console.log(`📎 [${i}] Imagem existente convertida:`, imageFile.name, `(${imageFile.size} bytes)`);
+          } catch (error) {
+            console.warn(`⚠️ [${i}] Falha ao converter imagem, usando placeholder`);
+            const placeholder = createPlaceholder(i);
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(placeholder);
+            imageInput.files = dataTransfer.files;
+          }
+        } else {
+          // Sem imagem válida, adicionar placeholder
+          const placeholder = createPlaceholder(i);
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(placeholder);
+          imageInput.files = dataTransfer.files;
+          console.log(`📎 [${i}] Placeholder adicionado (sem imagem)`);
+        }
+
+        container.appendChild(child);
+        setupListeners(childImager);
+      }
+
+      const adder = document.querySelector("#adder");
+      const remover = document.querySelector("#remover");
+
+      adder?.addEventListener("click", () => {
+        const newRow = createElement();
+        const allRows = container.querySelectorAll(".ServiceDiv");
+        const newIndex = allRows.length;
+        
+        // Adicionar placeholder ao novo serviço
+        const newImageInput = newRow.querySelector(".imageInput");
+        const placeholder = createPlaceholder(newIndex);
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(placeholder);
+        newImageInput.files = dataTransfer.files;
+        
+        container.appendChild(newRow);
+        console.log(`➕ Novo service adicionado com placeholder no índice ${newIndex}`);
+      });
+
+      remover?.addEventListener("click", () => {
+        const rows = container.querySelectorAll(".ServiceDiv");
+        if (rows.length > 1) {
+          removeHour(container);
+        } else {
+          console.warn("⚠️ Mínimo de 1 service necessário");
+        }
+      });
+
+      submitBtn?.addEventListener("click", (e) => {
+        e.preventDefault();
+        
+        console.log("\n📤 PREPARANDO ENVIO...");
+        
+        // ✅ GARANTIR QUE TODOS TÊM ARQUIVO (mesmo que placeholder)
+        const allServiceDivs = container.querySelectorAll(".ServiceDiv");
+        
+        allServiceDivs.forEach((serviceDiv, idx) => {
+          const imageInput = serviceDiv.querySelector(".imageInput");
+          
+          if (!imageInput.files || imageInput.files.length === 0) {
+            const placeholder = createPlaceholder(idx);
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(placeholder);
+            imageInput.files = dataTransfer.files;
+            console.log(`📎 [${idx}] Placeholder adicionado (estava vazio)`);
+          }
+        });
+        
+        // Debug final
+        console.log("\n📊 RESUMO FINAL:");
+        console.log("Total de serviços:", allServiceDivs.length);
+        
+        const allFileInputs = form.querySelectorAll('input[type="file"]');
+        console.log("Total de file inputs:", allFileInputs.length);
+        
+        allFileInputs.forEach((input, idx) => {
+          const file = input.files[0];
+          const isPlaceholder = file && (
+            file.name.startsWith('placeholder_') || 
+            file.size === 0
+          );
+          console.log(
+            `[${idx}] ${file ? file.name : 'SEM ARQUIVO'} - ${file ? file.size : 0} bytes${isPlaceholder ? ' (placeholder)' : ''}`
+          );
+        });
+        
+        form.submit();
+      });
+    }
+  });
 </script>
+</html>

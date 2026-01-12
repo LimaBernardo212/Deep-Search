@@ -81,7 +81,7 @@
           <p>Pref.</p>
         </div>
         <div class="divAndYourLabel">
-          <div id="services" class="itens" title="Your Project">
+          <div id="bank" class="itens" title="Your Project">
             <img
               src="https://img.icons8.com/?size=100&id=86131&format=png&color=FFFFFF"
               alt=""
@@ -136,6 +136,10 @@
       prefs.addEventListener("click", () => {
         window.location.href = '/stores/prefs'
       })
+       const bank = document.querySelector("#bank")
+      bank.addEventListener("click", () => {
+        window.location.href = "/store-bank"
+      })
       const ini = await fetch("/analitics",  {
         method: "GET",
         headers: {"Content-Type": "application/json"}
@@ -150,7 +154,12 @@
             setTimeout(() => {
                 content.style.opacity = '1'
                 container.appendChild(render(structure))
+                
             }, 500);
+            const cashImg = document.querySelector(".analyticsInfo span img")
+        cashImg.addEventListener("click", () => {
+          window.location.href = `/store-bank`
+        })
       }
       else{
         window.location.href = `/stores/home`

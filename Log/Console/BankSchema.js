@@ -6,7 +6,6 @@ const BankAndPlans = new mongoose.Schema({
         holder_type: String,
         bank_code: String,
         branch_code: String,
-        tax_id: String,
         stripe_id: String,
         account_number: String
     })

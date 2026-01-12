@@ -393,6 +393,9 @@ body {
   margin: 2vh 2vw;
   font-family: var(--fontJetBrains);
   color: var(--cor05);
+  word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 .Basic .beneficios button {
   margin: 10vh auto;
@@ -1362,6 +1365,9 @@ main.infoContent {
   max-width: 17vw;
   margin-bottom: 2vh;
   text-align: justify;
+  word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 .servicesInfos h2{
   display: flex;
@@ -3450,15 +3456,7 @@ border: 1px solid var(--cor01Esvoaçada);
   justify-content: center;
   background-color: var(--cor12);
 }
-#bank{
-  background-color: var(--cor13);
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+
 #documents{
   background-color: var(--cor13);
   width: 44px;
@@ -3779,9 +3777,9 @@ background-color: var(--cor04);
   opacity: 0;
 }
 #servicesTime{
-  width: 17vw;
+  width: 15vw;
   height: 5vh;
-  padding: 0 5px;
+  padding: 0 10px;
   font-family: var(--fontRoboto);
   background-color: var(--cor00);
   border: 1px solid var(--cor01Esvoaçada);
@@ -3799,4 +3797,48 @@ background-color: var(--cor04);
   display: flex;
   align-self: center;
   justify-content: center;
+}
+.FormSeparate input{
+  width: 15vw;
+  height: 5vh;
+  background-color: var(--cor00);
+  border: 1px solid var(--cor01Esvoaçada);
+  color: var(--cor05);
+  padding: 0 20px;
+  border-radius: 10px;
+  margin: 1vh 3vw;
+  display: block;
+}
+.FormSeparate input:focus{
+  outline: none;
+}
+.FormSeparate select{
+  width: 18vw;
+  height: 5vh;
+  padding: 0 10px;
+   background-color: var(--cor03);
+  border: 1px solid var(--cor01Esvoaçada);
+  color: var(--cor05);
+  border-radius: 5px;
+  margin: 1vh 3vw;
+}
+.FormSeparate select:focus{
+  outline: none;
+}
+.cvvForm{
+  margin-left: 3vw;
+}
+.cvvForm input{
+  width: 8vw;
+  height: 5vh;
+  background-color: var(--cor00);
+  border: 1px solid var(--cor01Esvoaçada);
+  color: var(--cor05);
+  margin-top: 2vh;
+  border-radius: 10px;
+  text-align: center;
+  margin-right: 1.3vw;
+}
+.cvvForm input:focus{
+  outline: none;
 }

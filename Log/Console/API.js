@@ -2503,6 +2503,7 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
       let emailC = ordenadosAgendamentos[i].email;
       let hour = ordenadosAgendamentos[i].hour;
       let value = ordenadosAgendamentos[i].totalPrice / 100;
+      
       let payed = ordenadosAgendamentos[i].payed;
       const functionary = ordenadosAgendamentos[i].functionary;
       const services = ordenadosAgendamentos[i].services;
@@ -2660,7 +2661,8 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
     if (basicInfos) {
       let cash = basicInfos.totalCash / 100;
       let scheduleRemanescentes = 0;
-      const formattedBalance = cash.toLocaleString("pt-BR", {
+      let casherValue = (cash * 93) / 100
+      const formattedBalance = casherValue.toLocaleString("pt-BR", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       });
@@ -3280,7 +3282,6 @@ app.post("/plans/register/bank", tokenVerify, async (req, res) => {
     bank_code,
     branch_code,
     account_number,
-    tax_id,
   } = req.body;
   console.log("📦 Dados recebidos:", {
     holder_name,
@@ -3288,7 +3289,6 @@ app.post("/plans/register/bank", tokenVerify, async (req, res) => {
     bank_code,
     branch_code,
     account_number,
-    tax_id,
   });
   try {
     const account = await stripe.accounts.create({
@@ -3303,6 +3303,7 @@ app.post("/plans/register/bank", tokenVerify, async (req, res) => {
       metadata: {
         userId: req.user.id,
         userName: name,
+        isTestAccount: "true",
       },
     });
     const externalAccount = await stripe.accounts.createExternalAccount(
@@ -3335,6 +3336,15 @@ app.post("/plans/register/bank", tokenVerify, async (req, res) => {
     if (!bankDatas) {
       const criptNumber = criptografar(account_number.toString());
       const encriptedJson = JSON.stringify(criptNumber);
+      
+
+      const accountLink = await stripe.accountLinks.create({
+        account: account.id,
+        refresh_url: `http://localhost:3000/store-bank`, // URL se expirar
+        return_url: `http://localhost:3000/store-bank`, // URL após completar
+        type: "account_onboarding",
+        collect: "currently_due"
+      });
       const cadBankDatas = await BankSchema.create({
         name: name,
         email: email,
@@ -3342,19 +3352,9 @@ app.post("/plans/register/bank", tokenVerify, async (req, res) => {
         holder_type: holder_type,
         bank_code: bank_code,
         branch_code: branch_code,
-        tax_id: tax_id,
         stripe_id: account.id,
-        account_number: encriptedJson,
+        account_number: criptNumber.authTag,
       });
-
-      const accountLink = await stripe.accountLinks.create({
-        account: account.id,
-        refresh_url: `http://localhost:3000/reauth`, // URL se expirar
-        return_url: `http://localhost:3000/dashboard`, // URL após completar
-        type: "account_onboarding",
-        collect: "eventually_due",
-      });
-
       if (cadBankDatas) {
         return res.redirect(accountLink.url);
       }
@@ -4549,7 +4549,8 @@ app.get("/analitics", tokenVerify, async (req, res) => {
       (scheduleCancelSoma / scheduleNumberSoma) * 100;
     console.log(mediaDeCancelamentos);
     console.log(dateNasc);
-    const formattedBalance = Cash.toLocaleString("pt-BR", {
+    let casherValue = (Cash * 93) / 100
+    const formattedBalance = casherValue.toLocaleString("pt-BR", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
@@ -4572,7 +4573,7 @@ app.get("/analitics", tokenVerify, async (req, res) => {
       </div>
     </div>
     <div class="unionE" style="margin: 5vh 5vw; flex-wrap:wrap; max-width: 95vw;">
-    <div class="analyticsInfo"><span class="label">Pending <strong class="GreenCard">Collection:</strong> </span><br><span class="pricer">${formattedBalance}<img src="https://img.icons8.com/?size=100&id=85113&format=png&color=FFFFFF"></span></div>
+    <div class="analyticsInfo"><span class="label">Pending <strong class="GreenCard">Collection:</strong> </span><br><span class="pricer">${formattedBalance}</span></div>
     <div class="analyticsInfo"><span class="label"><strong class="GreenCard">Total</strong> visitors  </span><br><span class="Numbera">${visitantes}</span></div>
     <div class="analyticsInfo"><span class="label"><strong class="GreenCard">Total</strong> Appointments  </span><br><span class="Numbera">${totalAppointments}</span></div>
     <div class="analyticsInfo"><span class="label"> Total of Paid<strong class="GreenCard"> Appointments</strong> </span><br><span class="Numbera">${totalAppointmentsPayed}</span></div>
@@ -5642,14 +5643,14 @@ app.get("/updater/services", tokenVerify, async (req, res) => {
     }
     let htmlArr = []
     for (let i = 0; i < services.serviceName.length; i++) {
-      let stcr = `<div class="ServiceDiv">
+      let stcr = `<div class="ServiceDiv" data-img="${services.serviceImagePath[i]}">
         <div class="ServiceInput">
               <div class="imageServiceInput">
                 <img
                   src="${services.serviceImagePath[i]}"
                   alt=""
                 />
-                <input type="file" name="image" id="image" />
+                <input type="file" name="image" id="image" value="${services.serviceImagePath[i]}" />
               </div>
               <div class="servicesInfos">
                 <input
@@ -5723,6 +5724,7 @@ app.post("/services/updater", tokenVerify, upload.any(), async(req, res)=> {
     );
 
     const { name, email } = req.user;
+
     const findStore = await StoreCad.findOne({ email: email });
     if (!findStore) {
       console.log(name, email);
@@ -5732,7 +5734,6 @@ app.post("/services/updater", tokenVerify, upload.any(), async(req, res)=> {
         email: email,
       });
     }
-
     const toArray = (v) => (Array.isArray(v) ? v : v !== undefined ? [v] : []);
 
     const serviceNames = toArray(
@@ -5746,9 +5747,7 @@ app.post("/services/updater", tokenVerify, upload.any(), async(req, res)=> {
     );
     const servicesTime = toArray(
       req.body["servicesTime[]"] ?? req.body.servicesTime
-    );
-    const index = req.body["index"]
-    
+    )
     const files = req.files || [];
 
     const total =
@@ -5767,25 +5766,18 @@ app.post("/services/updater", tokenVerify, upload.any(), async(req, res)=> {
       return res.status(400).json({ message: "Nenhum serviço enviado." });
     }
 
-    // ✅ BUSCAR DADOS ANTIGOS PRIMEIRO
-    const existingStore = await ServicesCad.findOne({
-      name: name,
-      email: email,
-      storeName: findStore.storeName
-    });
-    
-    if (!existingStore) {
-      return res
-        .status(404)
-        .json({ message: "Nenhuma entrada válida de serviço encontrada." });
-    }
-
-    // ✅ PROCESSAR NOVAS IMAGENS
-    const newImagePaths = [];
-    const newImageMeta = [];
+    const created = [];
+    let fileCursor = 0;
+    let fileUsedIndex = null;
+    let file = null;
+    const imagePaths = [];
+    const imageMeta = [];
+    let imageInfo = null;
 
     for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+      if (fileCursor < files.length) {
+        file = files[fileCursor];
+      }
 
       try {
         const processed = await processImageToWebp(file.buffer, {
@@ -5799,8 +5791,7 @@ app.post("/services/updater", tokenVerify, upload.any(), async(req, res)=> {
           processed.format,
           "service"
         );
-        
-        const imageInfo = {
+        imageInfo = {
           storage: "disk",
           path: saved.relPath,
           filename: saved.fileName,
@@ -5809,76 +5800,49 @@ app.post("/services/updater", tokenVerify, upload.any(), async(req, res)=> {
           height: processed.height,
           sizeBytes: processed.sizeBytes,
         };
-        
-        newImagePaths.push(saved.relPath);
-        newImageMeta.push(imageInfo);
+        fileCursor++;
+        imagePaths.push(saved.relPath);
+        imageMeta.push(imageInfo);
       } catch (imgErr) {
-        console.warn("Falha ao processar imagem do serviço:", imgErr.message);
-        newImagePaths.push(null);
-        newImageMeta.push(null);
+        console.warn("Falha ao processar imagem do serviço:", imgErr.message); // ERRO: removido "i" que não existe
+        fileCursor++;
       }
     }
 
-    console.log("Novas imagePaths:", newImagePaths);
-    console.log("Imagens antigas:", existingStore.serviceImagePath);
+    const newService = await ServicesCad.findOneAndUpdate({
+      name: name,
+      email: email,
+      
+    },{
+      storeName: findStore.storeName,
+      storeEmail: findStore.storeEmail,
+      phone: findStore.phone,
+      serviceName: serviceNames,
+      serviceDesc: serviceDescs,
+      servicePrice: servicePricesRaw,
+      servicesTime: servicesTime,
+      serviceImagePath: imagePaths ?? null,
+      serviceImageMeta: imageMeta ?? null,
+    });
+    created.push({
+      ...newService.toObject(),
+      _debugFileUsedIndex: fileUsedIndex,
+    });
 
-    // ✅ MESCLAR IMAGENS ANTIGAS COM NOVAS
-    const finalImagePaths = [];
-    const finalImageMeta = [];
-
-    for (let i = 0; i < serviceNames.length; i++) {
-      // Se tem imagem nova nesse índice, usa ela
-      if (newImagePaths[i]) {
-        finalImagePaths.push(newImagePaths[i]);
-        finalImageMeta.push(newImageMeta[i]);
-      } 
-      // Se não tem imagem nova, mantém a antiga (se existir)
-      else if (existingStore.serviceImagePath && existingStore.serviceImagePath[i]) {
-        finalImagePaths.push(existingStore.serviceImagePath[i]);
-        finalImageMeta.push(existingStore.serviceImageMeta[i]);
-      }
-      // Se não tem nem nova nem antiga, usa null
-      else {
-        finalImagePaths.push(null);
-        finalImageMeta.push(null);
-      }
-    }
-
-    console.log("Imagens finais mescladas:", finalImagePaths);
-
-    // ✅ ATUALIZAR NO BANCO
-    const newServiceData = await ServicesCad.findOneAndUpdate(
-      {
-        name: name,
-        email: email,
-      }, 
-      {
-        storeName: findStore.storeName,
-        storeEmail: findStore.storeEmail,
-        phone: findStore.phone,
-        serviceName: serviceNames,
-        serviceDesc: serviceDescs,
-        servicePrice: servicePricesRaw,
-        servicesTime: servicesTime,
-        serviceImagePath: finalImagePaths,
-        serviceImageMeta: finalImageMeta,
-      },
-      { new: true }  // ✅ Retorna o documento atualizado
-    );
-
-    if (!newServiceData) {
+    if (created.length === 0) {
       return res
         .status(400)
-        .json({ message: "Erro ao atualizar serviços." });
+        .json({ message: "Nenhuma entrada válida de serviço para cadastrar." });
     }
 
-    console.log(`✅ ${serviceNames.length} serviço(s) atualizado(s). ${newImagePaths.length} imagem(ns) nova(s).`);
+    console.log(
+      `Criados ${created.length} serviço(s). files.length=${files.length}`
+    );
     return res.redirect("/stores/prefs");
-
   } catch (error) {
-    console.error("Erro ao atualizar serviços:", error);
+    console.error("Erro ao cadastrar serviços:", error);
     return res.status(500).json({
-      message: "Erro ao processar a atualização de serviços.",
+      message: "Erro ao processar o cadastro de serviços.",
       error: error.message,
     });
   }
@@ -5898,12 +5862,12 @@ app.get("/updater/team", tokenVerify, async (req, res) => {
     }
     let htmlArr = []
     for (let i = 0; i < fnct.functionarysName.length; i++) {
-      let stcr = `<div class="ServiceDiv">
+      let stcr = `<div class="ServiceDiv" data-img="${fnct.functionaryImagePath[i]}">
         <div class="functionary-base">
                       <div class="imager" style="width: 15vw; height: 30vh; ">
                           <span>Drag <strong class="GreenCard">or</strong> Select</span>
                           <img src="${fnct.functionaryImagePath[i]}" alt="">
-                          <input type="file" name="image[]" id="image" style="opacity: 0;" />
+                          <input type="file" name="image[]" id="image" style="opacity: 0;" value="${fnct.functionaryImagePath[i]}" />
                       </div>
                       <div class="inputer">
                           <input type="text" name="functionaryName[]" id="functionaryName" placeholder="Member Name:" value="${fnct.functionarysName[i]}">
@@ -5969,21 +5933,10 @@ app.post("/team/updater", tokenVerify, upload.any(), async (req, res) => {
       return res.status(400).json({ message: "Nenhum funcionário enviado" });
     }
 
-    // ✅ BUSCAR DADOS ANTIGOS PRIMEIRO
-    const fnct = await functionaryCad.findOne({
-      name: name,
-      email: email
-    });
-    
-    if (!fnct) {
-      console.log('Funcionário não encontrado');
-      return res.status(404).json({ message: "Nenhum funcionário encontrado" });
-    }
+    const imagePaths = [];
+    const imageMeta = [];
 
-    // ✅ PROCESSAR NOVAS IMAGENS
-    const newImagePaths = [];
-    const newImageMeta = [];
-
+    // ✅ Loop simples igual ao servicesCad
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
@@ -6010,77 +5963,92 @@ app.post("/team/updater", tokenVerify, upload.any(), async (req, res) => {
           sizeBytes: processed.sizeBytes,
         };
 
-        newImagePaths.push(saved.relPath);
-        newImageMeta.push(imageInfo);
+        imagePaths.push(saved.relPath);
+        imageMeta.push(imageInfo);
       } catch (imgErr) {
         console.warn("Falha ao processar imagem:", imgErr.message);
-        newImagePaths.push(null);
-        newImageMeta.push(null);
+        // Adiciona null para manter índice
+        imagePaths.push(null);
+        imageMeta.push(null);
       }
     }
 
-    console.log("Novas imagePaths:", newImagePaths);
-    console.log("Imagens antigas:", fnct.functionaryImagePath);
+    console.log("imagePaths final:", imagePaths);
+    console.log("imageMeta final:", imageMeta);
 
-    // ✅ MESCLAR IMAGENS ANTIGAS COM NOVAS
-    const finalImagePaths = [];
-    const finalImageMeta = [];
+    const newFunctionary = await functionaryCad.findOneAndUpdate({
+      name: name,
+      email: email,
+    }, {
+      storeName: findStore.storeName,
+      storeEmail: findStore.storeEmail,
+      phone: findStore.phone,
+      functionarysName: functionaryName,
+      functionarysEmail: functionaryEmail,
+      functionaryImagePath: imagePaths,
+      functionaryImageMeta: imageMeta,
+    });
+    if (newFunctionary){
+       console.log(`Criados funcionários. files.length=${files.length}`);
 
-    for (let i = 0; i < functionaryName.length; i++) {
-      // Se tem imagem nova nesse índice, usa ela
-      if (newImagePaths[i]) {
-        finalImagePaths.push(newImagePaths[i]);
-        finalImageMeta.push(newImageMeta[i]);
-      } 
-      // Se não tem imagem nova, mantém a antiga (se existir)
-      else if (fnct.functionaryImagePath && fnct.functionaryImagePath[i]) {
-        finalImagePaths.push(fnct.functionaryImagePath[i]);
-        finalImageMeta.push(fnct.functionaryImageMeta[i]);
-      }
-      // Se não tem nem nova nem antiga, usa placeholder
-      else {
-        finalImagePaths.push(null);
-        finalImageMeta.push(null);
-      }
-    }
-
-    console.log("Imagens finais mescladas:", finalImagePaths);
-
-    // ✅ ATUALIZAR NO BANCO
-    const newFunctionary = await functionaryCad.findOneAndUpdate(
-      {
-        name: name,
-        email: email,
-      }, 
-      {
-        storeName: findStore.storeName,
-        storeEmail: findStore.storeEmail,
-        phone: findStore.phone,
-        functionarysName: functionaryName,
-        functionarysEmail: functionaryEmail,
-        functionaryImagePath: finalImagePaths,
-        functionaryImageMeta: finalImageMeta,
-      },
-      { new: true }  // ✅ Retorna o documento atualizado
-    );
-
-    if (!newFunctionary) {
-      return res.status(400).json({ 
-        message: "Erro ao atualizar funcionários" 
-      });
-    }
-
-    console.log(`✅ ${functionaryName.length} funcionário(s) atualizado(s)`);
+    // ✅ Redireciona igual ao servicesCad
     return res.redirect("/stores/prefs");
-
+    }
+   
   } catch (error) {
-    console.error("Erro ao atualizar funcionários:", error);
+    console.error("Erro ao cadastrar funcionários:", error);
     return res.status(500).json({
-      message: "Erro ao processar a atualização.",
+      message: "Erro ao processar o cadastro.",
       error: error.message,
     });
   }
 });
+app.get("/store-bank", (req, res) => {
+  return res.status(200).sendFile(path.join(__dirname, "public", "storeBank.html"))
+})
+app.get("/exist-bank-datas", tokenVerify, async (req, res) => {
+  const {name, email} = req.user;
+  try {
+    const verifyBank = await BankSchema.findOne({
+      name: name,
+      email: email
+    })
+    if (!verifyBank){
+      let stcr = `<div class="marginer" style="margin-top:5vh;">
+  <div class="notAllowed">
+    <div class="call-action">
+      <h1 class="call-h1">
+        Banking details <strong class="GreenCard">required</strong><strong class="pointer">.</strong>
+      </h1>
+      <p class="call-p">Add your payment information to start accepting bookings.</p>
+    </div>
+  
+    <div class="central-plus">
+      <div class="label-plus">
+        <p>
+          Add <strong class="GreenCard">Details</strong>
+        </p>
+      </div>
+      <div class="img-plus">
+        <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt="Add">
+      </div>
+    </div>
+  </div>
+</div>`
+      return res.status(200).json({
+        rendera: stcr
+      })
+    }
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({
+      error: error
+    })
+  }
+})
+app.get("/bank/datas", (req, res) => {
+  return res.status(200).sendFile(path.join(__dirname, "public", "bank-datas.html"))
+})
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
   console.log(`📧 Sistema de recuperação de senha ativo`);

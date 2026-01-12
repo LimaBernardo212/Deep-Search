@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log: Bank</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <header class="nbu">
+        <button class="nButton" id="back">
+            <img src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF" alt="">
+        </button>
+    </header>
+      <main class="services-container" style=" display: flex; align-items: center; padding: 0;">
+        <div class="unionE">
+            <div class="services-tesxt">
+  <h1 id="ob">
+    <strong class="consoleWrite">>></strong>
+    Payment setup
+    <strong class="pointer">.</strong>
+  </h1>
+  <p>
+    <strong class="consoleWrite">>_</strong>
+    Configure your bank account to receive
+    <strong class="GreenCard">payments</strong>
+  </p>
+</div>
+            
+             <form action="/plans/register/bank" method="post" style="margin-left: 35vw; margin-top: 5vh;">
+                <div class="FormSeparate">
+                    <input
+                      type="text"
+                      name="holder_name"
+                      id="holder_name"
+                      placeholder="Holder Name: "
+                    />
+            
+                    <input
+                      type="text"
+                      name="account_number"
+                      id="account_number"
+                      placeholder="Account Number"
+                    />
+                    <select name="holder_type" id="holder_type">
+                        <option value="individual">Individual</option>
+                        <option value="company"> Company</option>
+                    </select>
+                </div>
+                <div class="cvvForm">
+                    <input
+                      type="text"
+                      name="bank_code"
+                      id="bank_code"
+                      placeholder="Bank Code"
+                      maxlength="3"
+                    />
+                    <input
+                      type="text"
+                      name="branch_code"
+                      id="branch_code"
+                      placeholder="Agency Number"
+                      maxlength="4"
+                    />
+                </div>
+              </form>
+        </div>
+
+
+          </div>
+         
+        <div class="selectedIndicator" style="opacity: 1; top: 88vh; left: 10vw; margin-left: -3vw;"><button type="submit">Create <strong class="consoleWrite">>></strong></button> 
+    </section>
+  </body>
+  <script>
+    document.querySelector('#back').addEventListener('click', () => {
+            window.history.back();
+        });
+    const adder = document.querySelector("#adder");
+    const container = document.querySelector("#contenterFormer")
+    const selectedIndicatorBtn = document.querySelector(".selectedIndicator")
+    const form = document.querySelector("form")
+    selectedIndicatorBtn.addEventListener("click", () => {
+      form.submit()
+    })
+  </script>
+</html>
