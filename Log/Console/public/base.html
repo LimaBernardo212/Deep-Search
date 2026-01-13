@@ -140,6 +140,7 @@
             el.addEventListener("click", async () => {
               const plan = el.getAttribute("data-name");
               const price = el.getAttribute("data-price");
+              const store = el.getAttribute("data-store")
               try {
                 const req = await fetch("/pay/plans/buy", {
                   method: "POST",
@@ -147,6 +148,7 @@
                   body: JSON.stringify({
                     plan: plan,
                     price: parseInt(price, 10) * 100,
+                    storeName: store
                   }),
                 });
                 if (req.ok) {

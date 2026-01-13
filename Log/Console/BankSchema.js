@@ -7,6 +7,10 @@ const BankAndPlans = new mongoose.Schema({
         bank_code: String,
         branch_code: String,
         stripe_id: String,
-        account_number: String
+        account_number: {
+            type: Object,
+            required: true
+        },
+        active: Boolean
     })
     export default mongoose.model("bank", BankAndPlans);

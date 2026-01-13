@@ -4,6 +4,7 @@ const Plans = new mongoose.Schema({
         email: String,
         planName: String,
         planPrice: Number,
-        subscriptionId: String
+        subscriptionId: String,
+        subscritionDay: String,
     })
     export default mongoose.model("MyPlans", Plans);

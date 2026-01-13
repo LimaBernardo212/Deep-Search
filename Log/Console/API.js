@@ -31,6 +31,8 @@ import store_data_schema from "./store_data_schema.js";
 import reembolso from "./reembolso.js";
 import recurring from "./recurring.js";
 import StoreCadschema from "./StoreCadschema.js";
+import cron from "node-cron"; // ✅ CORRETO
+
 dotenv.config();
 
 const app = express();
@@ -158,8 +160,8 @@ function tokenVerify(req, res, next) {
 //             <html>
 //             <head>
 //                 <style>
-//                     body { 
-                        
+//                     body {
+
 //                         background-color: #0D0D0D;
 //                         margin: 0;
 //                         padding: 0;
@@ -169,7 +171,7 @@ function tokenVerify(req, res, next) {
 //                         width: 100vw;
 //                         overflow: hidden;
 //                     }
-//                     .container { 
+//                     .container {
 //                         height: 100vh;
 //                         display: flex;
 //                         flex-direction: column;
@@ -186,7 +188,7 @@ function tokenVerify(req, res, next) {
 //                     .pointer{
 //     width: 3vw;
 //     height: 3vh;
-   
+
 //     margin-left: 5px;
 //     font-family: Arial, Helvetica, sans-serif;
 //     background-color: #f2f2f2;
@@ -195,7 +197,7 @@ function tokenVerify(req, res, next) {
 //     animation-duration: 0.7s;
 //     animation-iteration-count: infinite;
 //     animation-timing-function: steps(1);
-    
+
 // }
 // @keyframes pisk {
 //     0%{
@@ -207,7 +209,7 @@ function tokenVerify(req, res, next) {
 //     100%{
 //         opacity: 0;
 //     }
-    
+
 // }
 
 //                     .header {
@@ -218,8 +220,7 @@ function tokenVerify(req, res, next) {
 //                         border-bottom: 2px solid #238C6E;
 //                         margin-bottom: 20px;
 //                     }
-                    
-                    
+
 //                     .link-box {
 //                         background-color: #238C6E;
 //                         padding: 10px;
@@ -244,17 +245,17 @@ function tokenVerify(req, res, next) {
 //                     <div class="header">
 //                         <h2>Password <strong class="GreenCard">Recovery</strong><strong class="pointer">||</strong></h2>
 //                     </div>
-                    
+
 //                     <p>Hi,</p>
 //                     <p>How are you?</p>
-                    
+
 //                     <p>
 //                         You requested a password reset at https://log.bussiness
 //                     </p>
-                    
+
 //                     <p id="diferent">Paste the code below on our website and reset your password:</p>
 //                     <div class="link-box">${resetToken}</div>
-                    
+
 //                 </div>
 //             </body>
 //             </html>
@@ -361,9 +362,78 @@ async function saveBufferToDisk(buffer, ext = "webp", type = "service") {
     relPath: `/uploads/${urlPath}/${fileName}`, // ✅ Caminho dinâmico
   };
 }
+async function verificarAssinaturasExpiradas() {
+  try {
+    const today = new Date();
+    const day = today.getDate();
+    const month = today.getMonth();
+    const year = today.getFullYear();
+    const subscription = await userPlansSchema.find({
+      subscritionDay: `${day}/${month}/${year}`,
+    });
+    for (const sub of subscription) {
+      const stripeSub = await stripe.subscriptions.retrieve(sub.subscriptionId);
+      const pay = await plansSchema.findOne({
+        planName: sub.planName,
+        planPrice: sub.planPrice,
+      });
+      if (!pay) {
+        console.error("PAY ERROR");
+        continue;
+      }
+      const storePay = await store_data_schema.findOne({
+        storeName: pay.storeName,
+      });
+      if (!storePay) {
+        console.error("STORE PAY ERROR");
+        continue;
+      }
+      const finishPay = await store_data_schema.findOneAndUpdate(
+        {
+          storeName: storePay.storeName,
+          storeEmail: storePay.storeEmail,
+        },
+        {
+          totalCash: storePay.totalCash + parseInt(pay.planPrice),
+        }
+      );
+      if (!finishPay) {
+        console.error("FINISH PAY ERROR");
+      }
+      const nextDate = new Date(today);
+      nextDate.setDate(nextDate.getDate() + 30);
+      const nextDay = nextDate.getDate();
+      const nextMonth = nextDate.getMonth() + 1;
+      const nextYear = nextDate.getFullYear();
+      const nextQuery = `${nextDay}/${nextMonth
+        .toString()
+        .padStart(2, "0")}/${nextYear}`;
+      const suber = await userPlansSchema.findOneAndUpdate(
+        {
+          name: sub.name,
+          email: sub.email,
+        },
+        {
+          subscritionDay: nextQuery,
+        }
+      );
+      if (!suber) {
+        console.error("FINISH PAY ERROR");
+        continue;
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
 // ========================================
 // SUAS ROTAS DE LOGIN (permanecem iguais)
 // ========================================
+cron.schedule("0 * * * *", async () => {
+  console.log("Verificando assinaturas...");
+  await verificarAssinaturasExpiradas();
+});
+
 app.post("/api/login", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -519,27 +589,23 @@ app.post("/api/login/authGoogle", async (req, res) => {
 });
 
 app.get("/api/me", tokenVerify, async (req, res) => {
-  const {name, email} = req.user;
+  const { name, email } = req.user;
   try {
     const testStore = await StoreCadschema.findOne({
       name: name,
-      email: email
-    })
-    if (!testStore){
+      email: email,
+    });
+    if (!testStore) {
       return res.status(200).json({
         name: name,
         email: email,
-      })
-    }else{
-      return res.status(200).json(
-        {
-          storeName: testStore.storeName
-        }
-      )
+      });
+    } else {
+      return res.status(200).json({
+        storeName: testStore.storeName,
+      });
     }
-  } catch (error) {
-    
-  }
+  } catch (error) {}
 });
 
 app.get("/api/logout", (req, res) => {
@@ -934,7 +1000,7 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
     );
     const servicesTime = toArray(
       req.body["servicesTime[]"] ?? req.body.servicesTime
-    )
+    );
     const files = req.files || [];
 
     const total =
@@ -1100,9 +1166,9 @@ app.post("/api/selected/fun", tokenVerify, async (req, res) => {
   });
 });
 function timeToMinutes(time) {
-      const [horas, minutos] = time.split(":").map(Number);
-      return horas * 60 + minutos;
-    }
+  const [horas, minutos] = time.split(":").map(Number);
+  return horas * 60 + minutos;
+}
 app.post("/api/selected/hours", tokenVerify, async (req, res) => {
   const { name, email } = req.user;
   const { storeName, functionary, day } = req.body;
@@ -1137,22 +1203,24 @@ app.post("/api/selected/hours", tokenVerify, async (req, res) => {
           continue;
         }
       }
-      let blocked = false
-      for( const schedule of reqScheudle){
+      let blocked = false;
+      for (const schedule of reqScheudle) {
         const inicioAgendamento = timeToMinutes(schedule.hour);
         const fimAgendamento = timeToMinutes(schedule.finishHour);
         const horarioAtual = timeToMinutes(hoursTobeDiv[i]);
 
-        if (horarioAtual >= inicioAgendamento && horarioAtual < fimAgendamento){
-          blocked = true
+        if (
+          horarioAtual >= inicioAgendamento &&
+          horarioAtual < fimAgendamento
+        ) {
+          blocked = true;
           break;
         }
-         if (!blocked){
-          const outlierBase = `<br><div class="ourhours" data-hour="${hoursTobeDiv[i]}">${hoursTobeDiv[i]}</div>`;
-        hoursArray.push(outlierBase);
-         }
       }
-     
+      if (!blocked) {
+        const outlierBase = `<br><div class="ourhours" data-hour="${hoursTobeDiv[i]}">${hoursTobeDiv[i]}</div>`;
+        hoursArray.push(outlierBase);
+      }
     }
 
     console.log(hoursArray);
@@ -1165,9 +1233,9 @@ app.post("/api/selected/hours", tokenVerify, async (req, res) => {
       render: html,
     });
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return res.status(500).json({
-      error: error
+      error: error,
     });
   }
 });
@@ -1308,11 +1376,11 @@ app.post("/schedule", tokenVerify, async (req, res) => {
     services,
     storeName,
     price,
-    time
+    time,
   } = req.body;
   try {
     const realStoreName = storeName.replaceAll(" ", "/");
-    
+
     const cadSchedule = await scheduleSchema.create({
       name: name,
       email: email,
@@ -1335,6 +1403,7 @@ app.post("/schedule", tokenVerify, async (req, res) => {
       return res.status(404).json({ error: "Not found bro" });
     }
     datas.totalAppointments += 1;
+    datas.totalCash += price
     await datas.save();
     const scheduleId = cadSchedule.id;
     const findFunctionary = await functionaryCad.findOne({
@@ -1676,11 +1745,11 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
       const functionary = schedule.functionary;
       const randomSymbol = [">_", ">>", "//"];
       let random = Math.floor(Math.random() * 3);
-      let price = schedule.totalPrice / 100
-        let totalPrice = price.toLocaleString("pt-BR", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        })
+      let price = schedule.totalPrice / 100;
+      let totalPrice = price.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
       if (schedule.payed) {
         let htmlD = `
         <div class="union">
@@ -1693,7 +1762,9 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
           <div class="schedule-Fun"><strong class="GreenCard" style="margin-bottom: 10px;">Professional:</strong> ${functionary}</div>
           <div class="schedule-Dam">
           <strong class="GreenCard">Services:</strong><br><strong class="jsonWrite">{</strong><br>
-            <div class="schedule-services">${cS.splice(0, 3).join(" ,")},<br> ...</p></div>
+            <div class="schedule-services">${cS
+              .splice(0, 3)
+              .join(" ,")},<br> ...</p></div>
             <br>
             <strong class="jsonWrite">}</strong>
           </div>
@@ -1714,7 +1785,9 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
                      <strong class="dayEHour">${day}</strong>
                   </div>
                   <div class="schedule-Hour">
-                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${schedule.finishHour}</strong>
+                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${
+          schedule.finishHour
+        }</strong>
                   </div>
                 </div>
           </div>
@@ -1735,7 +1808,9 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
         <div class="schedule-Fun"><strong class="GreenCard" style="margin-bottom: 10px;">Professional:</strong> ${functionary}</div>
         <div class="schedule-Dam">
         <strong class="GreenCard">Services:</strong><br><strong class="jsonWrite">{</strong><br>
-          <div class="schedule-services">${cS.splice(0,3).join(" ,")}<br>...</p></div>
+          <div class="schedule-services">${cS
+            .splice(0, 3)
+            .join(" ,")}<br>...</p></div>
           <br>
           <strong class="jsonWrite">}</strong>
         </div>
@@ -1757,7 +1832,9 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
                      <strong class="dayEHour">${day}</strong>
                   </div>
                   <div class="schedule-Hour">
-                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${schedule.finishHour}</strong>
+                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${
+          schedule.finishHour
+        }</strong>
                   </div>
                 </div>
           </div>
@@ -1816,8 +1893,8 @@ app.delete("/delete/schedules", tokenVerify, async (req, res) => {
           storeName: realName,
         },
         {
-          totalCash: f.totalCash - finder.totalPrice,
-          money: f.money - finder.totalPrice,
+          totalCash: f.totalCash - parseInt(finder.totalPrice),
+          money: f.money - parseInt(finder.totalPrice),
         }
       );
       if (!value) {
@@ -2139,7 +2216,7 @@ app.delete("/delete/schedules", tokenVerify, async (req, res) => {
         error: "Error 404, n encontrado aqui em functionary email",
       });
     }
-    functionaryEmail(functionary_email.functionarysEmail, msg);
+    //functionaryEmail(functionary_email.functionarysEmail, msg);
 
     const deleter = await scheduleSchema.findOneAndDelete({
       name: name,
@@ -2503,7 +2580,7 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
       let emailC = ordenadosAgendamentos[i].email;
       let hour = ordenadosAgendamentos[i].hour;
       let value = ordenadosAgendamentos[i].totalPrice / 100;
-      
+      let finishH  = ordenadosAgendamentos[i].finishHour
       let payed = ordenadosAgendamentos[i].payed;
       const functionary = ordenadosAgendamentos[i].functionary;
       const services = ordenadosAgendamentos[i].services;
@@ -2562,7 +2639,7 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
                    .replace(".", ",")}</strong>
               </div>
               <div class="schedule-Hour">
-                 <strong class="dayEHour">${hour}</strong>
+                 <strong class="dayEHour">${hour - finishH}</strong>
               </div>
             </div>
       </div>
@@ -2661,8 +2738,7 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
     if (basicInfos) {
       let cash = basicInfos.totalCash / 100;
       let scheduleRemanescentes = 0;
-      let casherValue = (cash * 93) / 100
-      const formattedBalance = casherValue.toLocaleString("pt-BR", {
+      const formattedBalance = cash.toLocaleString("pt-BR", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       });
@@ -2948,14 +3024,14 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
     let count = 0;
     const serviceName = servicesData.map((doc) => doc.serviceName).flat();
     const imgPath = storeData.storeImagePath;
-    const timeArr = []
+    const timeArr = [];
     for (let i = 0; i < servicesData.length; i++) {
       const servicesDoc = servicesData[i];
       const names = servicesDoc.serviceName;
       const desc = servicesDoc.serviceDesc;
       const prices = servicesDoc.servicePrice;
       const imgPath2 = servicesDoc.serviceImagePath;
-      const time = servicesDoc.servicesTime
+      const time = servicesDoc.servicesTime;
       for (let j = 0; j < names.length; j++) {
         let structure = `
                 <div class="Service">
@@ -2974,7 +3050,7 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
         </div>`;
         count++;
         priceArray.push(prices[j]);
-        timeArr.push(time[j])
+        timeArr.push(time[j]);
         htmlArray.push(structure);
       }
     }
@@ -2983,24 +3059,22 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
       const desc = plansData.planDescription;
       const realName = plansData.planName;
       const price = plansData.planPrice;
-      
+
       console.log("EU: \n" + name, desc, realName, price);
       for (let pd = 0; pd < name.length; pd++) {
-        let priceP = price[pd] / 100
-      let totalPrice = priceP.toLocaleString("pt-BR", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      })
+        let priceP = price[pd] / 100;
+        let totalPrice = priceP.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
         let structure = `
         <div class="Basic Plan ${name[pd].replaceAll(
           " ",
           "-"
         )}" style="opacity: 1; margin: 2vw;" data-name="${
           realName[pd]
-        }" data-price="${price[pd]}">
-          <h1 class="Price"><strong class="GreenCard">$</strong>${
-            totalPrice
-          }</h1>
+        }" data-price="${price[pd]}" data-store="${storeData.storeName}">
+          <h1 class="Price"><strong class="GreenCard">$</strong>${totalPrice}</h1>
           <div class="beneficios">
             <p><strong class="consoleWrite">>></strong>${desc[pd]}</p>
             <button style="margin-top: 4vh;">Subscribe Now</button>
@@ -3099,8 +3173,21 @@ app.get("/pay/plans", (req, res) => {
 });
 app.post("/pay/plans/buy", tokenVerify, async (req, res) => {
   const { name, email } = req.user;
-  const { plan, price } = req.body;
+  const { plan, price, storeName } = req.body;
   try {
+    const storeData = await StoreCad.findOne({
+      storeName: storeName,
+    })
+     if (!storeData){
+      return res.status(404).json({ error: "ERROR in payment IN STORE :(" });
+    }
+    const bankData = await BankSchema.findOne({
+      name: storeData.name,
+      email: storeData.email
+    })
+    if (!bankData){
+      return res.status(404).json({ error: "ERROR in payment IN BANK :(" });
+    }
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: [
@@ -3122,6 +3209,17 @@ app.post("/pay/plans/buy", tokenVerify, async (req, res) => {
           quantity: 1,
         },
       ],
+      subscription_data: {
+        application_fee_percent: 7, // 7% sua taxa
+        transfer_data: {
+          destination: bankData.stripe_id, // Conta do lojista
+        },
+        metadata: {
+          store_id: storeData.id,
+          user_name: name,
+          user_email: email,
+        }
+      },
       success_url: `http://localhost:3000/cad/plan?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `http://localhost:3000/cancel/payment`,
       customer_email: email,
@@ -3200,7 +3298,7 @@ app.get("/cad/plan", async (req, res) => {
           storeName: verify.storeName,
         },
         {
-          totalCash: verify.totalCash + parseInt(planPrice),
+          totalCash: verify.totalCash + parseInt(planPrice / 100),
           planNumber: (verify.planNumber += 1),
           money: verify.money + parseInt(planPrice),
         }
@@ -3208,12 +3306,18 @@ app.get("/cad/plan", async (req, res) => {
       if (!att) {
         return res.status(400).json({ error: "Na ganhação de money " });
       }
+      const today = new Date();
+      const day = today.getDate();
+      const month = today.getMonth();
+      const year = today.getFullYear();
+      const query = `${day}/${month}/${year}`;
       const planCad = await userPlansSchema.create({
         name: userName,
         email: userEmail,
         planName: planName,
-        planPrice: planPrice,
+        planPrice: planPrice / 100,
         subscriptionId: session.subscription,
+        subscritionDay: query,
       });
       if (!planCad) {
         return res.status(400).json({
@@ -3276,13 +3380,8 @@ app.get("/store/plans", tokenVerify, async (req, res) => {
 });
 app.post("/plans/register/bank", tokenVerify, async (req, res) => {
   const { name, email } = req.user;
-  const {
-    holder_name,
-    holder_type,
-    bank_code,
-    branch_code,
-    account_number,
-  } = req.body;
+  const { holder_name, holder_type, bank_code, branch_code, account_number } =
+    req.body;
   console.log("📦 Dados recebidos:", {
     holder_name,
     holder_type,
@@ -3335,15 +3434,12 @@ app.post("/plans/register/bank", tokenVerify, async (req, res) => {
     });
     if (!bankDatas) {
       const criptNumber = criptografar(account_number.toString());
-      const encriptedJson = JSON.stringify(criptNumber);
-      
-
       const accountLink = await stripe.accountLinks.create({
         account: account.id,
         refresh_url: `http://localhost:3000/store-bank`, // URL se expirar
         return_url: `http://localhost:3000/store-bank`, // URL após completar
         type: "account_onboarding",
-        collect: "currently_due"
+        collect: "currently_due",
       });
       const cadBankDatas = await BankSchema.create({
         name: name,
@@ -3353,7 +3449,8 @@ app.post("/plans/register/bank", tokenVerify, async (req, res) => {
         bank_code: bank_code,
         branch_code: branch_code,
         stripe_id: account.id,
-        account_number: criptNumber.authTag,
+        account_number: criptNumber,
+        active: false,
       });
       if (cadBankDatas) {
         return res.redirect(accountLink.url);
@@ -3368,12 +3465,12 @@ app.post("/plans/register/bank", tokenVerify, async (req, res) => {
 app.post("/plans/register/plans", tokenVerify, async (req, res) => {
   const { name, email } = req.user;
   const { name_product, price_product, description } = req.body;
-  
-  console.log('📦 Cadastro de Plans - Dados recebidos:');
-  console.log('name_product:', name_product);
-  console.log('price_product:', price_product);
-  console.log('description:', description);
-  
+
+  console.log("📦 Cadastro de Plans - Dados recebidos:");
+  console.log("name_product:", name_product);
+  console.log("price_product:", price_product);
+  console.log("description:", description);
+
   try {
     const findYourStore = await StoreCad.findOne({
       name: name,
@@ -3400,22 +3497,27 @@ app.post("/plans/register/plans", tokenVerify, async (req, res) => {
         // ✅ CORREÇÃO: Converter vírgula para ponto
         const priceStr = String(price_product[i]).trim().replace(",", ".");
         const priceValue = parseFloat(priceStr);
-        
+
         // Validar
         if (isNaN(priceValue) || priceValue <= 0) {
           console.error(`❌ Preço inválido no índice ${i}:`, price_product[i]);
-          return res.status(400).json({ 
-            error: `Preço inválido para "${name_product[i]}": ${price_product[i]}` 
+          return res.status(400).json({
+            error: `Preço inválido para "${name_product[i]}": ${price_product[i]}`,
           });
         }
-        
+
         const unitAmount = Math.round(priceValue * 100);
-        console.log(`💰 Plan ${i}: ${name_product[i]} = R$ ${priceValue.toFixed(2)} (${unitAmount} centavos)`);
+        console.log(
+          `💰 Plan ${i}: ${name_product[i]} = R$ ${priceValue.toFixed(
+            2
+          )} (${unitAmount} centavos)`
+        );
 
         // Validar description
-        const productDescription = description[i] && String(description[i]).trim() !== '' 
-          ? description[i] 
-          : 'Plano de assinatura'; // Valor padrão
+        const productDescription =
+          description[i] && String(description[i]).trim() !== ""
+            ? description[i]
+            : "Plano de assinatura"; // Valor padrão
 
         // Criar produto no Stripe
         const stripeProduct = await stripe.products.create({
@@ -3441,7 +3543,7 @@ app.post("/plans/register/plans", tokenVerify, async (req, res) => {
         productInStripeNameArray.push(productInStripeName);
         pricesInCents.push(unitAmount); // ✅ Salvar em centavos
       }
-    } 
+    }
     // ============================================
     // PROCESSAR PLAN ÚNICO
     // ============================================
@@ -3451,22 +3553,27 @@ app.post("/plans/register/plans", tokenVerify, async (req, res) => {
       // ✅ CORREÇÃO: Converter vírgula para ponto
       const priceStr = String(price_product).trim().replace(",", ".");
       const priceValue = parseFloat(priceStr);
-      
+
       // Validar
       if (isNaN(priceValue) || priceValue <= 0) {
-        console.error('❌ Preço inválido:', price_product);
-        return res.status(400).json({ 
-          error: `Preço inválido: ${price_product}` 
+        console.error("❌ Preço inválido:", price_product);
+        return res.status(400).json({
+          error: `Preço inválido: ${price_product}`,
         });
       }
-      
+
       const unitAmount = Math.round(priceValue * 100);
-      console.log(`💰 Plan único: ${name_product} = R$ ${priceValue.toFixed(2)} (${unitAmount} centavos)`);
+      console.log(
+        `💰 Plan único: ${name_product} = R$ ${priceValue.toFixed(
+          2
+        )} (${unitAmount} centavos)`
+      );
 
       // Validar description
-      const productDescription = description && String(description).trim() !== '' 
-        ? description 
-        : 'Plano de assinatura'; // Valor padrão
+      const productDescription =
+        description && String(description).trim() !== ""
+          ? description
+          : "Plano de assinatura"; // Valor padrão
 
       // Criar produto no Stripe
       const stripeProduct = await stripe.products.create({
@@ -3508,10 +3615,12 @@ app.post("/plans/register/plans", tokenVerify, async (req, res) => {
     // ============================================
     // CADASTRAR NO BANCO
     // ============================================
-    console.log('💾 Salvando no DB:', {
+    console.log("💾 Salvando no DB:", {
       planName: productInStripeNameArray,
       planPrice: pricesInCents,
-      planOriginalName: Array.isArray(name_product) ? name_product : [name_product],
+      planOriginalName: Array.isArray(name_product)
+        ? name_product
+        : [name_product],
     });
 
     const cadInDB = await plansSchema.create({
@@ -3520,7 +3629,9 @@ app.post("/plans/register/plans", tokenVerify, async (req, res) => {
       storeName: findYourStore.storeName,
       planCode: planCode,
       planName: productInStripeNameArray,
-      planOriginalName: Array.isArray(name_product) ? name_product : [name_product],
+      planOriginalName: Array.isArray(name_product)
+        ? name_product
+        : [name_product],
       planPrice: pricesInCents, // ✅ SALVAR EM CENTAVOS
       planDescription: Array.isArray(description) ? description : [description],
       planStripeCode: stripeId,
@@ -3530,18 +3641,16 @@ app.post("/plans/register/plans", tokenVerify, async (req, res) => {
       return res.status(400).json({ error: "Erro ao cadastrar no banco" });
     }
 
-    console.log('✅ Plans cadastrados com sucesso!');
+    console.log("✅ Plans cadastrados com sucesso!");
     return res.status(200).redirect("/store-plans");
-
   } catch (error) {
-    console.error('❌ Erro no cadastro:', error);
-    return res.status(500).json({ 
-      error: "Erro no servidor", 
-      msg: error.message 
+    console.error("❌ Erro no cadastro:", error);
+    return res.status(500).json({
+      error: "Erro no servidor",
+      msg: error.message,
     });
   }
 });
-
 
 app.get("/pay/app/:scheduleId", tokenVerify, async (req, res) => {
   return res.sendFile(path.join(__dirname, "public", "paywithapp.html"));
@@ -3556,10 +3665,29 @@ app.post("/pay/schedule", tokenVerify, async (req, res) => {
   const price = findSchema.totalPrice;
   const description = "Pay via App";
   const product_name = `Pay Via App : ${JSON.stringify(
-    criptografar(generateCode())
+    criptografar(generateCode()).authTag
   )}`;
 
   try {
+    const findStore = await StoreCadschema.findOne({
+      storeName: findSchema.storeName
+      })
+      if (!findStore) {
+    return res.status(400).json({ 
+      error: "Loja não ENCONTRADA" 
+    });
+  }
+  const bankData = await BankSchema.findOne({
+    name: findStore.name,
+    email: findStore.email,
+    active: true
+  });
+
+  if (!bankData) {
+    return res.status(400).json({ 
+      error: "Loja não possui dados bancários" 
+    });
+  }
     const stripeProduct = await stripe.products.create({
       name: product_name,
       description: description,
@@ -3598,7 +3726,19 @@ app.post("/pay/schedule", tokenVerify, async (req, res) => {
           expires_after_days: 3,
         },
       },
-      success_url: `https://xbtl8ft1-3000.brs.devtunnels.ms/schedule/success?session_id={CHECKOUT_SESSION_ID}`,
+      payment_intent_data: {
+        application_fee_amount: Math.floor(price * 0.003),
+        transfer_data: {
+          destination: bankData.stripe_id
+        },
+        metadata : {
+          schedule_id: id,
+          user_name: name,
+          user_email: email,
+        }
+      },
+
+      success_url: `http://localhost:3000/schedule/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `http://localhost:3000/cancel/payment`,
       customer_email: email,
       metadata: {
@@ -3654,7 +3794,7 @@ app.get("/schedule/success", async (req, res) => {
           storeName: find.storeName,
         },
         {
-          totalCash: findOne.totalCash + find.totalPrice,
+          totalCash: findOne.totalCash + parseInt(find.totalPrice),
           totalAppointmentsPayed: findOne.totalAppointmentsPayed + 1,
           money: findOne.money + find.totalPrice,
         }
@@ -4024,9 +4164,12 @@ app.get("/return/data/plans", tokenVerify, async (req, res) => {
       const store = parts[0];
       const dbStore = store.replaceAll(" ", "/");
       let div = `<div class="columnUnion">
-        <div class="myPlan"><div class="plan-name">${plan}<div class="store-name-plan"><strong class="consoleWrite">#</strong>${store}</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>${
+        <div class="myPlan"><div class="plan-name">${plan}<div class="store-name-plan"><strong class="consoleWrite">#</strong>${store}</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>${(
         planPrice / 100
-      }</div></div>
+      ).toLocaleString("pt-BR", {
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+      })}</div></div>
         <div class="cancel-plan"  data-name="${planName}" data-store="${dbStore}">Cancel Plan</div>
       </div>`;
       htmlArray.push(div);
@@ -4158,15 +4301,17 @@ app.get("/render/stores/plan", tokenVerify, async (req, res) => {
         }<div class="store-name-plan"><strong class="consoleWrite">#</strong>${store.replaceAll(
             "/",
             " "
-          )}</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>${
-            (price[j] / 100).toLocaleString("pt-BR", {
-              maximumFractionDigits: 2,
-              minimumFractionDigits: 2
-            })
-          }</div></div>
+          )}</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>${(
+            price[j] / 100
+          ).toLocaleString("pt-BR", {
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 2,
+          })}</div></div>
         <div class="cancel-plan"  data-name="${
           plan[j]
-        }" data-store="${store}" data-index="${i}" data-code="${find[i].planCode}">Delete Plan</div>
+        }" data-store="${store}" data-index="${i}" data-code="${
+            find[i].planCode
+          }">Delete Plan</div>
       </div>`;
           htmlArray.push(html);
           havePlan = true;
@@ -4234,16 +4379,15 @@ app.get("/render/stores/plan", tokenVerify, async (req, res) => {
 app.post("/delete/plan", tokenVerify, async (req, res) => {
   const { name, email } = req.user;
   const { plan, store, index, code } = req.body;
-console.log(plan,store,index,code)
+  console.log(plan, store, index, code);
   try {
-    
     const findStripeId = await plansSchema.findOne({
       name: name,
       email: email,
     });
     console.log(findStripeId);
     if (!findStripeId) {
-      console.log(findStripeId)
+      console.log(findStripeId);
       return res.status(404).json({ error: "NA verificação basica" });
     }
     const stripeId = findStripeId.planStripeCode[index];
@@ -4264,16 +4408,16 @@ console.log(plan,store,index,code)
     findStripeId.planPrice.splice(index, 1);
     findStripeId.planDescription.splice(index, 1);
     findStripeId.planStripeCode.splice(index, 1);
-    
+
     await findStripeId.save();
     if (findStripeId.planName.length === 0) {
       const deleter = await plansSchema.findOneAndDelete({
         name: name,
         email: email,
-        storeName: store
+        storeName: store,
       });
       if (!deleter) {
-        console.log('error no deleter')
+        console.log("error no deleter");
         return res.status(400).json({
           error: "ERROR AO DELETAR ESSA JOSSA",
         });
@@ -4549,8 +4693,7 @@ app.get("/analitics", tokenVerify, async (req, res) => {
       (scheduleCancelSoma / scheduleNumberSoma) * 100;
     console.log(mediaDeCancelamentos);
     console.log(dateNasc);
-    let casherValue = (Cash * 93) / 100
-    const formattedBalance = casherValue.toLocaleString("pt-BR", {
+    const formattedBalance = Cash.toLocaleString("pt-BR", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
@@ -4834,11 +4977,11 @@ app.get("/week-schedules", tokenVerify, async (req, res) => {
         let emailC = daySchedule[s].email;
         let value = daySchedule[s].totalPrice / 100;
         let services = daySchedule[s].services;
-        let price = daySchedule[s].totalPrice / 100
+        let price = daySchedule[s].totalPrice / 100;
         let totalPrice = price.toLocaleString("pt-BR", {
           minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        })
+          maximumFractionDigits: 2,
+        });
         let storeNamer = storeName.replaceAll("/", " ");
         let cS = [];
         for (let j = 0; j < services.length; j++) {
@@ -4880,7 +5023,9 @@ app.get("/week-schedules", tokenVerify, async (req, res) => {
                      <strong class="dayEHour">${day}</strong>
                   </div>
                   <div class="schedule-Hour">
-                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${daySchedule[s].finishHour}</strong>
+                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${
+            daySchedule[s].finishHour
+          }</strong>
                   </div>
                 </div>
           </div>
@@ -4922,7 +5067,9 @@ app.get("/week-schedules", tokenVerify, async (req, res) => {
                      <strong class="dayEHour">${day}</strong>
                   </div>
                   <div class="schedule-Hour">
-                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${daySchedule[s].finishHour}</strong>
+                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${
+            daySchedule[s].finishHour
+          }</strong>
                   </div>
                 </div>
           </div>
@@ -5007,11 +5154,11 @@ app.get("/month-schedules", tokenVerify, async (req, res) => {
         let emailC = daySchedule[s].email;
         let value = daySchedule[s].totalPrice / 100;
         let services = daySchedule[s].services;
-        let price = daySchedule[s].totalPrice / 100
+        let price = daySchedule[s].totalPrice / 100;
         let totalPrice = price.toLocaleString("pt-BR", {
           minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        })
+          maximumFractionDigits: 2,
+        });
         let storeNamer = storeName.replaceAll("/", " ");
         let cS = [];
         for (let j = 0; j < services.length; j++) {
@@ -5053,7 +5200,9 @@ app.get("/month-schedules", tokenVerify, async (req, res) => {
                      <strong class="dayEHour">${day}</strong>
                   </div>
                   <div class="schedule-Hour">
-                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${daySchedule[s].finishHour}</strong>
+                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${
+            daySchedule[s].finishHour
+          }</strong>
                   </div>
                 </div>
           </div>
@@ -5094,7 +5243,9 @@ app.get("/month-schedules", tokenVerify, async (req, res) => {
                      <strong class="dayEHour">${day}</strong>
                   </div>
                   <div class="schedule-Hour">
-                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${daySchedule[s].finishHour}</strong>
+                     <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${
+            daySchedule[s].finishHour
+          }</strong>
                   </div>
                 </div>
           </div>
@@ -5151,34 +5302,30 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
     });
     let planArray = [];
     if (plans) {
-      
-    for (let i = 0; i < plans.planName.length; i++) {
-      const storePlan = plans.storeName;
-      const plan = plans.planName;
+      for (let i = 0; i < plans.planName.length; i++) {
+        const storePlan = plans.storeName;
+        const plan = plans.planName;
 
-      const price = plans.planPrice[i] / 100;
-      const trueFormat = price.toLocaleString("pt-BR", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      })
-      const planName = plan[i].split(":");
-      const planNamer = planName[1];
-      let html = `<div class="columnUnion">
+        const price = plans.planPrice[i] / 100;
+        const trueFormat = price.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+        const planName = plan[i].split(":");
+        const planNamer = planName[1];
+        let html = `<div class="columnUnion">
         <div class="myPlan temPlan" style="margin: 3vh;"><div class="plan-name">${planNamer}<div class="store-name-plan"><strong class="consoleWrite">#</strong>${storePlan.replaceAll(
-        "/",
-        " "
-      )}</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>${
-       trueFormat
-      }</div></div>
+          "/",
+          " "
+        )}</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>${trueFormat}</div></div>
         <div class="ocultEditor"><img src="https://img.icons8.com/?size=100&id=89802&format=png&color=FFFFFF" alt="" style="width:24px; height:24px;"></div>
       </div>
       `;
-      planArray.push(html);
-    }
+        planArray.push(html);
+      }
 
-    console.log(planArray);
-    }
-    else{
+      console.log(planArray);
+    } else {
       let html = `<div class="columnUnion">
         <div class="myPlan" style="margin: 3vh;"><div class="plan-name">Don't have Plans<div class="store-name-plan"><strong class="consoleWrite">#</strong>You</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>00,00</div></div>
         <div class="ocultEditor"><img src="https://img.icons8.com/?size=100&id=89802&format=png&color=FFFFFF" alt="" style="width:24px; height:24px;"></div>
@@ -5233,7 +5380,7 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
       const outlierBase = `<br><div class="hhmm" data-hour="${hoursTobeDiv[i]}">${hoursTobeDiv[i]}</div>`;
       hoursArray.push(outlierBase);
     }
-    
+
     let render = `<div class="unionE">
       <div class="Identifire">
         <h1>Prefer<strong class="GreenCard">ences</strong></h1>
@@ -5285,7 +5432,9 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
     ><span class="label" style="margin: 1vh -5vw"
           >Some of the members of your  <strong class="GreenCard">Team</strong
           ><strong class="pointer">.</strong></span>
-    <div class="functionaryBreaker"${functionarysArray.slice(0, 7).join("")}</div></div>
+    <div class="functionaryBreaker"${functionarysArray
+      .slice(0, 7)
+      .join("")}</div></div>
     <div class="forgot-password-div" style="margin:2vh 10vw;">
                 <div class="txt">
                     <h1><strong class="consoleWrite">>></strong>Edit your store <strong class="GreenCard">datas</strong> </h1>
@@ -5303,47 +5452,54 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
   }
 });
 app.get("/select/updater-wizard/:type", tokenVerify, async (req, res) => {
-  const type = req.params.type
-  if (type == 'hour'){
-    return res.status(200).sendFile(path.join(__dirname, "public", "hour-att.html"))
+  const type = req.params.type;
+  if (type == "hour") {
+    return res
+      .status(200)
+      .sendFile(path.join(__dirname, "public", "hour-att.html"));
   }
-  if (type == 'plan'){
-     return res.status(200).sendFile(path.join(__dirname, "public", "plan-att.html"))
+  if (type == "plan") {
+    return res
+      .status(200)
+      .sendFile(path.join(__dirname, "public", "plan-att.html"));
   }
-  if (type == 'services'){
-     return res.status(200).sendFile(path.join(__dirname, "public", "services-att.html"))
+  if (type == "services") {
+    return res
+      .status(200)
+      .sendFile(path.join(__dirname, "public", "services-att.html"));
   }
-  if (type == 'team'){
-     return res.status(200).sendFile(path.join(__dirname, "public", "team-att.html"))
-  }
-  else{
+  if (type == "team") {
+    return res
+      .status(200)
+      .sendFile(path.join(__dirname, "public", "team-att.html"));
+  } else {
     return res.status(200).json({
-      erorr: 'error'
-    })
+      erorr: "error",
+    });
   }
-})
+});
 app.get("/updater/hour", tokenVerify, async (req, res) => {
-  const {name, email} = req.user;
+  const { name, email } = req.user;
   try {
     const findStore = await StoreCad.findOne({
       name: name,
-      email: email
-    })
-    if (!findStore){
-      console.log('FIND STORE')
+      email: email,
+    });
+    if (!findStore) {
+      console.log("FIND STORE");
       return res.status(404).json({
-        error: "FIND STORE"
-      })
+        error: "FIND STORE",
+      });
     }
     const returnHour = await HourSchema.findOne({
       storeName: findStore.storeName,
-      storeEmail: findStore.storeEmail
-    })
-    if (!returnHour){
-      console.log('FINDHOUR')
+      storeEmail: findStore.storeEmail,
+    });
+    if (!returnHour) {
+      console.log("FINDHOUR");
       return res.status(404).json({
-        error: "FINDHOUR"
-      })
+        error: "FINDHOUR",
+      });
     }
     const today = new Date();
     const todayDate = today.getDate();
@@ -5353,24 +5509,24 @@ app.get("/updater/hour", tokenVerify, async (req, res) => {
     console.log(query);
     const hrEmMin = today.getHours() * 60 + today.getMinutes();
     console.log(hrEmMin);
-    let hoursArray = []
+    let hoursArray = [];
     for (let i = 0; i < returnHour.hour.length; i++) {
       const outlierBase = `<div class="hour-row"><input type="text" name="hour" id="hour" placeholder="HH:MM" value="${returnHour.hour[i]}"></div>`;
-        hoursArray.push(outlierBase);
+      hoursArray.push(outlierBase);
     }
     return res.status(200).json({
-      html: hoursArray.join("")
-    })
+      html: hoursArray.join(""),
+    });
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return res.status(500).json({
-        error: error
-      })
+      error: error,
+    });
   }
-})
+});
 app.post("/hour/updater", tokenVerify, async (req, res) => {
-  const {name, email} = req.user;
-  const {hour} = req.body;
+  const { name, email } = req.user;
+  const { hour } = req.body;
   try {
     const store = await StoreCad.findOne({ name: name, email: email }).lean();
     if (!store) {
@@ -5385,45 +5541,42 @@ app.post("/hour/updater", tokenVerify, async (req, res) => {
     const normalized = hours.map((h) => String(h).trim()).filter(Boolean);
     const invalid = normalized.filter((h) => !isValidHour(h));
     if (invalid.length) {
-      return res
-        .status(400)
-        .redirect("/select/updater-wizard/hour")
+      return res.status(400).redirect("/select/updater-wizard/hour");
     }
     const uniqueHours = [...new Set(normalized)];
 
-    const updaterLancher = await HoursStorage.findOneAndUpdate({
-      storeName: store.storeName,
-      storeEmail: store.storeEmail,
-      phone: store.phone
-    }, {
-      hour: uniqueHours
-    })
-    if (!updaterLancher){
-      return res
-        .status(400)
-        .json({ message: "ERRO AO LANÇAR", invalid });
+    const updaterLancher = await HoursStorage.findOneAndUpdate(
+      {
+        storeName: store.storeName,
+        storeEmail: store.storeEmail,
+        phone: store.phone,
+      },
+      {
+        hour: uniqueHours,
+      }
+    );
+    if (!updaterLancher) {
+      return res.status(400).json({ message: "ERRO AO LANÇAR", invalid });
     }
     return res.redirect("/stores/prefs");
   } catch (error) {
-    return res
-        .status(500)
-        .json({ message: "ERRO NO SERVER", eror: error });
+    return res.status(500).json({ message: "ERRO NO SERVER", eror: error });
   }
-})
+});
 app.get("/updater/plans", tokenVerify, async (req, res) => {
-  const {name, email} = req.user;
+  const { name, email } = req.user;
   try {
     const plans = await plansSchema.findOne({
       name: name,
-      email: email
-    })
-    if (!plans){
-      console.log('FINDPLAN')
+      email: email,
+    });
+    if (!plans) {
+      console.log("FINDPLAN");
       return res.status(404).json({
-        error: "FINDPLAN"
-      })
+        error: "FINDPLAN",
+      });
     }
-    let planArray = []
+    let planArray = [];
     for (let i = 0; i < plans.planName.length; i++) {
       const storePlan = plans.storeName;
       const plan = plans.planName;
@@ -5431,11 +5584,11 @@ app.get("/updater/plans", tokenVerify, async (req, res) => {
       const price = plans.planPrice[i];
       const planName = plan[i].split(":");
       const planNamer = planName[1];
-      const planDes = plans.planDescription[i]
+      const planDes = plans.planDescription[i];
       const realP = (price / 100).toLocaleString("pt-BR", {
         maximumFractionDigits: 2,
-        minimumFractionDigits: 2
-      })
+        minimumFractionDigits: 2,
+      });
       let html = `<div id="contentForm" class="hour-row">
                 <div class="unionE">
                   <input
@@ -5465,36 +5618,36 @@ app.get("/updater/plans", tokenVerify, async (req, res) => {
       `;
       planArray.push(html);
     }
-    console.log(planArray.join(""))
+    console.log(planArray.join(""));
     return res.status(200).json({
-      html: `<div class="unionE">${planArray.join("")}</div>`
-    })
+      html: `<div class="unionE">${planArray.join("")}</div>`,
+    });
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return res.status(500).json({
-        error: error
-      })
+      error: error,
+    });
   }
-})
+});
 app.post("/plan/updater", tokenVerify, async (req, res) => {
-  const {name, email} = req.user;
-  const {name_product, price_product, description} = req.body;
-  
-  console.log('📦 Dados recebidos:');
-  console.log('name_product:', name_product);
-  console.log('price_product:', price_product);
-  console.log('description:', description);
-  
+  const { name, email } = req.user;
+  const { name_product, price_product, description } = req.body;
+
+  console.log("📦 Dados recebidos:");
+  console.log("name_product:", name_product);
+  console.log("price_product:", price_product);
+  console.log("description:", description);
+
   try {
     const findYourStore = await StoreCad.findOne({
       name: name,
       email: email,
     });
-    
+
     if (!findYourStore) {
       return res.status(404).json({ error: "Loja não encontrada" });
     }
-    
+
     let storeName = findYourStore.storeName.replaceAll("/", " ");
     let productInStripeNameArray = [];
     const stripeId = [];
@@ -5510,16 +5663,18 @@ app.post("/plan/updater", tokenVerify, async (req, res) => {
         // ✅ CORREÇÃO: Converter vírgula para ponto e validar
         const priceStr = String(price_product[i]).replace(",", ".");
         const priceValue = parseFloat(priceStr);
-        
+
         if (isNaN(priceValue) || priceValue <= 0) {
           console.error(`❌ Preço inválido no índice ${i}:`, price_product[i]);
-          return res.status(400).json({ 
-            error: `Preço inválido para "${name_product[i]}": ${price_product[i]}` 
+          return res.status(400).json({
+            error: `Preço inválido para "${name_product[i]}": ${price_product[i]}`,
           });
         }
-        
+
         const unitAmount = Math.round(priceValue * 100);
-        console.log(`💰 Plan ${i}: ${name_product[i]} = R$ ${priceValue} (${unitAmount} centavos)`);
+        console.log(
+          `💰 Plan ${i}: ${name_product[i]} = R$ ${priceValue} (${unitAmount} centavos)`
+        );
 
         const stripeProduct = await stripe.products.create({
           name: productInStripeName,
@@ -5537,11 +5692,11 @@ app.post("/plan/updater", tokenVerify, async (req, res) => {
             interval: "month",
           },
         });
-        
+
         stripeId.push(stripeProduct.id);
         productInStripeNameArray.push(productInStripeName);
       }
-    } 
+    }
     // ============================================
     // PROCESSAR PLAN ÚNICO
     // ============================================
@@ -5551,16 +5706,18 @@ app.post("/plan/updater", tokenVerify, async (req, res) => {
       // ✅ CORREÇÃO: Converter vírgula para ponto e validar
       const priceStr = String(price_product).replace(",", ".");
       const priceValue = parseFloat(priceStr);
-      
+
       if (isNaN(priceValue) || priceValue <= 0) {
-        console.error('❌ Preço inválido:', price_product);
-        return res.status(400).json({ 
-          error: `Preço inválido: ${price_product}` 
+        console.error("❌ Preço inválido:", price_product);
+        return res.status(400).json({
+          error: `Preço inválido: ${price_product}`,
         });
       }
-      
+
       const unitAmount = Math.round(priceValue * 100);
-      console.log(`💰 Plan único: ${name_product} = R$ ${priceValue} (${unitAmount} centavos)`);
+      console.log(
+        `💰 Plan único: ${name_product} = R$ ${priceValue} (${unitAmount} centavos)`
+      );
 
       const stripeProduct = await stripe.products.create({
         name: productInStripeName,
@@ -5578,20 +5735,20 @@ app.post("/plan/updater", tokenVerify, async (req, res) => {
           interval: "month",
         },
       });
-      
+
       stripeId.push(stripeProduct.id);
       productInStripeNameArray.push(productInStripeName);
     }
-    
+
     // ✅ CORREÇÃO: Converter preços para centavos
     const pricesInCents = Array.isArray(price_product)
-      ? price_product.map(p => {
+      ? price_product.map((p) => {
           const val = parseFloat(String(p).replace(",", "."));
           return Math.round(val * 100);
         })
       : [Math.round(parseFloat(String(price_product).replace(",", ".")) * 100)];
-    
-    console.log('💾 Salvando no DB:', pricesInCents);
+
+    console.log("💾 Salvando no DB:", pricesInCents);
 
     // ============================================
     // ATUALIZAR NO BANCO
@@ -5600,48 +5757,51 @@ app.post("/plan/updater", tokenVerify, async (req, res) => {
       {
         name: name,
         email: email,
-      }, 
+      },
       {
         $set: {
           planName: productInStripeNameArray,
-          planOriginalName: Array.isArray(name_product) ? name_product : [name_product],
+          planOriginalName: Array.isArray(name_product)
+            ? name_product
+            : [name_product],
           planPrice: pricesInCents,
-          planDescription: Array.isArray(description) ? description : [description],
-          planStripeCode: stripeId
-        }
+          planDescription: Array.isArray(description)
+            ? description
+            : [description],
+          planStripeCode: stripeId,
+        },
       },
       { new: true }
     );
-    
+
     if (!updater) {
       return res.status(400).json({ error: "Nenhum cadastro encontrado" });
     }
-    
-    console.log('✅ Plans atualizados com sucesso!');
+
+    console.log("✅ Plans atualizados com sucesso!");
     return res.status(200).redirect("/stores/prefs");
-    
   } catch (error) {
-    console.error('❌ Erro no updater:', error);
-    return res.status(500).json({ 
-      error: "Erro no servidor", 
-      msg: error.message 
+    console.error("❌ Erro no updater:", error);
+    return res.status(500).json({
+      error: "Erro no servidor",
+      msg: error.message,
     });
   }
 });
 app.get("/updater/services", tokenVerify, async (req, res) => {
-  const {name, email} = req.user;
+  const { name, email } = req.user;
   try {
     const services = await ServicesCad.findOne({
-      name: name, 
-      email: email
-    })
-    if (!services){
-      console.log("IN SERVICES")
+      name: name,
+      email: email,
+    });
+    if (!services) {
+      console.log("IN SERVICES");
       return res.status(404).json({
-        error: 'IN SERVICES'
-      })
+        error: "IN SERVICES",
+      });
     }
-    let htmlArr = []
+    let htmlArr = [];
     for (let i = 0; i < services.serviceName.length; i++) {
       let stcr = `<div class="ServiceDiv" data-img="${services.serviceImagePath[i]}">
         <div class="ServiceInput">
@@ -5695,19 +5855,19 @@ app.get("/updater/services", tokenVerify, async (req, res) => {
               </div>
             </div>
       </div>`;
-          htmlArr.push(stcr)
+      htmlArr.push(stcr);
     }
     return res.status(200).json({
-      html: htmlArr.join("")
-    })
+      html: htmlArr.join(""),
+    });
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return res.status(500).json({
-     error: error
-    })
+      error: error,
+    });
   }
-})
-app.post("/services/updater", tokenVerify, upload.any(), async(req, res)=> {
+});
+app.post("/services/updater", tokenVerify, upload.any(), async (req, res) => {
   try {
     await ensureUploadsDir();
 
@@ -5747,7 +5907,7 @@ app.post("/services/updater", tokenVerify, upload.any(), async(req, res)=> {
     );
     const servicesTime = toArray(
       req.body["servicesTime[]"] ?? req.body.servicesTime
-    )
+    );
     const files = req.files || [];
 
     const total =
@@ -5809,21 +5969,23 @@ app.post("/services/updater", tokenVerify, upload.any(), async(req, res)=> {
       }
     }
 
-    const newService = await ServicesCad.findOneAndUpdate({
-      name: name,
-      email: email,
-      
-    },{
-      storeName: findStore.storeName,
-      storeEmail: findStore.storeEmail,
-      phone: findStore.phone,
-      serviceName: serviceNames,
-      serviceDesc: serviceDescs,
-      servicePrice: servicePricesRaw,
-      servicesTime: servicesTime,
-      serviceImagePath: imagePaths ?? null,
-      serviceImageMeta: imageMeta ?? null,
-    });
+    const newService = await ServicesCad.findOneAndUpdate(
+      {
+        name: name,
+        email: email,
+      },
+      {
+        storeName: findStore.storeName,
+        storeEmail: findStore.storeEmail,
+        phone: findStore.phone,
+        serviceName: serviceNames,
+        serviceDesc: serviceDescs,
+        servicePrice: servicePricesRaw,
+        servicesTime: servicesTime,
+        serviceImagePath: imagePaths ?? null,
+        serviceImageMeta: imageMeta ?? null,
+      }
+    );
     created.push({
       ...newService.toObject(),
       _debugFileUsedIndex: fileUsedIndex,
@@ -5848,19 +6010,19 @@ app.post("/services/updater", tokenVerify, upload.any(), async(req, res)=> {
   }
 });
 app.get("/updater/team", tokenVerify, async (req, res) => {
-  const {name, email} = req.user
+  const { name, email } = req.user;
   try {
     const fnct = await functionaryCad.findOne({
       name: name,
-      email: email
-    })
-    if (!fnct){
-      console.log('FNCT')
+      email: email,
+    });
+    if (!fnct) {
+      console.log("FNCT");
       return res.status(404).json({
-        EROR: 'FNCT'
-      })
+        EROR: "FNCT",
+      });
     }
-    let htmlArr = []
+    let htmlArr = [];
     for (let i = 0; i < fnct.functionarysName.length; i++) {
       let stcr = `<div class="ServiceDiv" data-img="${fnct.functionaryImagePath[i]}">
         <div class="functionary-base">
@@ -5874,19 +6036,19 @@ app.get("/updater/team", tokenVerify, async (req, res) => {
                           <input type="email" name="functionaryEmail[]" id="functionaryEmail" placeholder="Member Email:" value="${fnct.functionarysEmail[i]}" style="width: 15vw;">
                       </div>
                   </div>
-      </div>`
-      htmlArr.push(stcr)
+      </div>`;
+      htmlArr.push(stcr);
     }
     return res.status(200).json({
-      html: htmlArr.join(" ")
-    })
+      html: htmlArr.join(" "),
+    });
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return res.status(500).json({
-        EROR: error
-      })
+      EROR: error,
+    });
   }
-})
+});
 app.post("/team/updater", tokenVerify, upload.any(), async (req, res) => {
   const { name, email } = req.user;
 
@@ -5976,25 +6138,27 @@ app.post("/team/updater", tokenVerify, upload.any(), async (req, res) => {
     console.log("imagePaths final:", imagePaths);
     console.log("imageMeta final:", imageMeta);
 
-    const newFunctionary = await functionaryCad.findOneAndUpdate({
-      name: name,
-      email: email,
-    }, {
-      storeName: findStore.storeName,
-      storeEmail: findStore.storeEmail,
-      phone: findStore.phone,
-      functionarysName: functionaryName,
-      functionarysEmail: functionaryEmail,
-      functionaryImagePath: imagePaths,
-      functionaryImageMeta: imageMeta,
-    });
-    if (newFunctionary){
-       console.log(`Criados funcionários. files.length=${files.length}`);
+    const newFunctionary = await functionaryCad.findOneAndUpdate(
+      {
+        name: name,
+        email: email,
+      },
+      {
+        storeName: findStore.storeName,
+        storeEmail: findStore.storeEmail,
+        phone: findStore.phone,
+        functionarysName: functionaryName,
+        functionarysEmail: functionaryEmail,
+        functionaryImagePath: imagePaths,
+        functionaryImageMeta: imageMeta,
+      }
+    );
+    if (newFunctionary) {
+      console.log(`Criados funcionários. files.length=${files.length}`);
 
-    // ✅ Redireciona igual ao servicesCad
-    return res.redirect("/stores/prefs");
+      // ✅ Redireciona igual ao servicesCad
+      return res.redirect("/stores/prefs");
     }
-   
   } catch (error) {
     console.error("Erro ao cadastrar funcionários:", error);
     return res.status(500).json({
@@ -6004,16 +6168,18 @@ app.post("/team/updater", tokenVerify, upload.any(), async (req, res) => {
   }
 });
 app.get("/store-bank", (req, res) => {
-  return res.status(200).sendFile(path.join(__dirname, "public", "storeBank.html"))
-})
+  return res
+    .status(200)
+    .sendFile(path.join(__dirname, "public", "storeBank.html"));
+});
 app.get("/exist-bank-datas", tokenVerify, async (req, res) => {
-  const {name, email} = req.user;
+  const { name, email } = req.user;
   try {
     const verifyBank = await BankSchema.findOne({
       name: name,
-      email: email
-    })
-    if (!verifyBank){
+      email: email,
+    });
+    if (!verifyBank) {
       let stcr = `<div class="marginer" style="margin-top:5vh;">
   <div class="notAllowed">
     <div class="call-action">
@@ -6034,21 +6200,235 @@ app.get("/exist-bank-datas", tokenVerify, async (req, res) => {
       </div>
     </div>
   </div>
-</div>`
+</div>`;
       return res.status(200).json({
-        rendera: stcr
-      })
+        rendera: stcr,
+      });
     }
+    const verifyAccount = await stripe.accounts.retrieve(verifyBank.stripe_id);
+    if (verifyAccount.payouts_enabled == false) {
+      const bankDel = await BankSchema.findOneAndDelete({
+        name: name,
+        email: email,
+        stripe_id: verifyBank.stripe_id,
+      });
+      if (!bankDel) {
+        console.error("NO  DELETER");
+        return res.status(400).json({
+          error: "NO DELETER",
+        });
+      }
+      let stcr = `<div class="marginer" style="margin-top:5vh;">
+  <div class="notAllowed">
+    <div class="call-action">
+      <h1 class="call-h1">
+        Your Stripe Account  is <strong class="GreenCard">disabled</strong><strong class="pointer">.</strong>
+      </h1>
+      <p class="call-p">Add your payment information to start accepting bookings.</p>
+    </div>
+  
+    <div class="central-plus">
+      <div class="label-plus">
+        <p>
+          Add <strong class="GreenCard">Details</strong>
+        </p>
+      </div>
+      <div class="img-plus">
+        <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt="Add">
+      </div>
+    </div>
+  </div>
+</div>`;
+      return res.status(200).json({
+        rendera: stcr,
+      });
+    }
+    const findActive = await BankSchema.findOne({
+      name: name,
+      email: email,
+      stripe_id: verifyBank.stripe_id,
+      active: true,
+    });
+    if (!findActive) {
+      const updt = await BankSchema.findOneAndUpdate(
+        {
+          name: name,
+          email: email,
+          stripe_id: verifyBank.stripe_id,
+        },
+        {
+          active: true,
+        },
+        { new: true }
+      );
+      if (!updt) {
+        console.error("NO UPDATER");
+        return res.status(404).json({
+          error: "NO UPDATE",
+        });
+      }
+    }
+    const cash = await store_data_schema.findOne({
+      name: name,
+      email: email,
+    });
+    if (!cash) {
+      console.error("NO CASHER");
+      return res.status(404).json({
+        error: "N CASHER",
+      });
+    }
+    let totalCash = (((cash.totalCash / 100) * 93) / 100).toLocaleString(
+      "pt-BR",
+      {
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+      }
+    );
+    let hldTp = ``;
+    let otherhld = ``;
+    if (verifyBank.holder_type === "individual") {
+      hldTp = `<option value="individual">Individual</option>`;
+      otherhld = `<option value="company"> Company</option>`;
+    } else {
+      hldTp = `<option value="company"> Company</option>`;
+      otherhld = `<option value="individual">Individual</option>`;
+    }
+    let stcr = `<div class="unionE">
+      <div class="Identifire"><h1>Bank <strong class="GreenCard">Area</strong></h1> <p><strong class="consoleWrite">#</strong> Manage account balance and withdrawals<strong class="pointer">.</strong></p></div>
+    <div class="dateNasc">
+      <span class="label">Total  <strong class="GreenCard">Balance</strong></span><br>
+      <span class="dateSpan">${totalCash}</span>
+      </div>
+    </div>
+    <div class="unionE">
+      
+        <form action="/updater/bank-datas" method="post" style="padding: 40px 20px; border:1px solid #a6a6a64d; border-radius:15px; margin:3vh 7vw;">
+                  <div class="FormSeparate">
+                      <input
+                        type="text"
+                        name="holder_name"
+                        id="holder_name"
+                        placeholder="Holder Name: "
+                        value="${verifyBank.holder_name}"
+                      />
+        
+                      <input
+                        type="text"
+                        name="account_number"
+                        id="account_number"
+                        placeholder="Account Number"
+                        value="${descriptografar(verifyBank.account_number)}"
+                      />
+                      <select name="holder_type" id="holder_type">
+                          ${hldTp}
+                </select>
+                  </div>
+                  <div class="cvvForm">
+                      <input
+                        type="text"
+                        name="bank_code"
+                        id="bank_code"
+                        placeholder="Bank Code"
+                        maxlength="3"
+                        value="${verifyBank.bank_code}"
+                      />
+                      <input
+                        type="text"
+                        name="branch_code"
+                        id="branch_code"
+                        placeholder="Agency Number"
+                        maxlength="4"
+                        value="${verifyBank.branch_code}"
+                      />
+                  </div>
+                  <input type="submit" value="Send" id="senderBank">
+                </form>
+                <div class="analyticsInfo"><span class="label">Pending <strong class="GreenCard">Collection:</strong> </span><br><span class="pricer">${totalCash}<img src="https://img.icons8.com/?size=100&id=85969&format=png&color=FFFFFF" alt=""></span></div>
+    </div>
+    `;
+    return res.status(200).json({
+      rendera: stcr,
+    });
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return res.status(500).json({
-      error: error
-    })
+      error: error,
+    });
   }
-})
+});
 app.get("/bank/datas", (req, res) => {
-  return res.status(200).sendFile(path.join(__dirname, "public", "bank-datas.html"))
-})
+  return res
+    .status(200)
+    .sendFile(path.join(__dirname, "public", "bank-datas.html"));
+});
+// app.get("/stores/money", tokenVerify, async (req, res) => {
+//   const { name, email } = req.user;
+//   try {
+//     const bankDatas = await BankSchema.findOne({
+//       name: name,
+//       email: email,
+//     });
+//     if (!bankDatas) {
+//       console.error("IN BANKDATAS");
+//       return res.status(404).json({
+//         error: "IN BANKDATAS",
+//       });
+//     }
+//     const storeCash = await store_data_schema.findOne({
+//       name: name,
+//       email: email,
+//     });
+
+//     if (!storeCash) {
+//       return res.status(404).json({
+//         error: "Dados da loja não encontrados",
+//       });
+//     }
+//     const balance = Math.floor((storeCash.totalCash * 93) / 100);
+//     const payout = await stripe.transfers.create({
+//         amount: balance,
+//         currency: "brl",
+//         destination: bankDatas.stripe_id,
+//         metadata: {
+//           user_name: name,
+//           user_email: email,
+//           store_name: storeCash.storeName,
+//         },
+//       });
+//     const updateSald = await store_data_schema.findOneAndUpdate({
+//       name: name,
+//       email: email
+//     }, {
+//       totalCash: 0
+//     }, {new: true})
+//     if (!updateSald) {
+//       return res.status(400).json({ 
+//         error: "Erro ao atualizar saldo" 
+//       });
+//     }
+//     console.log(`✅ Saque processado: R$ ${amount / 100} - ID: ${payout.id}`);
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Saque realizado com sucesso",
+//       payout: {
+//         id: payout.id,
+//         amount: payout.amount,
+//         status: "pending",
+//         estimated_arrival: "2-7 dias úteis"
+//       },
+//       newBalance: updatedStore.totalCash,
+//       withdrawnAmount: balance
+//     });
+//   } catch (error) {
+//     console.error("❌ Erro ao processar saque:", error);
+//     return res.status(500).json({
+//       error: "Erro ao processar saque",
+//       message: error.message
+//     });
+//   }
+// });
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
   console.log(`📧 Sistema de recuperação de senha ativo`);

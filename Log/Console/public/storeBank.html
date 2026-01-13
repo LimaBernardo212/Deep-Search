@@ -162,6 +162,16 @@
           });
         }
         }, 50);
+        const cash = document.querySelector(".analyticsInfo")
+        cash.addEventListener("click", async () => {
+          const reward = await fetch("/stores/money", {
+            method: 'GET',
+            headers: {"Content-Type": "application/json"}
+          })
+          if (reward.ok){
+          window.location.reload()
+        }
+        })
         
       }
     });
