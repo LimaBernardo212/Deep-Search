@@ -32,7 +32,7 @@ import reembolso from "./reembolso.js";
 import recurring from "./recurring.js";
 import StoreCadschema from "./StoreCadschema.js";
 import cron from "node-cron"; // ✅ CORRETO
-
+import favorite from "./favorite.js";
 dotenv.config();
 
 const app = express();
@@ -615,9 +615,7 @@ app.get("/api/logout", (req, res) => {
     sameSite: "strict",
   });
 
-  return res.status(200).json({
-    mensage: "Logout efetuado com sucesso",
-  });
+  return res.redirect("/index.html")
 });
 
 app.get("/verifyItsNewUser", tokenVerify, (req, res) => {
@@ -727,62 +725,63 @@ app.post("/return/data", tokenVerify, async (req, res) => {
     if (!findAllStores) {
       return res.sendStatus(404).json({ error: "Error 404" });
     }
-    const storesNames = findAllStores.map((store) => store.storeName);
-    const storesNum = findAllStores.length;
+    
     let counter = 0;
 
     const returner = [];
+    const fav = await favorite.find({
+        name: name,
+        email: email
+      }).lean()
+      if (!fav){
+        return res.sendStatus(404).json({ error: "Error 404" });
+      }
+      const favMap = new Set(fav.map(f => f.storeName))
+      const sortedStores = findAllStores.sort((a, b) => {
+      const aIsFav = favMap.has(a.storeName);
+      const bIsFav = favMap.has(b.storeName);
+      
+      if (aIsFav && !bIsFav) return -1;  // a vem antes
+      if (!aIsFav && bIsFav) return 1;   // b vem antes
+      return 0;  // mantém ordem original
+    });
+    const storesNames = sortedStores.map((store) => store.storeName);
+    const storesNum = findAllStores.length;
+    for (let i = 0; i < sortedStores.length; i++) {
+      const store = sortedStores[counter]
+      const isFav = favMap.has(store.storeName)
+      let order = ``
 
-    for (let i = 0; i < storesNum; i++) {
-      if (findAllStores[counter].storeImagePath) {
+      if (isFav){
+         order = `<img src="https://img.icons8.com/?size=100&id=84925&format=png&color=F4D03F" alt="" id="starOff">
+           <img src="https://img.icons8.com/?size=100&id=85784&format=png&color=FFFFFF" alt="" id="starOn">`
+      }else{
+         order = `<img src="https://img.icons8.com/?size=100&id=85784&format=png&color=FFFFFF" alt="" id="starOff"><img src="https://img.icons8.com/?size=100&id=84925&format=png&color=F4D03F" alt="" id="starOn">`
+      }
+      
+      if (sortedStores[counter].storeImagePath) {
         const htmlStructure = `<div class="store">
                         <div class="juntos">
                             <div id="img">
                                 <img src="${
-                                  findAllStores[counter].storeImagePath
+                                  sortedStores[counter].storeImagePath
                                 }" alt="">
                             </div>
                             <div id="storeinfos">
-                                <p id="storename"><strong class="GreenCard">&lt;/</strong>${findAllStores[
+                                <p id="storename"><strong class="GreenCard">&lt;/</strong>${sortedStores[
                                   counter
                                 ].storeName.replaceAll(
                                   "/",
                                   " "
                                 )}<strong class="GreenCard">/></strong></p>
                                 <p id="storeDescription">${
-                                  findAllStores[counter].description
+                                  sortedStores[counter].description
                                 }</p>
                             </div>
                         </div>
                         <div id="moreinfos">
-                            <button>
-                                <img src="https://img.icons8.com/?size=100&id=85501&format=png&color=FFFFFF" alt="">
-                            </button>
-                        </div>
-                    </div>`;
-        counter++;
-        returner.push(htmlStructure);
-      } else {
-        const htmlStructure = `<div class="store">
-                        <div class="juntos">
-                            <div id="img">
-                                <img src="/img/().png" alt="">
-                            </div>
-                            <div id="storeinfos">
-                                <p id="storename"><strong class="GreenCard">&lt;/</strong>${findAllStores[
-                                  counter
-                                ].storeName.replaceAll(
-                                  "/",
-                                  " "
-                                )}<strong class="GreenCard">/></strong></p>
-                                <p id="storeDescription">${
-                                  findAllStores[counter].description
-                                }</p>
-                            </div>
-                        </div>
-                        <div id="moreinfos">
-                            <button>
-                                <img src="https://img.icons8.com/?size=100&id=85501&format=png&color=FFFFFF" alt="">
+                            <button data-fav="${isFav}">
+                                ${order}
                             </button>
                         </div>
                     </div>`;
@@ -1879,7 +1878,43 @@ app.delete("/delete/schedules", tokenVerify, async (req, res) => {
         error: "Error 404, server error man, que merda",
       });
     }
-    if (finder.payed) {
+      if (finder.payed){
+        const session = await stripe.checkout.sessions.retrieve(finder.stripeId)
+
+        if (session.payment_intent){
+          const refundAmount = Math.floor((finder.totalPrice * 80 ) / 100)
+          const originalFee = Math.floor(finder.totalPrice * 0.07); // R$ 5,25 (525 centavos)
+        const feeToRefund = Math.floor((originalFee * 80) / 100); // R$ 4,20 (420 centavos)
+          const reembolsar = await stripe.refunds.create({
+            payment_intent: session.payment_intent,
+            amount: refundAmount,
+            refund_application_fee: true,
+            reverse_transfer: true,
+            reason: 'requested_by_customer',
+            metadata: {
+              customer_name: name,
+              customer_email: email,
+              store_name: realName,
+              refundPercent: '80%'
+            }
+          })
+          const cadReembolso = await reembolso.create({
+            name: name,
+            email: email,
+            storeName: realName,
+            totalPrice: refundAmount,
+            scheduleId: finder._id,
+            stripeRefundId: reembolsar.id,
+            status: reembolsar.status
+          })
+          if (!cadReembolso){
+            console.error("IN CAD REEMBOLSO")
+            return res.status(400).json({
+              error: 'IN CAD REEMBOLSO'
+            })
+          }
+        }
+      }
       const f = await store_data_schema.findOne({
         storeName: realName,
       });
@@ -1893,8 +1928,8 @@ app.delete("/delete/schedules", tokenVerify, async (req, res) => {
           storeName: realName,
         },
         {
-          totalCash: f.totalCash - parseInt(finder.totalPrice),
-          money: f.money - parseInt(finder.totalPrice),
+          totalCash: f.totalCash - (parseInt(finder.totalPrice ) * 80) / 100,
+          money: f.money - (parseInt(finder.totalPrice ) * 80) / 100,
         }
       );
       if (!value) {
@@ -1902,7 +1937,6 @@ app.delete("/delete/schedules", tokenVerify, async (req, res) => {
           error: "Error 400, server error man, que merda",
         });
       }
-    }
     let msg = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2236,6 +2270,7 @@ app.delete("/delete/schedules", tokenVerify, async (req, res) => {
       redirect: "/reload",
     });
   } catch (error) {
+    console.error(error)
     return res.status(500).json({
       error: "Error 500, server error man, que merda",
     });
@@ -3701,6 +3736,7 @@ app.post("/pay/schedule", tokenVerify, async (req, res) => {
       unit_amount: price,
       currency: "brl",
     });
+    const applicationFeeAmount = Math.floor(price * 0.03);
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: [
@@ -3727,7 +3763,7 @@ app.post("/pay/schedule", tokenVerify, async (req, res) => {
         },
       },
       payment_intent_data: {
-        application_fee_amount: Math.floor(price * 0.003),
+        application_fee_amount: applicationFeeAmount,
         transfer_data: {
           destination: bankData.stripe_id
         },
@@ -4247,6 +4283,9 @@ app.post("/cancel/plan", tokenVerify, async (req, res) => {
 app.get("/payment-policy", tokenVerify, (req, res) => {
   return res.sendFile(path.join(__dirname, "public", "paymentpolicy.html"));
 });
+app.get("/refund-policy", (req, res) => {
+  return res.sendFile(path.join(__dirname, "public", "refund.html"));
+})
 app.get("/store-plans", tokenVerify, (req, res) => {
   return res.sendFile(path.join(__dirname, "public", "store-plans.html"));
 });
@@ -4905,8 +4944,8 @@ app.get("/today-schedules", tokenVerify, async (req, res) => {
       }
     }
     let html = `<div class="schedule-union" id="opacitor1">${htmlArr.join(
-      '<div class="store-content" id="weekDiv"></div>'
-    )}</div>`;
+      
+    )}</div>'<div class="store-content" id="weekDiv"></div>'`;
     return res.status(200).json({
       returner: html,
     });
@@ -4916,7 +4955,7 @@ app.get("/today-schedules", tokenVerify, async (req, res) => {
   }
 });
 app.get("/week-schedules", tokenVerify, async (req, res) => {
-  const { name, email } = req.user;
+ const { name, email } = req.user;
   try {
     const findStoreDatas = await StoreCadschema.findOne({
       name: name,
@@ -5029,7 +5068,6 @@ app.get("/week-schedules", tokenVerify, async (req, res) => {
                   </div>
                 </div>
           </div>
-              </div>
                 </div>
               </div>
         </div>`;
@@ -5060,7 +5098,7 @@ app.get("/week-schedules", tokenVerify, async (req, res) => {
               />
             </div>
             
-        <div class="columnUnion">
+       <div class="columnUnion">
             <strong class="pricery">R$ ${totalPrice}</strong>
             <div class="schedule-dayEHour">
                   <div class="schedule-Day">
@@ -6429,6 +6467,72 @@ app.get("/bank/datas", (req, res) => {
 //     });
 //   }
 // });
+app.post("/fav-store", tokenVerify, async (req, res) => {
+  const {name, email} = req.user;
+  const {storeName} = req.body
+  try {
+    const verifyFavorite = await favorite.findOne({
+      name: name,
+      email: email,
+      storeName: storeName
+    })
+    if (verifyFavorite){
+        console.error("NO VERIFY")
+        return res.status(200).json({error: 'no VERIFY'})
+      }
+   
+      const fav = await favorite.create({
+      name: name,
+      email: email,
+      storeName: storeName
+      })
+      if (!fav){
+        console.error("NO FAV")
+        return res.status(400).json({error: 'NO FAV'})
+      }
+    
+    
+    return res.status(200).json({
+      ok: 'ok'
+    })
+  } catch (error) {
+    console.error(error)
+      return res.status(500).json({error: error})
+  }
+})
+app.post("/unfav-store", tokenVerify, async (req, res) => {
+  const {name, email} = req.user;
+  const {storeName} = req.body;
+  try {
+    const verifyFavorite = await favorite.findOne({
+      name: name,
+      email: email,
+      storeName: storeName
+    })
+    if (!verifyFavorite){
+        console.error("NO VERIFY")
+        return res.status(200).json({error: 'no VERIFY'})
+      }
+   
+      const fav = await favorite.findOneAndDelete({
+      name: name,
+      email: email,
+      storeName: storeName
+      })
+      if (!fav){
+        console.error("NO FAV")
+        return res.status(400).json({error: 'NO FAV'})
+      }
+    
+    
+    return res.status(200).json({
+      ok: 'ok'
+    })
+  } catch (error) {
+    console.error(error)
+      return res.status(500).json({error: error})
+  }
+})
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
   console.log(`📧 Sistema de recuperação de senha ativo`);

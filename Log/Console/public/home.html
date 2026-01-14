@@ -221,6 +221,46 @@ console.log(contenter);
                 }
             });
         })
+        const fav = document.querySelectorAll("#moreinfos button")
+        
+        fav.forEach((el, i) => {
+          let favClicked = el.getAttribute("data-fav")
+          el.addEventListener("click", async (e) => {
+            e.stopPropagation()
+            if (favClicked == 'false'){
+              const starOn = el.querySelector("#starOn")
+              starOn.style.opacity = '1'
+              console.log("fav clicked")
+              favClicked = true
+              const fav = await fetch("/fav-store", {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                  storeName: storeNames[i]
+                })
+              })
+              if (fav.ok){
+                window.location.reload()
+              }
+            }
+            if (favClicked == 'true'){
+              const starOn = el.querySelector("#starOn")
+              starOn.style.opacity = '0'
+              console.log("fav clicked")
+              favClicked = false
+              const fav = await fetch("/unfav-store", {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                  storeName: storeNames[i]
+                })
+              })
+              if (fav.ok){
+                window.location.reload()
+              }
+            }
+          })
+        })
         }, 750);
         
       } else {

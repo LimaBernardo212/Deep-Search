@@ -1155,13 +1155,13 @@ main.infoContent {
     display: flex;
     align-items: center;
     justify-content: center;
-    
     border-radius: 10px;
     transition: 0.7s all;
 }
  #moreinfos img{
-    width: 32px;
-    height: 32px;
+    position: absolute;
+    width: 24px;
+    height: 24px;
 }
 #moreinfos button:hover{
     background-color: var(--cor02);
@@ -2223,6 +2223,11 @@ border: 1px solid var(--cor01Esvoaçada);
   font-family: var(--fontRoboto);
   margin: 1vh 9.5vw;
 }
+.moreContenter{
+  min-height: 90vh;
+  overflow-y: scroll;
+  scrollbar-width: none;
+}
 .contenterOfLogins{
   opacity: 0;
   width: 83vw;
@@ -2278,7 +2283,7 @@ border: 1px solid var(--cor01Esvoaçada);
   margin-left: 1vw;
 }
 .sendBtn{
-  margin: 2vh 12vw;
+  margin: 2vh 1vw 2vh 12vw;
   color: var(--cor05);
   font-family: var(--fontRoboto);
   width: 15vw;
@@ -2289,6 +2294,9 @@ border: 1px solid var(--cor01Esvoaçada);
   justify-content: center;
   border-radius: 7px;
   border: 1px solid var(--cor01Esvoaçada);
+}
+#LogOut:hover{
+  background-color: var(--cor12);
 }
 .sendBtn:hover{
   transform: translate(-3px, -3px);
@@ -3863,4 +3871,7 @@ background-color: var(--cor04);
 }
 #senderBank:hover{
   background-color: var(--cor03);
+}
+#starOn{
+  opacity: 0;
 }
