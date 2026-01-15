@@ -3018,7 +3018,7 @@ app.post("/cadFunctionary", tokenVerify, upload.any(), async (req, res) => {
     console.log(`Criados funcionários. files.length=${files.length}`);
 
     // ✅ Redireciona igual ao servicesCad
-    return res.redirect("/stores/home");
+    return res.redirect("/bank/datas");
   } catch (error) {
     console.error("Erro ao cadastrar funcionários:", error);
     return res.status(500).json({
@@ -3245,7 +3245,7 @@ app.post("/pay/plans/buy", tokenVerify, async (req, res) => {
         },
       ],
       subscription_data: {
-        application_fee_percent: 7, // 7% sua taxa
+        application_fee_percent: 1, // 7% sua taxa
         transfer_data: {
           destination: bankData.stripe_id, // Conta do lojista
         },
@@ -3471,8 +3471,8 @@ app.post("/plans/register/bank", tokenVerify, async (req, res) => {
       const criptNumber = criptografar(account_number.toString());
       const accountLink = await stripe.accountLinks.create({
         account: account.id,
-        refresh_url: `http://localhost:3000/store-bank`, // URL se expirar
-        return_url: `http://localhost:3000/store-bank`, // URL após completar
+        refresh_url: `http://localhost:3000/pay/plans`, // URL se expirar
+        return_url: `http://localhost:3000/bank/datas`, // URL após completar
         type: "account_onboarding",
         collect: "currently_due",
       });
@@ -3762,17 +3762,17 @@ app.post("/pay/schedule", tokenVerify, async (req, res) => {
           expires_after_days: 3,
         },
       },
-      payment_intent_data: {
-        application_fee_amount: applicationFeeAmount,
-        transfer_data: {
-          destination: bankData.stripe_id
-        },
-        metadata : {
-          schedule_id: id,
-          user_name: name,
-          user_email: email,
-        }
-      },
+      // payment_intent_data: {
+      //   application_fee_amount: applicationFeeAmount,
+      //   transfer_data: {
+      //     destination: bankData.stripe_id
+      //   },
+      //   metadata : {
+      //     schedule_id: id,
+      //     user_name: name,
+      //     user_email: email,
+      //   }
+      // },
 
       success_url: `http://localhost:3000/schedule/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `http://localhost:3000/cancel/payment`,
@@ -6531,6 +6531,124 @@ app.post("/unfav-store", tokenVerify, async (req, res) => {
   } catch (error) {
     console.error(error)
       return res.status(500).json({error: error})
+  }
+})
+app.post("/search/stores", tokenVerify, async (req, res) => {
+  const {name, email} = req.user
+  const {value} = req.body
+  try {
+    console.log(name, email, value)
+    const inputer = value.toString().replaceAll(" ", "/")
+    const store = await StoreCad.find({
+      storeName: {$regex: inputer, $options: 'i'}
+    }).lean()
+
+    if (!store) {
+      return res.status(404).json({ message: "Loja não encontrada" })
+    }
+    let arr = []
+    for (let i = 0; i < store.length; i++) {
+      const verifyFav = await favorite.findOne({
+        name: name,
+        email: email,
+        storeName: store[i].storeName
+      })
+      let isFav = false
+       let order = ``
+      if (verifyFav){
+       order = `<img src="https://img.icons8.com/?size=100&id=84925&format=png&color=F4D03F" alt="" id="starOff">
+           <img src="https://img.icons8.com/?size=100&id=85784&format=png&color=FFFFFF" alt="" id="starOn">`
+           isFav = true
+      }else{
+        order = `<img src="https://img.icons8.com/?size=100&id=85784&format=png&color=FFFFFF" alt="" id="starOff"><img src="https://img.icons8.com/?size=100&id=84925&format=png&color=F4D03F" alt="" id="starOn">`
+        isFav = false
+      }
+      const htmlStructure = `<div class="store">
+                        <div class="juntos">
+                            <div id="img">
+                                <img src="${
+                                  store[i].storeImagePath
+                                }" alt="">
+                            </div>
+                            <div id="storeinfos">
+                                <p id="storename"><strong class="GreenCard">&lt;/</strong>${store[
+                                  i
+                                ].storeName.replaceAll(
+                                  "/",
+                                  " "
+                                )}<strong class="GreenCard">/></strong></p>
+                                <p id="storeDescription">${
+                                  store[i].description
+                                }</p>
+                            </div>
+                        </div>
+                        <div id="moreinfos">
+                            <button data-fav="${isFav}" data-storename="${store[i].storeName}">
+                                ${order}
+                            </button>
+                        </div>
+                    </div>`
+                    arr.push(htmlStructure)
+    }
+    
+    return res.status(200).json({
+      html: arr.join("")
+    })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({ error: error.message })
+  }
+})
+app.post("/pay/ass", tokenVerify, async (req, res) => {
+  const {name, email} = req.user
+  const {plan, price, log} = req.body;
+
+  try {
+     const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      payment_method_types: [
+        "card", // Cartão de crédito/débito
+      ],
+      line_items: [
+        {
+          price_data: {
+            currency: "brl",
+            product_data: {
+              name: plan,
+            },
+            unit_amount: price,
+            recurring: {
+              // ✅ OBRIGATÓRIO para subscription
+              interval: "month", // ou 'year', 'week', 'day'
+            },
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: `http://localhost:3000/cad/store`,
+      cancel_url: `http://localhost:3000/pay/plans`,
+      customer_email: email,
+      metadata: {
+        userId: req.user.id,
+        planName: plan,
+        userName: name,
+        userEmail: email,
+        planPrice: price,
+      },
+    });
+    if (!session) {
+      return res.status(400).json({ error: "ERROR in payment :(" });
+    }
+    return res.status(200).json({
+      sessionId: session.id,
+      url: session.url,
+    });
+  } catch (error) {
+    console.error("Erro ao criar sessão:", error);
+    return res.status(500).json({
+      error: "Erro ao processar pagamento",
+      details: error.message,
+    });
   }
 })
 app.listen(PORT, () => {

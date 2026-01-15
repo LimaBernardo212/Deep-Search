@@ -21,7 +21,7 @@
       </button>
     </header>
     <section class="Ass-Plan">
-      <div class="Text-Plan" style="opacity: 1">
+      <!-- <div class="Text-Plan" style="opacity: 1">
         <h1>Choose Your <strong class="GreenCard">Plan</strong></h1>
       </div>
       <div class="Plans-content" style="opacity: 1">
@@ -38,26 +38,22 @@
             </p>
             <button>Subscribe Now</button>
           </div>
-        </div>
-        <div class="Pro" style="opacity: 1">
-          <h2 class="Indicated">Most Popular</h2>
-          <h1 class="Price"><strong class="GreenCard">$</strong>34.99</h1>
-          <div class="beneficios">
-            <p><strong class="consoleWrite">>></strong>Everything in Basic</p>
-            <p>
-              <strong class="consoleWrite">>></strong>Advanced Features
-              Restaurant Mode, Project Tracking
-              <strong class="pointer">:</strong>
-            </p>
-            <p><strong class="consoleWrite">>></strong>Unlimited Store Types</p>
-            <p>
-              <strong class="consoleWrite">>></strong>Subscription & Payment
-              Management<strong class="pointer">|</strong>
-            </p>
-            <button>Subscribe Now</button>
-          </div>
-        </div>
-        <div class="Master Plan" style="opacity: 1">
+        </div> -->
+        <div class="Pro" style="opacity: 1; margin-top: 10vh;">
+  <p class="Indicated">Most Popular</p>
+  <h1 class="Price">
+    <strong class="GreenCard">$</strong>39,82<span class="period">/mo</span>
+  </h1>
+  <div class="beneficios">
+    <p><strong class="consoleWrite">>></strong> Unlimited storage</p>
+    <p><strong class="consoleWrite">>></strong> Priority support 24/7</p>
+    <p><strong class="consoleWrite">>></strong> Advanced analytics</p>
+    <p><strong class="consoleWrite">>></strong> Custom integrations</p>
+    <p><strong class="consoleWrite">>></strong> Team collaboration</p>
+    <button>Get Started</button>
+  </div>
+</div>
+        <!-- <div class="Master Plan" style="opacity: 1">
           <h1 class="Price"><strong class="GreenCard">$</strong>47.67</h1>
           <div class="beneficios">
             <p><strong class="consoleWrite">>></strong>Everything in Pro</p>
@@ -71,25 +67,12 @@
             </p>
             <button>Subscribe Now</button>
           </div>
-        </div>
-      </div>
+        </div> -->
     </section>
   </body>
   <script>
     document.querySelector("#back").addEventListener("click", async () => {
-      const req = await fetch("/bad/payer", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (req.ok) {
-        const data = await req.json();
-        console.log(JSON.stringify(data));
-        window.location.href = `/stores/home`;
-      } else {
-        const data = await req.json();
-        console.log(JSON.stringify(data));
-        window.location.href = `/store/home`;
-      }
+      window.location.href = '/stores/home'
     });
     const service = document.querySelector(".Text-Plan");
     const observerPlan = new IntersectionObserver(
@@ -112,37 +95,38 @@
     const master = document.querySelector(".Master");
     const pro = document.querySelector(".Pro");
 
-    basic.addEventListener("click", async () => {
-      try {
-        const req = await fetch("/pay/plans/buy", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            plan: "Basic",
-            price: 23.90 * 100
-          }),
-        });
-        if (req.ok) {
-          console.log("Aparentemente deu tudo certo");
-          const data = await req.json();
-          const url = data.url;
-          window.location.href = url;
-        } else {
-          const data = await req.json();
-          console.error(data);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    });
+    // basic.addEventListener("click", async () => {
+    //   try {
+    //     const req = await fetch("/pay/plans/buy", {
+    //       method: "POST",
+    //       headers: { "Content-Type": "application/json" },
+    //       body: JSON.stringify({
+    //         plan: "Basic",
+    //         price: 23.90 * 100
+    //       }),
+    //     });
+    //     if (req.ok) {
+    //       console.log("Aparentemente deu tudo certo");
+    //       const data = await req.json();
+    //       const url = data.url;
+    //       window.location.href = url;
+    //     } else {
+    //       const data = await req.json();
+    //       console.error(data);
+    //     }
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // });
     pro.addEventListener("click", async () => {
       try {
-        const req = await fetch("/pay/plans/buy", {
+        const req = await fetch("/pay/ass", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             plan: "Plano Pro",
-            price: 35.00 * 100
+            price: 39.82 * 100,
+            storeName: "Log"
           }),
         });
         if (req.ok) {
@@ -158,28 +142,28 @@
         console.error(error);
       }
     });
-    master.addEventListener("click", async () => {
-      try {
-        const req = await fetch("/pay/plans/buy", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            plan: "Plano Super Pro",
-            price: 47.67 * 100
-          }),
-        });
-        if (req.ok) {
-          console.log("Aparentemente deu tudo certo");
-          const data = await req.json();
-          const url = data.url;
-          window.location.href = url;
-        } else {
-          const data = await req.json();
-          console.error(data);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    });
+    // master.addEventListener("click", async () => {
+    //   try {
+    //     const req = await fetch("/pay/plans/buy", {
+    //       method: "POST",
+    //       headers: { "Content-Type": "application/json" },
+    //       body: JSON.stringify({
+    //         plan: "Plano Super Pro",
+    //         price: 47.67 * 100
+    //       }),
+    //     });
+    //     if (req.ok) {
+    //       console.log("Aparentemente deu tudo certo");
+    //       const data = await req.json();
+    //       const url = data.url;
+    //       window.location.href = url;
+    //     } else {
+    //       const data = await req.json();
+    //       console.error(data);
+    //     }
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // });
   </script>
 </html>

@@ -126,7 +126,7 @@
                 type="text"
                 name="search"
                 id="search"
-                placeholder="Search using name or PIN:"
+                placeholder="Search:"
               />
               <input type="submit" style="display: none;">
                 
@@ -139,6 +139,13 @@
     </section>
   </body>
   <script>
+    function render(el) {
+        const element = document.createElement("div");
+        element.classList.add("storeD");
+        element.innerHTML = el;
+        element.style.opacity = '0'
+        return element;
+      }
     const content = document.querySelector(".content");
     const loading = document.querySelector("#loading");
     const storecontent = document.querySelector(".store-content");
@@ -147,6 +154,133 @@
     const more = document.querySelector(".moreIten");
     const contenter = document.querySelector(".more-content");
     const plans = document.querySelector("#plansinapp")
+    const search = document.querySelector("#search")
+      let searchTimeOut = null
+      let currenRequest = null
+    search.addEventListener("input", async () => {
+       
+        
+        if (searchTimeOut){
+          clearTimeout(searchTimeOut)
+        }
+
+
+        if (currenRequest){
+          currenRequest.abort()
+        }
+      if (search.value.length > 0){
+        const storeD = document.querySelectorAll(".storeD")
+        storeD.forEach((el, i) => {
+          el.remove()
+        })
+        console.log(search.value.length)
+        
+        loading.style.opacity = '1'
+        searchTimeOut = setTimeout(async () => {
+          try {
+
+            const controller = new AbortController()
+           currenRequest = controller 
+            const inputer =  await fetch("/search/stores", {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          value: search.value
+        }),
+        signal: controller.signal
+      })
+      
+      if (inputer.ok){
+        const storeR =  document.querySelectorAll(".storeRow")
+        storeR.forEach((el, i) => {
+          el.style.opacity = '0'
+          setTimeout(() => {
+            el.style.display = 'none'
+          }, 1);
+        })
+        const sdata = await inputer.json()
+        const html = sdata.html
+        setTimeout(() => {
+          let renderizador = render(html)
+          let contentRenderizador = content.appendChild(renderizador)
+          setTimeout(() => {
+            contentRenderizador.style.opacity = '1'
+          }, 100);
+        }, 300);
+        loading.style.opacity = '0'
+        setTimeout(() => {
+          const fav = document.querySelectorAll("#moreinfos button")
+        
+        fav.forEach((el, i) => {
+          let favClicked = el.getAttribute("data-fav")
+          let storeName = el.getAttribute("data-storename")
+          el.addEventListener("click", async (e) => {
+            e.stopPropagation()
+            if (favClicked == 'false'){
+              const starOn = el.querySelector("#starOn")
+              starOn.style.opacity = '1'
+              console.log("fav clicked")
+              favClicked = true
+              const fav = await fetch("/fav-store", {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                  storeName: storeName
+                })
+              })
+              if (fav.ok){
+                window.location.reload()
+              }
+            }
+            if (favClicked == 'true'){
+              const starOn = el.querySelector("#starOn")
+              starOn.style.opacity = '0'
+              console.log("fav clicked")
+              favClicked = false
+              const fav = await fetch("/unfav-store", {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                  storeName: storeName
+                })
+              })
+              if (fav.ok){
+                window.location.reload()
+              }
+            }
+          })
+        })
+        }, 500);
+      }
+      currentRequest = null;
+          } catch (error) {
+            if (error.name === 'AbortError') {
+          console.log('Requisição cancelada');
+        } else {
+          console.error("Erro na busca:", error);
+        }
+        loading.style.opacity = '0';
+          }
+        }, 300);
+          
+      }else{
+        const storeD = document.querySelectorAll(".storeD")
+        storeD.forEach((el, i) => {
+          el.remove()
+        })
+        console.log(search.value.length)
+        const storeR =  document.querySelectorAll(".storeRow")
+        storeR.forEach((el, i) => {
+          el.style.display = 'block'
+          setTimeout(() => {
+            el.style.opacity = '1'
+          }, 500);
+        })
+        
+      }
+    })
     plans.addEventListener("click", () => {
       window.location.href = `/my/plan`
     })
