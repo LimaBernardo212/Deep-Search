@@ -603,6 +603,8 @@ app.get("/api/me", tokenVerify, async (req, res) => {
     } else {
       return res.status(200).json({
         storeName: testStore.storeName,
+        name: name,
+        email: email,
       });
     }
   } catch (error) {}
@@ -916,6 +918,7 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
       totalAppointments: 0,
       totalAppointmentsPayed: 0,
       planNumber: 0,
+      prePayment: true,
       createdAt: `${legalFormat}`,
       money: 0,
     });
@@ -1888,7 +1891,6 @@ app.delete("/delete/schedules", tokenVerify, async (req, res) => {
           const reembolsar = await stripe.refunds.create({
             payment_intent: session.payment_intent,
             amount: refundAmount,
-            refund_application_fee: true,
             reverse_transfer: true,
             reason: 'requested_by_customer',
             metadata: {
@@ -2674,7 +2676,7 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
                    .replace(".", ",")}</strong>
               </div>
               <div class="schedule-Hour">
-                 <strong class="dayEHour">${hour - finishH}</strong>
+                 <strong class="dayEHour">${hour} - ${finishH}</strong>
               </div>
             </div>
       </div>
@@ -2718,7 +2720,7 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
                    .replace(".", ",")}</strong>
               </div>
                  <div class="schedule-Hour">
-                 <strong class="dayEHour">${hour}</strong>
+                 <strong class="dayEHour">${hour} - ${finishH}</strong>
               </div>
               </div>
                 </div>
@@ -3118,14 +3120,21 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
         `;
         plansArray.push(structure);
       }
-    } else {
-      let structure = `<div class="Text-Plan" style="opacity: 1">
-        <h1>This store does not offer <strong class="GreenCard">subscription plans</strong>.</h1>
-      </div>`;
-      plansArray.push(structure);
     }
     let servicesReturner = htmlArray.join("");
     let plansReturner = plansArray.join("");
+    let planStcr = ``
+    if (plansArray.length > 0){
+      planStcr = `<div class="trasition"></div>
+    <section class="Ass-Plan">
+      <div class="Text-Plan" style="opacity: 1">
+        <h1>Choose Your <strong class="GreenCard">Plan</strong></h1>
+      </div>
+      <div class="Plans-content" style="opacity: 1">
+        ${plansReturner}
+      </div>
+    </section>`
+    }
     let returnS = servicesReturner + "</section>";
     let htmlBasePageModel3 = `<header class="nb">
         <button class="nButton" id="back">
@@ -3140,6 +3149,9 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
             <div class="infoData">
               <h1>${trueName}</h1>
               <p><strong class="consoleWrite">>_</strong>${storeData.description}</p>
+              <div class="unionE">
+                <p class="adressD"><strong class="GreenCard">Adress:</strong> ${storeData.address}</p><p class="adressD"><strong class="GreenCard">Contact:</strong> ${storeData.phone.replaceAll("(", "<strong class='jsonWrite'>(</strong>").replaceAll(")", '<strong class="jsonWrite">)</strong>')}</p>
+              </div>
               <div class="hours">
                 <div class="openAt">${storeData.openHours}</div>
                 <div class="theHourLine"></div>
@@ -3157,15 +3169,7 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
       ${returnS}
       <div class="selectedIndicator"><span class="counter">Selected services: </span><button>Next<strong class="consoleWrite"> >></strong></button></div>
     </section>
-    <div class="trasition"></div>
-    <section class="Ass-Plan">
-      <div class="Text-Plan" style="opacity: 1">
-        <h1>Choose Your <strong class="GreenCard">Plan</strong></h1>
-      </div>
-      <div class="Plans-content" style="opacity: 1">
-        ${plansReturner}
-      </div>
-    </section>
+    ${planStcr}
         `;
     console.log(plansReturner);
     const verifyRecurring = await recurring.findOne({
@@ -3245,7 +3249,7 @@ app.post("/pay/plans/buy", tokenVerify, async (req, res) => {
         },
       ],
       subscription_data: {
-        application_fee_percent: 1, // 7% sua taxa
+        // application_fee_percent: 1, // 7% sua taxa
         transfer_data: {
           destination: bankData.stripe_id, // Conta do lojista
         },
@@ -3255,7 +3259,7 @@ app.post("/pay/plans/buy", tokenVerify, async (req, res) => {
           user_email: email,
         }
       },
-      success_url: `http://localhost:3000/cad/plan?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `https://xbtl8ft1-3000.brs.devtunnels.ms/cad/plan?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `http://localhost:3000/cancel/payment`,
       customer_email: email,
       metadata: {
@@ -3472,7 +3476,7 @@ app.post("/plans/register/bank", tokenVerify, async (req, res) => {
       const accountLink = await stripe.accountLinks.create({
         account: account.id,
         refresh_url: `http://localhost:3000/pay/plans`, // URL se expirar
-        return_url: `http://localhost:3000/bank/datas`, // URL após completar
+        return_url: `http://localhost:3000/exist-bank-datas/?stripe_id={ACCOUNT_STRIPE_ID}`, // URL após completar
         type: "account_onboarding",
         collect: "currently_due",
       });
@@ -3688,7 +3692,33 @@ app.post("/plans/register/plans", tokenVerify, async (req, res) => {
 });
 
 app.get("/pay/app/:scheduleId", tokenVerify, async (req, res) => {
-  return res.sendFile(path.join(__dirname, "public", "paywithapp.html"));
+  const scheduleId = req.query.scheduleId;
+  try {
+    const verify = await scheduleSchema.findOne({
+      id: scheduleId
+    })
+    if (!verify){
+      return res.status(404).json({
+        erro: "Verify"
+      })
+    }
+    const verificador = await store_data_schema.findOne({
+      storeName: verify.storeName
+    })
+    if (!verificador){
+      return res.status(404).json({
+        
+        erro: "Verificador"
+      })
+    }
+    if (verificador.prePayment){
+      return res.sendFile(path.join(__dirname, "public", "paywithapp.html"));
+    }else{
+      return res.redirect("/schedule/home")
+    }
+  } catch (error) {
+    
+  }
 });
 app.post("/pay/schedule", tokenVerify, async (req, res) => {
   const { name, email } = req.user;
@@ -3762,19 +3792,18 @@ app.post("/pay/schedule", tokenVerify, async (req, res) => {
           expires_after_days: 3,
         },
       },
-      // payment_intent_data: {
-      //   application_fee_amount: applicationFeeAmount,
-      //   transfer_data: {
-      //     destination: bankData.stripe_id
-      //   },
-      //   metadata : {
-      //     schedule_id: id,
-      //     user_name: name,
-      //     user_email: email,
-      //   }
-      // },
+      payment_intent_data: {
+        transfer_data: {
+          destination: bankData.stripe_id
+        },
+        metadata : {
+          schedule_id: id,
+          user_name: name,
+          user_email: email,
+        }
+      },
 
-      success_url: `http://localhost:3000/schedule/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `https://xbtl8ft1-3000.brs.devtunnels.ms/schedule/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `http://localhost:3000/cancel/payment`,
       customer_email: email,
       metadata: {
@@ -4680,12 +4709,18 @@ app.get("/analitics", tokenVerify, async (req, res) => {
     const dateNasc = analiticsPush.createdAt;
     const totalAppointmentsPayed = analiticsPush.totalAppointmentsPayed;
     const totalAppointments = analiticsPush.totalAppointments;
-    const planNumber = analiticsPush.planNumber;
+    let planNumber = 0
     const storeName = analiticsPush.storeName;
     let gastosArray = [];
     let scheduleCancel = [];
     let scheduleNumberArray = [];
-
+    const planN = await plansSchema.findOne({
+      name: name,
+      email: email,
+    })
+    if (planN){
+      planNumber = analiticsPush.planNumber;
+    }
     if (recurringPush.length > 1) {
       for (let i = 0; i < recurringPush.length; i++) {
         let totalMoney = recurringPush[i].totalMoney;
@@ -5418,7 +5453,23 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
       const outlierBase = `<br><div class="hhmm" data-hour="${hoursTobeDiv[i]}">${hoursTobeDiv[i]}</div>`;
       hoursArray.push(outlierBase);
     }
-
+    let st = ``
+    const storeB = await store_data_schema.findOne({
+      name: name,
+      email: email,
+      storeName: store.storeName
+    })
+    if (!storeB){
+      console.error(storeB)
+      return res.status(404).json({
+        error: 'storeB'
+      })
+    }
+    if (storeB.prePayment){
+      st = `<img src="https://img.icons8.com/?size=100&id=122178&format=png&color=FFFFFF" id="prePayOn"><img src="https://img.icons8.com/?size=100&id=90219&format=png&color=FFFFFF" id="prePayOff"></img>`
+    }else{
+      st = `<img src="https://img.icons8.com/?size=100&id=90219&format=png&color=FFFFFF" id="prePayOn"></img><img src="https://img.icons8.com/?size=100&id=122178&format=png&color=FFFFFF" id="prePayOff">`
+    }
     let render = `<div class="unionE">
       <div class="Identifire">
         <h1>Prefer<strong class="GreenCard">ences</strong></h1>
@@ -5439,6 +5490,7 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
             class="prefservicesEdit"
           />
         </div>
+      <div class="prePayment" data-type="${storeB.prePayment}">${st}</div>
       </div>
     </div>
 
@@ -5510,8 +5562,13 @@ app.get("/select/updater-wizard/:type", tokenVerify, async (req, res) => {
     return res
       .status(200)
       .sendFile(path.join(__dirname, "public", "team-att.html"));
-  } else {
-    return res.status(200).json({
+  
+  } 
+  if (type == "all"){
+    return res.status(200).sendFile(path.join(__dirname, "public", "storeData-att.html"))
+  }
+  else {
+    return res.status(500).json({
       erorr: "error",
     });
   }
@@ -6205,6 +6262,370 @@ app.post("/team/updater", tokenVerify, upload.any(), async (req, res) => {
     });
   }
 });
+function generateHours(type,selectedHour){
+  let html = ''
+  for (let i = 0; i < 24; i++) {
+    const hour = i.toString().padStart(2, '0') + ':00'
+    const isSelected = hour === selectedHour ? 'hourSelect' : ''
+    html += `<div class="ourhours ${type} ${isSelected}" data-hour="${hour}">${hour}</div><br>`
+  }
+  return html
+}
+app.get("/updater/storeDatas", tokenVerify, async (req, res) => {
+  const {name, email} = req.user
+  try {
+    const findStoreDatas = await StoreCad.findOne({
+      name: name,
+      email: email
+    })
+    if (!findStoreDatas){
+      console.log('  NENHUMA LOJA ENCONTRADA')
+      return res.status(404).json({
+        error: '  NENHUMA LOJA ENCONTRADA'
+      })
+    }
+    const storeName = findStoreDatas.storeName
+    const adress = findStoreDatas.address
+    const cnpj = findStoreDatas.cnpj
+    const storeEmail = findStoreDatas.storeEmail
+    const phone = findStoreDatas.phone
+    const pin = findStoreDatas.model
+    const description = findStoreDatas.description
+   const closedDays = findStoreDatas.closedDays ? findStoreDatas.closedDays.split(',') : []
+    
+    // ✅ DECLARA a função para verificar se dia está fechado
+    const isDayClosed = (day) => closedDays.includes(day) ? 'daySel' : ''
+    let stcr = `<form id="storeForm" enctype="multipart/form-data" method="post" action="/rebirth/store-datas">
+        <div class="formularyOrder">
+          <div>
+            <h1 id="ob"><strong class="consoleWrite">//</strong>Update your <strong class="GreenCard">store datas</strong></h1>
+                  <p>Update your store datas here</p>
+          </div>
+        </div>
+        <div class="formularyOrder">
+          <div class="query">
+            <div class="break">
+              <input
+                type="text"
+                name="storeName"
+                id="storeName"
+                placeholder="Store name:"
+                required
+                class="normal"
+                value="${storeName.replaceAll("/", " ")}"
+              />
+              <input
+                type="text"
+                name="address"
+                id="address"
+                placeholder="Full address"
+                required
+                class="normal"
+                value="${adress}"
+              />
+              <input
+                type="text"
+                name="cnpj"
+                id="cnpj"
+                placeholder="CNPJ "
+                required
+                class="normal"
+                value="${cnpj}"
+              />
+              
+              
+            </div>
+
+            <div class="break">
+              <input
+                type="email"
+                name="storeEmail"
+                id="storeEmail"
+                placeholder="Store email"
+                required
+                class="normal"
+                value="${storeEmail}"
+              />
+              <input
+                type="text"
+                name="phone"
+                id="phone"
+                placeholder="Phone number"
+                required
+                class="normal"
+                value="${phone}"
+              />
+              <div class="pinDiv"><input type="text" name="pin" id="pin" placeholder="PIN:" class="normal" value="${pin}"> </div>
+              <input
+                type="text"
+                name="closedDays"
+                id="closedDays"
+                placeholder="Closed days"
+                class="ghost"
+                value="${findStoreDatas.closedDays}"
+              />
+              
+                <input
+                  type="text"
+                  name="openHours"
+                  id="openHours"
+                  placeholder="Opening time(HH:MM)"
+                  class="op-cl"
+                  value="${findStoreDatas.openHours}"
+                />
+                <input
+                  type="text"
+                  name="closedHours"
+                  id="closedHours"
+                  placeholder="Closing time(HH:MM)"
+                  class="op-cl"
+                  value="${findStoreDatas.closedHours}"
+                />
+
+              
+            </div>
+          </div>
+          <div class="txtAreaDiv">
+            <textarea
+              name="description"
+              id="description"
+              placeholder="Brief description of your store and services offered...(300 max)"
+              
+              maxlength="300"
+            >${description}</textarea>
+            <span class="Caracters">Caracters: <strong class="GreenCard">${description.length}</strong><strong class="consoleWrite">/</strong><strong class="GreenCard">300</strong></span>
+          </div>
+        </div>
+        <div class="mid">
+          <div class="imager">
+            <span>Drag <strong class="GreenCard">or</strong> Select</span>
+            <img src="${findStoreDatas.storeImagePath}" alt="">
+            <input
+              type="file"
+              name="storeImage"
+              id="storeImage"
+              accept="image/*"
+            />
+          </div>
+          <div class="selectDay">
+            <h1 class="label"><strong class="consoleWrite">//</strong>Closed Days</h1>
+             <div class="daysForSelect">
+              <div class="dayOfWeek ${isDayClosed('Sunday')}" id="sunday" data-day="Sunday">Sunday <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek ${isDayClosed('Monday')}" data-day="Monday">Monday <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek ${isDayClosed('Tuesday')}" data-day="Tuesday">Tuesday <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek ${isDayClosed('Wednesday')}" data-day="Wednesday">Wednesday <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek ${isDayClosed('Thursday')}" data-day="Thursday">Thursday <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek ${isDayClosed('Friday')}" data-day="Friday">Friday <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek ${isDayClosed('Saturday')}" data-day="Saturday">Saturday <input type="checkbox" name="" id=""></div>
+            </div>
+          </div>
+          
+
+  <div class="openingAt">
+    <h1 class="label" style="margin-left: 7vw;">
+Opens <strong class="GreenCard">At</strong><strong class="pointer">.</strong></h1>
+    <div class="openHours" id="opening">
+      ${generateHours('open', findStoreDatas.openHours)}
+    </div>
+  </div>
+  <div class="openingAt">
+    <h1 class="label" style="margin-left: 7vw;">
+Closes <strong class="GreenCard">At</strong><strong class="pointer">.</strong></h1>
+    <div class="openHours" id="closed">
+      ${generateHours('open', findStoreDatas.closedHours)}
+    </div>
+  </div><div class="selectedIndicatorC" style="margin-top:2vh;">
+    
+            <button type="submit">Register Store<strong class="consoleWrite">>></strong></button>
+  </div>
+        </div>
+      </form>`
+      return res.status(200).json({
+        html: stcr
+      })
+  } catch (error) {
+    
+  }
+})
+app.post("/rebirth/store-datas", tokenVerify, upload.any(), async (req, res) => {
+  try {
+    await ensureUploadsDir();
+
+    console.log("Body keys:", Object.keys(req.body));
+    console.log(
+      "Files:",
+      (req.files || []).map((f, idx) => ({
+        idx,
+        fieldname: f.fieldname,
+        originalname: f.originalname,
+        mimetype: f.mimetype,
+        size: f.size,
+      }))
+    );
+
+    const { id, name, email } = req.user;
+    const {
+      storeName,
+      address,
+      cnpj,
+      phone,
+      storeEmail,
+      description,
+      closedHours,
+      closedDays,
+      openHours,
+      pin,
+    } = req.body;
+    // Validação básica
+    if (!storeName || !address || !cnpj || !phone || !storeEmail) {
+      return res.status(400).json({
+        error: "Campos obrigatórios faltando",
+      });
+    }
+    const storeNamer = storeName.replaceAll(" ", "/");
+    // Verificar duplicação
+    const existingStore = await StoreCad.findOne({ name: name, email: email });
+    if (!existingStore) {
+      return res.status(400).json({
+        error: "Não existe uma loja no seu nome",
+      });
+    }
+
+    // ✅ Processar imagem da loja
+    let imageInfo = null;
+    const storeImageFile = (req.files || []).find(
+      (f) => f.fieldname === "storeImage"
+    );
+
+    console.log("📸 Arquivo de imagem encontrado:", !!storeImageFile);
+
+    if (storeImageFile?.buffer) {
+      try {
+        const processed = await processImageToWebp(storeImageFile.buffer, {
+          maxWidth: 1024,
+          maxHeight: 1024,
+          quality: 80,
+        });
+
+        // ✅ PASSAR "store" COMO TERCEIRO PARÂMETRO
+        const saved = await saveBufferToDisk(
+          processed.buffer,
+          processed.format,
+          "store"
+        );
+
+        imageInfo = {
+          storage: "disk",
+          path: saved.relPath,
+          filename: saved.fileName,
+          format: processed.format,
+          width: processed.width,
+          height: processed.height,
+          sizeBytes: processed.sizeBytes,
+        };
+
+        console.log("✅ Imagem processada e salva em:", saved.relPath);
+      } catch (imgErr) {
+        console.error("❌ Falha ao processar imagem da loja:", imgErr);
+        // Continua sem imagem
+      }
+    } else {
+      console.log("⚠️ Nenhuma imagem enviada para a loja");
+    }
+
+    // Criar loja no banco
+    if (imageInfo !== null){
+      const newStore = await StoreCad.findOneAndUpdate({
+      name: name,
+      email: email,
+      
+    }, {
+      description: description || "",
+      closedHours: closedHours || "",
+      closedDays: closedDays || "",
+      openHours: openHours || "",
+      model: pin,
+      storeName: storeNamer,
+      address: address,
+      cnpj: cnpj,
+      phone: phone,
+      storeEmail: storeEmail,
+      storeImagePath: imageInfo?.path ?? null,
+      storeImageMeta: imageInfo ?? null,
+    });
+    if (!newStore) {
+      return res.status(400).json({
+        tudoErrado: ":>",
+        // finderData: finder,
+        // outherData: outherFinder,
+        returner: "ERRORRORORORROROROROR",
+      });
+    }
+    console.log("✅ Loja cadastrada:", newStore._id);
+    }else{
+      const newStore = await StoreCad.findOneAndUpdate({
+      name: name,
+      email: email
+    }, {
+      description: description || "",
+      closedHours: closedHours || "",
+      closedDays: closedDays || "",
+      openHours: openHours || "",
+      model: pin,
+      storeName: storeNamer,
+      address: address,
+      cnpj: cnpj,
+      phone: phone,
+      storeEmail: storeEmail,
+    });
+     if (!newStore) {
+      return res.status(400).json({
+        tudoErrado: ":>",
+        // finderData: finder,
+        // outherData: outherFinder,
+        returner: "ERRORRORORORROROROROR",
+      });
+    }
+    console.log("✅ Loja cadastrada:", newStore._id);
+    }
+    const data = new Date();
+    const legalFormat = data.toLocaleString("pt-br");
+    const createBasicInfos = await store_data_schema.findOneAndUpdate({
+      name: name,
+      email: email,
+    }, {
+      storeName: storeNamer,
+      storeEmail: storeEmail
+    });
+    if (!createBasicInfos) {
+      return res.status(400).json({
+        tudoErrado: ":>",
+        // finderData: finder,
+        // outherData: outherFinder,
+        returner: "ERRORRORORORROROROROR",
+      });
+
+    }
+    
+    console.log("📁 Imagem salva em:", imageInfo?.path || "sem imagem");
+
+    return res.redirect("/");
+  } catch (error) {
+    console.error("❌ Erro ao cadastrar loja:", error);
+
+    if (error.code === 11000) {
+      return res.status(400).json({
+        error: "Loja com dados duplicados",
+        details: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      error: "Erro ao cadastrar loja",
+      details: error.message,
+    });
+  }
+});
 app.get("/store-bank", (req, res) => {
   return res
     .status(200)
@@ -6217,32 +6638,6 @@ app.get("/exist-bank-datas", tokenVerify, async (req, res) => {
       name: name,
       email: email,
     });
-    if (!verifyBank) {
-      let stcr = `<div class="marginer" style="margin-top:5vh;">
-  <div class="notAllowed">
-    <div class="call-action">
-      <h1 class="call-h1">
-        Banking details <strong class="GreenCard">required</strong><strong class="pointer">.</strong>
-      </h1>
-      <p class="call-p">Add your payment information to start accepting bookings.</p>
-    </div>
-  
-    <div class="central-plus">
-      <div class="label-plus">
-        <p>
-          Add <strong class="GreenCard">Details</strong>
-        </p>
-      </div>
-      <div class="img-plus">
-        <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt="Add">
-      </div>
-    </div>
-  </div>
-</div>`;
-      return res.status(200).json({
-        rendera: stcr,
-      });
-    }
     const verifyAccount = await stripe.accounts.retrieve(verifyBank.stripe_id);
     if (verifyAccount.payouts_enabled == false) {
       const bankDel = await BankSchema.findOneAndDelete({
@@ -6253,33 +6648,9 @@ app.get("/exist-bank-datas", tokenVerify, async (req, res) => {
       if (!bankDel) {
         console.error("NO  DELETER");
         return res.status(400).json({
-          error: "NO DELETER",
+          redirect: "/bank/datas"
         });
       }
-      let stcr = `<div class="marginer" style="margin-top:5vh;">
-  <div class="notAllowed">
-    <div class="call-action">
-      <h1 class="call-h1">
-        Your Stripe Account  is <strong class="GreenCard">disabled</strong><strong class="pointer">.</strong>
-      </h1>
-      <p class="call-p">Add your payment information to start accepting bookings.</p>
-    </div>
-  
-    <div class="central-plus">
-      <div class="label-plus">
-        <p>
-          Add <strong class="GreenCard">Details</strong>
-        </p>
-      </div>
-      <div class="img-plus">
-        <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt="Add">
-      </div>
-    </div>
-  </div>
-</div>`;
-      return res.status(200).json({
-        rendera: stcr,
-      });
     }
     const findActive = await BankSchema.findOne({
       name: name,
@@ -6306,87 +6677,8 @@ app.get("/exist-bank-datas", tokenVerify, async (req, res) => {
         });
       }
     }
-    const cash = await store_data_schema.findOne({
-      name: name,
-      email: email,
-    });
-    if (!cash) {
-      console.error("NO CASHER");
-      return res.status(404).json({
-        error: "N CASHER",
-      });
-    }
-    let totalCash = (((cash.totalCash / 100) * 93) / 100).toLocaleString(
-      "pt-BR",
-      {
-        maximumFractionDigits: 2,
-        minimumFractionDigits: 2,
-      }
-    );
-    let hldTp = ``;
-    let otherhld = ``;
-    if (verifyBank.holder_type === "individual") {
-      hldTp = `<option value="individual">Individual</option>`;
-      otherhld = `<option value="company"> Company</option>`;
-    } else {
-      hldTp = `<option value="company"> Company</option>`;
-      otherhld = `<option value="individual">Individual</option>`;
-    }
-    let stcr = `<div class="unionE">
-      <div class="Identifire"><h1>Bank <strong class="GreenCard">Area</strong></h1> <p><strong class="consoleWrite">#</strong> Manage account balance and withdrawals<strong class="pointer">.</strong></p></div>
-    <div class="dateNasc">
-      <span class="label">Total  <strong class="GreenCard">Balance</strong></span><br>
-      <span class="dateSpan">${totalCash}</span>
-      </div>
-    </div>
-    <div class="unionE">
-      
-        <form action="/updater/bank-datas" method="post" style="padding: 40px 20px; border:1px solid #a6a6a64d; border-radius:15px; margin:3vh 7vw;">
-                  <div class="FormSeparate">
-                      <input
-                        type="text"
-                        name="holder_name"
-                        id="holder_name"
-                        placeholder="Holder Name: "
-                        value="${verifyBank.holder_name}"
-                      />
-        
-                      <input
-                        type="text"
-                        name="account_number"
-                        id="account_number"
-                        placeholder="Account Number"
-                        value="${descriptografar(verifyBank.account_number)}"
-                      />
-                      <select name="holder_type" id="holder_type">
-                          ${hldTp}
-                </select>
-                  </div>
-                  <div class="cvvForm">
-                      <input
-                        type="text"
-                        name="bank_code"
-                        id="bank_code"
-                        placeholder="Bank Code"
-                        maxlength="3"
-                        value="${verifyBank.bank_code}"
-                      />
-                      <input
-                        type="text"
-                        name="branch_code"
-                        id="branch_code"
-                        placeholder="Agency Number"
-                        maxlength="4"
-                        value="${verifyBank.branch_code}"
-                      />
-                  </div>
-                  <input type="submit" value="Send" id="senderBank">
-                </form>
-                <div class="analyticsInfo"><span class="label">Pending <strong class="GreenCard">Collection:</strong> </span><br><span class="pricer">${totalCash}<img src="https://img.icons8.com/?size=100&id=85969&format=png&color=FFFFFF" alt=""></span></div>
-    </div>
-    `;
     return res.status(200).json({
-      rendera: stcr,
+      ok: 'OK'
     });
   } catch (error) {
     console.error(error);
@@ -6649,6 +6941,48 @@ app.post("/pay/ass", tokenVerify, async (req, res) => {
       error: "Erro ao processar pagamento",
       details: error.message,
     });
+  }
+})
+app.post("/prePayModify", tokenVerify, async (req, res) => {
+  const {name, email} = req.user
+  const {type} = req.body
+  try {
+    if (type){
+      const storeUp = await store_data_schema.findOneAndUpdate({
+        name: name,
+        email: email
+      }, {
+        prePayment: false
+      }, {new: true})
+      if (!storeUp){
+        console.log(storeUp)
+        return res.status(400).json({
+          erro: 'NO STOREUP'
+        })
+      }
+      return res.status(200).json({
+        storeUp: true
+      })
+    }else{
+      const storeUp = await store_data_schema.findOneAndUpdate({
+        name: name,
+        email: email
+      }, {
+        prePayment: true
+      }, {new: true})
+      if (!storeUp){
+        console.log(storeUp)
+        return res.status(400).json({
+          erro: 'NO STOREUP'
+        })
+      }
+      return res.status(200).json({
+        storeUp: true
+      })
+    }
+    
+  } catch (error) {
+    
   }
 })
 app.listen(PORT, () => {

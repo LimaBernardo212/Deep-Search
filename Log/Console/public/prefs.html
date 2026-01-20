@@ -114,10 +114,6 @@
         
         const updtBtn = document.querySelector(el);
           updtBtn.addEventListener("click", () => {
-            if (denominacao == 'all'){
-          window.alert("Select one field to continue")
-          url = `/stores/pref`
-        }
           window.location.href = url
         })
       }else{
@@ -172,6 +168,40 @@
       toSetup(".prefservices", false, 'services')
       toSetup(".functionaryBaseDiv", false, 'team')
       toSetup(".hhmm", false, 'hour')
+
+      const prePayment = document.querySelector(".prePayment")
+      let type = prePayment.getAttribute('data-type')
+      const preOn = document.querySelector("#prePayOn")
+      const preOff = document.querySelector("#prePayOff")
+      prePayment.addEventListener("click", async () => {
+        if (type == 'false'){
+          preOn.style.opacity = '0'
+          preOff.style.opacity = '1'
+          const req = await fetch("/prePayModify", {
+            method: "POST",
+            headers: {"Content-Type": "application/json",},
+            body: JSON.stringify({
+              type: false
+            })
+          })
+          if (req.ok){
+            window.location.reload()
+          }
+        }else{
+          preOn.style.opacity = '0'
+          preOff.style.opacity = '1'
+          const req = await fetch("/prePayModify", {
+            method: "POST",
+            headers: {"Content-Type": "application/json",},
+            body: JSON.stringify({
+              type: true
+            })
+          })
+          if (req.ok){
+            window.location.reload()
+          }
+        }
+      })
     })
 </script>
 </html>

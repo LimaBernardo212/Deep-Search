@@ -1625,7 +1625,7 @@ border: 1px solid var(--cor01Esvoaçada);
 }
 .openHours{
   width: 15vw;
-  height: 10vh;
+  height: 32vh;
   display: flex;
 border: 1px solid var(--cor01Esvoaçada);
   flex-wrap: wrap;
@@ -3874,4 +3874,27 @@ background-color: var(--cor04);
 }
 #starOn{
   opacity: 0;
+}
+.adressD{
+  font-size: 0.9em;
+  margin-left: 2vw;
+}
+
+.prePayment img{
+  width: 24px;
+}
+.prePayment{
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#prePayOff{
+  position: absolute;
+  opacity: 0;
+}
+#prePayOn{
+  position: absolute;
+  opacity: 1;
 }

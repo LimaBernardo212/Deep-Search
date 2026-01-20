@@ -133,7 +133,12 @@
       //   window.location.href = "/home.html";
       // });
       
-      const req = await fetch("/verify/have/stores", {
+      const initial = await fetch("/exist-bank-datas", {
+        method: "GET",
+        headers: {"Content-Type": "application/json"}
+      })
+      if (initial.ok){
+        const req = await fetch("/verify/have/stores", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -262,6 +267,7 @@
         });
         
         
+      }
       }
     });
   </script>

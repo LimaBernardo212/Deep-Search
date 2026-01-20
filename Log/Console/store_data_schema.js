@@ -11,6 +11,7 @@ const datas = new mongoose.Schema({
     totalAppointmentsPayed: Number,
     planNumber: Number,
     createdAt: String,
+    prePayment: Boolean,
     money: Number
 })
 export default mongoose.model("store_datas", datas);
