@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Log: Analytics</title>
+    <title>Log: Store Obsolescence</title>
     <link rel="stylesheet" href="/style/style.css" />
     <link
       rel="shortcut icon"
@@ -45,7 +45,7 @@
           <p>Home</p>
         </div>
         <div class="divAndYourLabel">
-          <div id="analitics" class="itenSelected itens" title="Your Schedules">
+          <div id="analitics" class="itens" title="Your Schedules">
             <img
               src="https://img.icons8.com/?size=100&id=98067&format=png&color=FFFFFF"
               alt=""
@@ -60,7 +60,7 @@
               alt=""
             />
           </div>
-          <p>Schedule</p>
+          <p>Schedules</p>
         </div>
         <div class="divAndYourLabel">
           <div id="plansinapp" class="itens" title="Yours Plans in Stores">
@@ -81,7 +81,11 @@
           <p>Pref.</p>
         </div>
         <div class="divAndYourLabel">
-          <div id="services" class="itens" title="Your Project">
+          <div
+            id="delete"
+            class="itenSelectedObsolence itens"
+            title="Your Project"
+          >
             <img
               src="https://img.icons8.com/?size=100&id=105512&format=png&color=FFFFFF"
               alt=""
@@ -93,7 +97,6 @@
 
       <main class="infoContent">
         <div id="loading"></div>
-
         <div class="content">
           <div class="store-content"></div>
         </div>
@@ -102,59 +105,57 @@
   </body>
   <script>
     function render(el) {
-        const element = document.createElement("div");
-        element.classList.add("scheduleData");
-        element.innerHTML = el;
-        return element;
-      }
+      const element = document.createElement("div");
+      element.classList.add("scheduleData");
+      element.innerHTML = el;
+      return element;
+    }
     window.addEventListener("load", async () => {
       const load = document.querySelector("#loading");
       const content = document.querySelector(".content");
-      const container = document.querySelector(".store-content")
       const plans = document.querySelector("#plansinapp");
       const client = document.querySelector("#clientArea");
       client.addEventListener("click", () => {
-        window.location.href = "/client/schedules"
-      })
+        window.location.href = "/client/schedules";
+      });
       plans.addEventListener("click", () => {
         window.location.href = "/store-plans";
       });
-      const home = document.querySelector("#store");
-      home.addEventListener("click", () => {
+      const analitics = document.querySelector("#analitics");
+      analitics.addEventListener("click", () => {
+        window.location.href = "/stores/analitics";
+      });
+      const prefs = document.querySelector("#services");
+      prefs.addEventListener("click", () => {
+        window.location.href = "/stores/prefs";
+      });
+      const obsoleto = document.querySelector("#store");
+      obsoleto.addEventListener("click", () => {
         window.location.href = "/stores/home";
       });
-      const prefs = document.querySelector("#services")
-      prefs.addEventListener("click", () => {
-        window.location.href = '/stores/prefs'
-      })
-       const obsoleto = document.querySelector("#delete")
-      obsoleto.addEventListener("click", () => {
-        window.location.href = '/stores/del'
-      })
-      const ini = await fetch("/analitics",  {
+      const storeData = document.querySelector(".store-content");
+      const ini = await fetch("/obsolence/rend", {
         method: "GET",
-        headers: {"Content-Type": "application/json"}
-      })
-      if (ini.ok){
-        const data = await ini.json()
-        console.log(data)
-        const structure = data.structure
-        load.style.opacity = '0'
-        
-            content.style.display = 'flex'
-            setTimeout(() => {
-                content.style.opacity = '1'
-                container.appendChild(render(structure))
-                
-            }, 500);
-            const cashImg = document.querySelector(".analyticsInfo span img")
-        cashImg.addEventListener("click", () => {
-          window.location.href = `/store-bank`
-        })
+        headers: { "Content-Type": "application/json" },
+      });
+      if (ini.ok) {
+        const data = await ini.json();
+        storeData.appendChild(render(data.returner));
+        load.style.opacity = "0";
+        content.style.opacity = "1";
+        const starter = document.querySelector(".obsolenceDiv-call");
+        if (starter) {
+          starter.addEventListener("click", async () => {
+            const starterFetch = await fetch("/starter/obsolence", {
+              method: "GET",
+              headers: { "Content-Type": "application/json" },
+            });
+            if (starterFetch.ok) {
+              window.location.reload();
+            }
+          });
+        }
       }
-      // else{
-      //   window.location.href = `/stores/home`
-      // }
     });
   </script>
 </html>

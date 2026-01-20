@@ -13,12 +13,12 @@
   </head>
   <body>
     <header class="nb">
-      <button class="nButton" id="back">
+      <!-- <button class="nButton" id="back">
         <img
           src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF"
           alt=""
         />
-      </button>
+      </button> -->
     </header>
     <section class="cad-hours-section">
       <div>
@@ -54,21 +54,11 @@
     </section>
   </body>
   <script>
-    document.querySelector("#back").addEventListener("click", async () => {
-      const req = await fetch("/bad/payer", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (req.ok) {
-        const data = await req.json();
-        console.log(JSON.stringify(data));
-        window.location.href = `/stores/home`;
-      } else {
-        const data = await req.json();
-        console.log(JSON.stringify(data));
-        window.location.href = `/store/home`;
-      }
-    });
+    // document.querySelector("#back").addEventListener("click", async () => {
+      
+    //     window.location.href = `/store/home`;
+      
+    // });
     const add = document.querySelector(".hours-add");
     const added = document.querySelector(".hours");
     function createHour() {

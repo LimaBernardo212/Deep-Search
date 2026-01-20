@@ -15,6 +15,7 @@
   --cor09: #29a65f;
   --cor10: #3bd952;
   --cor01Esvoaçada: #a6a6a64d;
+  --cor05Esvoaçada: #f2f2f29c;
   --cor06Esvoaçada: #0423269b;
   --logoColor: #1a1a1a;
   --fullWhite: white;
@@ -1466,6 +1467,15 @@ main.infoContent {
 }
 .itenSelected:hover{
   transform: translate(-1px, -1px);
+}
+.itenSelectedObsolence{
+  width: 44px;
+  height: 44px;
+  background-color: var(--cor12);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .content{
   width: 94vw;
@@ -3464,16 +3474,6 @@ border: 1px solid var(--cor01Esvoaçada);
   justify-content: center;
   background-color: var(--cor12);
 }
-
-#documents{
-  background-color: var(--cor13);
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 #projects{
   width: 44px;
   height: 44px;
@@ -3897,4 +3897,60 @@ background-color: var(--cor04);
 #prePayOn{
   position: absolute;
   opacity: 1;
+}
+.nav-bar-doc{
+  width: 100vw;
+  height: 12vh;
+  background-color: var(--cor05);
+  display: flex;
+  align-items: center;
+  padding-left: 2vh;
+}
+.logo-img img{
+  width: 10vw;
+}
+.doc-aside{
+  width: 20vw;
+  height: 88vh;
+  background-color: var(--cor05Esvoaçada);
+  border-right: 1px solid var(--cor01Esvoaçada);
+
+}
+#documents{
+  display: none;
+}
+.obsolenceDiv-text{
+  width: 90vw;
+  height: 25vh;
+  border-radius: 20px;
+  margin: 3vh 2vw 3vh 2vw;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  border: 1px solid var(--cor01Esvoaçada);
+}
+.obsolenceDiv-text:hover{
+  background-color: var(--cor11);
+}
+.obsolenceDiv-titles{
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  padding: 0vh 5vw 2vh 5vw;
+}
+.obsolenceDiv-instructions{
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  margin: 1vh 6vw;
+}
+.obsolenceDiv-call{
+  width: 20vw;
+  height: 20vw;
+  border: 1px solid var(--cor01Esvoaçada);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.obsolenceDiv-call:hover{
+  background-color: var(--cor11);
 }

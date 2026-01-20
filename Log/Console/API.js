@@ -33,6 +33,8 @@ import recurring from "./recurring.js";
 import StoreCadschema from "./StoreCadschema.js";
 import cron from "node-cron"; // ✅ CORRETO
 import favorite from "./favorite.js";
+import storePlan from "./storePlan.js";
+import obsolence from "./obsolence.js";
 dotenv.config();
 
 const app = express();
@@ -617,7 +619,7 @@ app.get("/api/logout", (req, res) => {
     sameSite: "strict",
   });
 
-  return res.redirect("/index.html")
+  return res.redirect("/index.html");
 });
 
 app.get("/verifyItsNewUser", tokenVerify, (req, res) => {
@@ -727,40 +729,87 @@ app.post("/return/data", tokenVerify, async (req, res) => {
     if (!findAllStores) {
       return res.sendStatus(404).json({ error: "Error 404" });
     }
-    
+
     let counter = 0;
 
     const returner = [];
-    const fav = await favorite.find({
+    const fav = await favorite
+      .find({
         name: name,
-        email: email
-      }).lean()
-      if (!fav){
-        return res.sendStatus(404).json({ error: "Error 404" });
-      }
-      const favMap = new Set(fav.map(f => f.storeName))
-      const sortedStores = findAllStores.sort((a, b) => {
+        email: email,
+      })
+      .lean();
+    if (!fav) {
+      return res.sendStatus(404).json({ error: "Error 404" });
+    }
+    const favMap = new Set(fav.map((f) => f.storeName));
+    const sortedStores = findAllStores.sort((a, b) => {
       const aIsFav = favMap.has(a.storeName);
       const bIsFav = favMap.has(b.storeName);
-      
-      if (aIsFav && !bIsFav) return -1;  // a vem antes
-      if (!aIsFav && bIsFav) return 1;   // b vem antes
-      return 0;  // mantém ordem original
+
+      if (aIsFav && !bIsFav) return -1; // a vem antes
+      if (!aIsFav && bIsFav) return 1; // b vem antes
+      return 0; // mantém ordem original
     });
     const storesNames = sortedStores.map((store) => store.storeName);
     const storesNum = findAllStores.length;
     for (let i = 0; i < sortedStores.length; i++) {
-      const store = sortedStores[counter]
-      const isFav = favMap.has(store.storeName)
-      let order = ``
+      const store = sortedStores[counter];
+      const isFav = favMap.has(store.storeName);
+      let order = ``;
 
-      if (isFav){
-         order = `<img src="https://img.icons8.com/?size=100&id=84925&format=png&color=F4D03F" alt="" id="starOff">
-           <img src="https://img.icons8.com/?size=100&id=85784&format=png&color=FFFFFF" alt="" id="starOn">`
-      }else{
-         order = `<img src="https://img.icons8.com/?size=100&id=85784&format=png&color=FFFFFF" alt="" id="starOff"><img src="https://img.icons8.com/?size=100&id=84925&format=png&color=F4D03F" alt="" id="starOn">`
+      if (isFav) {
+        order = `<img src="https://img.icons8.com/?size=100&id=84925&format=png&color=F4D03F" alt="" id="starOff">
+           <img src="https://img.icons8.com/?size=100&id=85784&format=png&color=FFFFFF" alt="" id="starOn">`;
+      } else {
+        order = `<img src="https://img.icons8.com/?size=100&id=85784&format=png&color=FFFFFF" alt="" id="starOff"><img src="https://img.icons8.com/?size=100&id=84925&format=png&color=F4D03F" alt="" id="starOn">`;
       }
-      
+      const obs = await obsolence.findOne({
+        storeName: sortedStores[i].storeName
+      })
+      if (obs){
+        const hoje = new Date();
+      const dataFinal = new Date(obs.finisherDay);
+
+      const diferencaMs = dataFinal - hoje
+      if (diferencaMs < 1){
+        const storef = await StoreCad.findOne({
+      name: name,
+      email: email,
+    }).lean();
+    if (storef) {
+      const servicesDeleter = await ServicesCad.findOneAndDelete({
+        name: name,
+        email: email,
+      });
+      if (servicesDeleter) {
+        const hourDeleter = await HoursStorage.findOneAndDelete({
+          storeName: store.storeName,
+          storeEmail: store.storeEmail,
+        });
+        if (hourDeleter) {
+          const funcDeleter = await functionaryCad.findOneAndDelete({
+            name: name,
+            email: email,
+          });
+          if (funcDeleter) {
+            const storeDeleter = await StoreCad.findOneAndDelete({
+              name: name,
+              email: email,
+            });
+            if (!storeDeleter) {
+              return res
+                .status(400)
+                .json({ error: "errooooooooooooooooooooooooooooooooooooor" });
+            }
+          }
+        }
+      }
+    }
+      }else{
+        continue
+      }
+      }
       if (sortedStores[counter].storeImagePath) {
         const htmlStructure = `<div class="store">
                         <div class="juntos">
@@ -1405,7 +1454,7 @@ app.post("/schedule", tokenVerify, async (req, res) => {
       return res.status(404).json({ error: "Not found bro" });
     }
     datas.totalAppointments += 1;
-    datas.totalCash += price
+    datas.totalCash += price;
     await datas.save();
     const scheduleId = cadSchedule.id;
     const findFunctionary = await functionaryCad.findOne({
@@ -1881,64 +1930,64 @@ app.delete("/delete/schedules", tokenVerify, async (req, res) => {
         error: "Error 404, server error man, que merda",
       });
     }
-      if (finder.payed){
-        const session = await stripe.checkout.sessions.retrieve(finder.stripeId)
+    if (finder.payed) {
+      const session = await stripe.checkout.sessions.retrieve(finder.stripeId);
 
-        if (session.payment_intent){
-          const refundAmount = Math.floor((finder.totalPrice * 80 ) / 100)
-          const originalFee = Math.floor(finder.totalPrice * 0.07); // R$ 5,25 (525 centavos)
+      if (session.payment_intent) {
+        const refundAmount = Math.floor((finder.totalPrice * 80) / 100);
+        const originalFee = Math.floor(finder.totalPrice * 0.07); // R$ 5,25 (525 centavos)
         const feeToRefund = Math.floor((originalFee * 80) / 100); // R$ 4,20 (420 centavos)
-          const reembolsar = await stripe.refunds.create({
-            payment_intent: session.payment_intent,
-            amount: refundAmount,
-            reverse_transfer: true,
-            reason: 'requested_by_customer',
-            metadata: {
-              customer_name: name,
-              customer_email: email,
-              store_name: realName,
-              refundPercent: '80%'
-            }
-          })
-          const cadReembolso = await reembolso.create({
-            name: name,
-            email: email,
-            storeName: realName,
-            totalPrice: refundAmount,
-            scheduleId: finder._id,
-            stripeRefundId: reembolsar.id,
-            status: reembolsar.status
-          })
-          if (!cadReembolso){
-            console.error("IN CAD REEMBOLSO")
-            return res.status(400).json({
-              error: 'IN CAD REEMBOLSO'
-            })
-          }
-        }
-      }
-      const f = await store_data_schema.findOne({
-        storeName: realName,
-      });
-      if (!f) {
-        return res.status(404).json({
-          error: "Error 404, server error man, que merda",
+        const reembolsar = await stripe.refunds.create({
+          payment_intent: session.payment_intent,
+          amount: refundAmount,
+          reverse_transfer: true,
+          reason: "requested_by_customer",
+          metadata: {
+            customer_name: name,
+            customer_email: email,
+            store_name: realName,
+            refundPercent: "80%",
+          },
         });
-      }
-      const value = await store_data_schema.findOneAndUpdate(
-        {
+        const cadReembolso = await reembolso.create({
+          name: name,
+          email: email,
           storeName: realName,
-        },
-        {
-          totalCash: f.totalCash - (parseInt(finder.totalPrice ) * 80) / 100,
-          money: f.money - (parseInt(finder.totalPrice ) * 80) / 100,
-        }
-      );
-      if (!value) {
-        return res.status(400).json({
-          error: "Error 400, server error man, que merda",
+          totalPrice: refundAmount,
+          scheduleId: finder._id,
+          stripeRefundId: reembolsar.id,
+          status: reembolsar.status,
         });
+        if (!cadReembolso) {
+          console.error("IN CAD REEMBOLSO");
+          return res.status(400).json({
+            error: "IN CAD REEMBOLSO",
+          });
+        }
       }
+    }
+    const f = await store_data_schema.findOne({
+      storeName: realName,
+    });
+    if (!f) {
+      return res.status(404).json({
+        error: "Error 404, server error man, que merda",
+      });
+    }
+    const value = await store_data_schema.findOneAndUpdate(
+      {
+        storeName: realName,
+      },
+      {
+        totalCash: f.totalCash - (parseInt(finder.totalPrice) * 80) / 100,
+        money: f.money - (parseInt(finder.totalPrice) * 80) / 100,
+      }
+    );
+    if (!value) {
+      return res.status(400).json({
+        error: "Error 400, server error man, que merda",
+      });
+    }
     let msg = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2272,7 +2321,7 @@ app.delete("/delete/schedules", tokenVerify, async (req, res) => {
       redirect: "/reload",
     });
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return res.status(500).json({
       error: "Error 500, server error man, que merda",
     });
@@ -2617,7 +2666,7 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
       let emailC = ordenadosAgendamentos[i].email;
       let hour = ordenadosAgendamentos[i].hour;
       let value = ordenadosAgendamentos[i].totalPrice / 100;
-      let finishH  = ordenadosAgendamentos[i].finishHour
+      let finishH = ordenadosAgendamentos[i].finishHour;
       let payed = ordenadosAgendamentos[i].payed;
       const functionary = ordenadosAgendamentos[i].functionary;
       const services = ordenadosAgendamentos[i].services;
@@ -3123,8 +3172,8 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
     }
     let servicesReturner = htmlArray.join("");
     let plansReturner = plansArray.join("");
-    let planStcr = ``
-    if (plansArray.length > 0){
+    let planStcr = ``;
+    if (plansArray.length > 0) {
       planStcr = `<div class="trasition"></div>
     <section class="Ass-Plan">
       <div class="Text-Plan" style="opacity: 1">
@@ -3133,7 +3182,7 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
       <div class="Plans-content" style="opacity: 1">
         ${plansReturner}
       </div>
-    </section>`
+    </section>`;
     }
     let returnS = servicesReturner + "</section>";
     let htmlBasePageModel3 = `<header class="nb">
@@ -3148,16 +3197,24 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
             <div class="imgData"><img src="${imgPath}" alt=""></div>
             <div class="infoData">
               <h1>${trueName}</h1>
-              <p><strong class="consoleWrite">>_</strong>${storeData.description}</p>
+              <p><strong class="consoleWrite">>_</strong>${
+                storeData.description
+              }</p>
               <div class="unionE">
-                <p class="adressD"><strong class="GreenCard">Adress:</strong> ${storeData.address}</p><p class="adressD"><strong class="GreenCard">Contact:</strong> ${storeData.phone.replaceAll("(", "<strong class='jsonWrite'>(</strong>").replaceAll(")", '<strong class="jsonWrite">)</strong>')}</p>
+                <p class="adressD"><strong class="GreenCard">Adress:</strong> ${
+                  storeData.address
+                }</p><p class="adressD"><strong class="GreenCard">Contact:</strong> ${storeData.phone
+      .replaceAll("(", "<strong class='jsonWrite'>(</strong>")
+      .replaceAll(")", '<strong class="jsonWrite">)</strong>')}</p>
               </div>
               <div class="hours">
                 <div class="openAt">${storeData.openHours}</div>
                 <div class="theHourLine"></div>
                 <div class="closeAt">${storeData.closedHours}</div>
               
-              <div class="functionDays"><div class="placeholder">Closed on days:</div><div class="until">${storeData.closedDays}</div></div>
+              <div class="functionDays"><div class="placeholder">Closed on days:</div><div class="until">${
+                storeData.closedDays
+              }</div></div>
               </div>
               <button class="servicesBtn">Schedule Now</button>
             </div>
@@ -3216,15 +3273,15 @@ app.post("/pay/plans/buy", tokenVerify, async (req, res) => {
   try {
     const storeData = await StoreCad.findOne({
       storeName: storeName,
-    })
-     if (!storeData){
+    });
+    if (!storeData) {
       return res.status(404).json({ error: "ERROR in payment IN STORE :(" });
     }
     const bankData = await BankSchema.findOne({
       name: storeData.name,
-      email: storeData.email
-    })
-    if (!bankData){
+      email: storeData.email,
+    });
+    if (!bankData) {
       return res.status(404).json({ error: "ERROR in payment IN BANK :(" });
     }
     const session = await stripe.checkout.sessions.create({
@@ -3257,7 +3314,7 @@ app.post("/pay/plans/buy", tokenVerify, async (req, res) => {
           store_id: storeData.id,
           user_name: name,
           user_email: email,
-        }
+        },
       },
       success_url: `https://xbtl8ft1-3000.brs.devtunnels.ms/cad/plan?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `http://localhost:3000/cancel/payment`,
@@ -3476,7 +3533,7 @@ app.post("/plans/register/bank", tokenVerify, async (req, res) => {
       const accountLink = await stripe.accountLinks.create({
         account: account.id,
         refresh_url: `http://localhost:3000/pay/plans`, // URL se expirar
-        return_url: `http://localhost:3000/exist-bank-datas/?stripe_id={ACCOUNT_STRIPE_ID}`, // URL após completar
+        return_url: `http://localhost:3000/stores/home`, // URL após completar
         type: "account_onboarding",
         collect: "currently_due",
       });
@@ -3695,30 +3752,27 @@ app.get("/pay/app/:scheduleId", tokenVerify, async (req, res) => {
   const scheduleId = req.query.scheduleId;
   try {
     const verify = await scheduleSchema.findOne({
-      id: scheduleId
-    })
-    if (!verify){
+      id: scheduleId,
+    });
+    if (!verify) {
       return res.status(404).json({
-        erro: "Verify"
-      })
+        erro: "Verify",
+      });
     }
     const verificador = await store_data_schema.findOne({
-      storeName: verify.storeName
-    })
-    if (!verificador){
+      storeName: verify.storeName,
+    });
+    if (!verificador) {
       return res.status(404).json({
-        
-        erro: "Verificador"
-      })
+        erro: "Verificador",
+      });
     }
-    if (verificador.prePayment){
+    if (verificador.prePayment) {
       return res.sendFile(path.join(__dirname, "public", "paywithapp.html"));
-    }else{
-      return res.redirect("/schedule/home")
+    } else {
+      return res.redirect("/schedule/home");
     }
-  } catch (error) {
-    
-  }
+  } catch (error) {}
 });
 app.post("/pay/schedule", tokenVerify, async (req, res) => {
   const { name, email } = req.user;
@@ -3735,24 +3789,24 @@ app.post("/pay/schedule", tokenVerify, async (req, res) => {
 
   try {
     const findStore = await StoreCadschema.findOne({
-      storeName: findSchema.storeName
-      })
-      if (!findStore) {
-    return res.status(400).json({ 
-      error: "Loja não ENCONTRADA" 
+      storeName: findSchema.storeName,
     });
-  }
-  const bankData = await BankSchema.findOne({
-    name: findStore.name,
-    email: findStore.email,
-    active: true
-  });
+    if (!findStore) {
+      return res.status(400).json({
+        error: "Loja não ENCONTRADA",
+      });
+    }
+    const bankData = await BankSchema.findOne({
+      name: findStore.name,
+      email: findStore.email,
+      active: true,
+    });
 
-  if (!bankData) {
-    return res.status(400).json({ 
-      error: "Loja não possui dados bancários" 
-    });
-  }
+    if (!bankData) {
+      return res.status(400).json({
+        error: "Loja não possui dados bancários",
+      });
+    }
     const stripeProduct = await stripe.products.create({
       name: product_name,
       description: description,
@@ -3794,13 +3848,13 @@ app.post("/pay/schedule", tokenVerify, async (req, res) => {
       },
       payment_intent_data: {
         transfer_data: {
-          destination: bankData.stripe_id
+          destination: bankData.stripe_id,
         },
-        metadata : {
+        metadata: {
           schedule_id: id,
           user_name: name,
           user_email: email,
-        }
+        },
       },
 
       success_url: `https://xbtl8ft1-3000.brs.devtunnels.ms/schedule/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -4314,7 +4368,7 @@ app.get("/payment-policy", tokenVerify, (req, res) => {
 });
 app.get("/refund-policy", (req, res) => {
   return res.sendFile(path.join(__dirname, "public", "refund.html"));
-})
+});
 app.get("/store-plans", tokenVerify, (req, res) => {
   return res.sendFile(path.join(__dirname, "public", "store-plans.html"));
 });
@@ -4709,7 +4763,7 @@ app.get("/analitics", tokenVerify, async (req, res) => {
     const dateNasc = analiticsPush.createdAt;
     const totalAppointmentsPayed = analiticsPush.totalAppointmentsPayed;
     const totalAppointments = analiticsPush.totalAppointments;
-    let planNumber = 0
+    let planNumber = 0;
     const storeName = analiticsPush.storeName;
     let gastosArray = [];
     let scheduleCancel = [];
@@ -4717,8 +4771,8 @@ app.get("/analitics", tokenVerify, async (req, res) => {
     const planN = await plansSchema.findOne({
       name: name,
       email: email,
-    })
-    if (planN){
+    });
+    if (planN) {
       planNumber = analiticsPush.planNumber;
     }
     if (recurringPush.length > 1) {
@@ -4733,7 +4787,7 @@ app.get("/analitics", tokenVerify, async (req, res) => {
     } else {
       let totalMoney = recurringPush[0].totalMoney;
       let cancelNumber = recurringPush[0].cancelNumber;
-      let scheduleNumber = recurringPush[0].planNumber;
+      let scheduleNumber = recurringPush[0].scheduleNumber;
       gastosArray.push(totalMoney);
       scheduleCancel.push(cancelNumber);
       scheduleNumberArray.push(scheduleNumber);
@@ -4899,7 +4953,7 @@ app.get("/today-schedules", tokenVerify, async (req, res) => {
           <div class="schedule-Fun"><strong class="GreenCard" style="margin-bottom: 10px;">Professional:</strong> ${functionary}</div>
           <div class="schedule-Dam">
           <strong class="GreenCard">Services:</strong><br><strong class="jsonWrite">{</strong><br>
-            <div class="schedule-services">${cS.join(" ,")}</p></div>
+            <div class="schedule-services">${cS.join(",")}</p></div>
             <br>
             <strong class="jsonWrite">}</strong>
           </div>
@@ -4979,7 +5033,7 @@ app.get("/today-schedules", tokenVerify, async (req, res) => {
       }
     }
     let html = `<div class="schedule-union" id="opacitor1">${htmlArr.join(
-      
+      ""
     )}</div>'<div class="store-content" id="weekDiv"></div>'`;
     return res.status(200).json({
       returner: html,
@@ -4990,7 +5044,7 @@ app.get("/today-schedules", tokenVerify, async (req, res) => {
   }
 });
 app.get("/week-schedules", tokenVerify, async (req, res) => {
- const { name, email } = req.user;
+  const { name, email } = req.user;
   try {
     const findStoreDatas = await StoreCadschema.findOne({
       name: name,
@@ -5453,22 +5507,22 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
       const outlierBase = `<br><div class="hhmm" data-hour="${hoursTobeDiv[i]}">${hoursTobeDiv[i]}</div>`;
       hoursArray.push(outlierBase);
     }
-    let st = ``
+    let st = ``;
     const storeB = await store_data_schema.findOne({
       name: name,
       email: email,
-      storeName: store.storeName
-    })
-    if (!storeB){
-      console.error(storeB)
+      storeName: store.storeName,
+    });
+    if (!storeB) {
+      console.error(storeB);
       return res.status(404).json({
-        error: 'storeB'
-      })
+        error: "storeB",
+      });
     }
-    if (storeB.prePayment){
-      st = `<img src="https://img.icons8.com/?size=100&id=122178&format=png&color=FFFFFF" id="prePayOn"><img src="https://img.icons8.com/?size=100&id=90219&format=png&color=FFFFFF" id="prePayOff"></img>`
-    }else{
-      st = `<img src="https://img.icons8.com/?size=100&id=90219&format=png&color=FFFFFF" id="prePayOn"></img><img src="https://img.icons8.com/?size=100&id=122178&format=png&color=FFFFFF" id="prePayOff">`
+    if (storeB.prePayment) {
+      st = `<img src="https://img.icons8.com/?size=100&id=122178&format=png&color=FFFFFF" id="prePayOn"><img src="https://img.icons8.com/?size=100&id=90219&format=png&color=FFFFFF" id="prePayOff"></img>`;
+    } else {
+      st = `<img src="https://img.icons8.com/?size=100&id=90219&format=png&color=FFFFFF" id="prePayOn"></img><img src="https://img.icons8.com/?size=100&id=122178&format=png&color=FFFFFF" id="prePayOff">`;
     }
     let render = `<div class="unionE">
       <div class="Identifire">
@@ -5562,12 +5616,12 @@ app.get("/select/updater-wizard/:type", tokenVerify, async (req, res) => {
     return res
       .status(200)
       .sendFile(path.join(__dirname, "public", "team-att.html"));
-  
-  } 
-  if (type == "all"){
-    return res.status(200).sendFile(path.join(__dirname, "public", "storeData-att.html"))
   }
-  else {
+  if (type == "all") {
+    return res
+      .status(200)
+      .sendFile(path.join(__dirname, "public", "storeData-att.html"));
+  } else {
     return res.status(500).json({
       erorr: "error",
     });
@@ -6262,39 +6316,41 @@ app.post("/team/updater", tokenVerify, upload.any(), async (req, res) => {
     });
   }
 });
-function generateHours(type,selectedHour){
-  let html = ''
+function generateHours(type, selectedHour) {
+  let html = "";
   for (let i = 0; i < 24; i++) {
-    const hour = i.toString().padStart(2, '0') + ':00'
-    const isSelected = hour === selectedHour ? 'hourSelect' : ''
-    html += `<div class="ourhours ${type} ${isSelected}" data-hour="${hour}">${hour}</div><br>`
+    const hour = i.toString().padStart(2, "0") + ":00";
+    const isSelected = hour === selectedHour ? "hourSelect" : "";
+    html += `<div class="ourhours ${type} ${isSelected}" data-hour="${hour}">${hour}</div><br>`;
   }
-  return html
+  return html;
 }
 app.get("/updater/storeDatas", tokenVerify, async (req, res) => {
-  const {name, email} = req.user
+  const { name, email } = req.user;
   try {
     const findStoreDatas = await StoreCad.findOne({
       name: name,
-      email: email
-    })
-    if (!findStoreDatas){
-      console.log('  NENHUMA LOJA ENCONTRADA')
+      email: email,
+    });
+    if (!findStoreDatas) {
+      console.log("  NENHUMA LOJA ENCONTRADA");
       return res.status(404).json({
-        error: '  NENHUMA LOJA ENCONTRADA'
-      })
+        error: "  NENHUMA LOJA ENCONTRADA",
+      });
     }
-    const storeName = findStoreDatas.storeName
-    const adress = findStoreDatas.address
-    const cnpj = findStoreDatas.cnpj
-    const storeEmail = findStoreDatas.storeEmail
-    const phone = findStoreDatas.phone
-    const pin = findStoreDatas.model
-    const description = findStoreDatas.description
-   const closedDays = findStoreDatas.closedDays ? findStoreDatas.closedDays.split(',') : []
-    
+    const storeName = findStoreDatas.storeName;
+    const adress = findStoreDatas.address;
+    const cnpj = findStoreDatas.cnpj;
+    const storeEmail = findStoreDatas.storeEmail;
+    const phone = findStoreDatas.phone;
+    const pin = findStoreDatas.model;
+    const description = findStoreDatas.description;
+    const closedDays = findStoreDatas.closedDays
+      ? findStoreDatas.closedDays.split(",")
+      : [];
+
     // ✅ DECLARA a função para verificar se dia está fechado
-    const isDayClosed = (day) => closedDays.includes(day) ? 'daySel' : ''
+    const isDayClosed = (day) => (closedDays.includes(day) ? "daySel" : "");
     let stcr = `<form id="storeForm" enctype="multipart/form-data" method="post" action="/rebirth/store-datas">
         <div class="formularyOrder">
           <div>
@@ -6393,7 +6449,9 @@ app.get("/updater/storeDatas", tokenVerify, async (req, res) => {
               
               maxlength="300"
             >${description}</textarea>
-            <span class="Caracters">Caracters: <strong class="GreenCard">${description.length}</strong><strong class="consoleWrite">/</strong><strong class="GreenCard">300</strong></span>
+            <span class="Caracters">Caracters: <strong class="GreenCard">${
+              description.length
+            }</strong><strong class="consoleWrite">/</strong><strong class="GreenCard">300</strong></span>
           </div>
         </div>
         <div class="mid">
@@ -6410,13 +6468,27 @@ app.get("/updater/storeDatas", tokenVerify, async (req, res) => {
           <div class="selectDay">
             <h1 class="label"><strong class="consoleWrite">//</strong>Closed Days</h1>
              <div class="daysForSelect">
-              <div class="dayOfWeek ${isDayClosed('Sunday')}" id="sunday" data-day="Sunday">Sunday <input type="checkbox" name="" id=""></div>
-              <div class="dayOfWeek ${isDayClosed('Monday')}" data-day="Monday">Monday <input type="checkbox" name="" id=""></div>
-              <div class="dayOfWeek ${isDayClosed('Tuesday')}" data-day="Tuesday">Tuesday <input type="checkbox" name="" id=""></div>
-              <div class="dayOfWeek ${isDayClosed('Wednesday')}" data-day="Wednesday">Wednesday <input type="checkbox" name="" id=""></div>
-              <div class="dayOfWeek ${isDayClosed('Thursday')}" data-day="Thursday">Thursday <input type="checkbox" name="" id=""></div>
-              <div class="dayOfWeek ${isDayClosed('Friday')}" data-day="Friday">Friday <input type="checkbox" name="" id=""></div>
-              <div class="dayOfWeek ${isDayClosed('Saturday')}" data-day="Saturday">Saturday <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek ${isDayClosed(
+                "Sunday"
+              )}" id="sunday" data-day="Sunday">Sunday <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek ${isDayClosed(
+                "Monday"
+              )}" data-day="Monday">Monday <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek ${isDayClosed(
+                "Tuesday"
+              )}" data-day="Tuesday">Tuesday <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek ${isDayClosed(
+                "Wednesday"
+              )}" data-day="Wednesday">Wednesday <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek ${isDayClosed(
+                "Thursday"
+              )}" data-day="Thursday">Thursday <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek ${isDayClosed(
+                "Friday"
+              )}" data-day="Friday">Friday <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek ${isDayClosed(
+                "Saturday"
+              )}" data-day="Saturday">Saturday <input type="checkbox" name="" id=""></div>
             </div>
           </div>
           
@@ -6425,214 +6497,322 @@ app.get("/updater/storeDatas", tokenVerify, async (req, res) => {
     <h1 class="label" style="margin-left: 7vw;">
 Opens <strong class="GreenCard">At</strong><strong class="pointer">.</strong></h1>
     <div class="openHours" id="opening">
-      ${generateHours('open', findStoreDatas.openHours)}
+      ${generateHours("open", findStoreDatas.openHours)}
     </div>
   </div>
   <div class="openingAt">
     <h1 class="label" style="margin-left: 7vw;">
 Closes <strong class="GreenCard">At</strong><strong class="pointer">.</strong></h1>
     <div class="openHours" id="closed">
-      ${generateHours('open', findStoreDatas.closedHours)}
+      ${generateHours("open", findStoreDatas.closedHours)}
     </div>
   </div><div class="selectedIndicatorC" style="margin-top:2vh;">
     
             <button type="submit">Register Store<strong class="consoleWrite">>></strong></button>
   </div>
         </div>
-      </form>`
-      return res.status(200).json({
-        html: stcr
-      })
-  } catch (error) {
-    
-  }
-})
-app.post("/rebirth/store-datas", tokenVerify, upload.any(), async (req, res) => {
-  try {
-    await ensureUploadsDir();
+      </form>`;
+    return res.status(200).json({
+      html: stcr,
+    });
+  } catch (error) {}
+});
+app.post(
+  "/rebirth/store-datas",
+  tokenVerify,
+  upload.any(),
+  async (req, res) => {
+    try {
+      await ensureUploadsDir();
 
-    console.log("Body keys:", Object.keys(req.body));
-    console.log(
-      "Files:",
-      (req.files || []).map((f, idx) => ({
-        idx,
-        fieldname: f.fieldname,
-        originalname: f.originalname,
-        mimetype: f.mimetype,
-        size: f.size,
-      }))
-    );
+      console.log("Body keys:", Object.keys(req.body));
+      console.log(
+        "Files:",
+        (req.files || []).map((f, idx) => ({
+          idx,
+          fieldname: f.fieldname,
+          originalname: f.originalname,
+          mimetype: f.mimetype,
+          size: f.size,
+        }))
+      );
 
-    const { id, name, email } = req.user;
-    const {
-      storeName,
-      address,
-      cnpj,
-      phone,
-      storeEmail,
-      description,
-      closedHours,
-      closedDays,
-      openHours,
-      pin,
-    } = req.body;
-    // Validação básica
-    if (!storeName || !address || !cnpj || !phone || !storeEmail) {
-      return res.status(400).json({
-        error: "Campos obrigatórios faltando",
-      });
-    }
-    const storeNamer = storeName.replaceAll(" ", "/");
-    // Verificar duplicação
-    const existingStore = await StoreCad.findOne({ name: name, email: email });
-    if (!existingStore) {
-      return res.status(400).json({
-        error: "Não existe uma loja no seu nome",
-      });
-    }
-
-    // ✅ Processar imagem da loja
-    let imageInfo = null;
-    const storeImageFile = (req.files || []).find(
-      (f) => f.fieldname === "storeImage"
-    );
-
-    console.log("📸 Arquivo de imagem encontrado:", !!storeImageFile);
-
-    if (storeImageFile?.buffer) {
-      try {
-        const processed = await processImageToWebp(storeImageFile.buffer, {
-          maxWidth: 1024,
-          maxHeight: 1024,
-          quality: 80,
+      const { id, name, email } = req.user;
+      const {
+        storeName,
+        address,
+        cnpj,
+        phone,
+        storeEmail,
+        description,
+        closedHours,
+        closedDays,
+        openHours,
+        pin,
+      } = req.body;
+      // Validação básica
+      if (!storeName || !address || !cnpj || !phone || !storeEmail) {
+        return res.status(400).json({
+          error: "Campos obrigatórios faltando",
         });
-
-        // ✅ PASSAR "store" COMO TERCEIRO PARÂMETRO
-        const saved = await saveBufferToDisk(
-          processed.buffer,
-          processed.format,
-          "store"
-        );
-
-        imageInfo = {
-          storage: "disk",
-          path: saved.relPath,
-          filename: saved.fileName,
-          format: processed.format,
-          width: processed.width,
-          height: processed.height,
-          sizeBytes: processed.sizeBytes,
-        };
-
-        console.log("✅ Imagem processada e salva em:", saved.relPath);
-      } catch (imgErr) {
-        console.error("❌ Falha ao processar imagem da loja:", imgErr);
-        // Continua sem imagem
       }
-    } else {
-      console.log("⚠️ Nenhuma imagem enviada para a loja");
-    }
-
-    // Criar loja no banco
-    if (imageInfo !== null){
-      const newStore = await StoreCad.findOneAndUpdate({
-      name: name,
-      email: email,
-      
-    }, {
-      description: description || "",
-      closedHours: closedHours || "",
-      closedDays: closedDays || "",
-      openHours: openHours || "",
-      model: pin,
-      storeName: storeNamer,
-      address: address,
-      cnpj: cnpj,
-      phone: phone,
-      storeEmail: storeEmail,
-      storeImagePath: imageInfo?.path ?? null,
-      storeImageMeta: imageInfo ?? null,
-    });
-    if (!newStore) {
-      return res.status(400).json({
-        tudoErrado: ":>",
-        // finderData: finder,
-        // outherData: outherFinder,
-        returner: "ERRORRORORORROROROROR",
+      const storeNamer = storeName.replaceAll(" ", "/");
+      // Verificar duplicação
+      const existingStore = await StoreCad.findOne({
+        name: name,
+        email: email,
       });
-    }
-    console.log("✅ Loja cadastrada:", newStore._id);
-    }else{
-      const newStore = await StoreCad.findOneAndUpdate({
-      name: name,
-      email: email
-    }, {
-      description: description || "",
-      closedHours: closedHours || "",
-      closedDays: closedDays || "",
-      openHours: openHours || "",
-      model: pin,
-      storeName: storeNamer,
-      address: address,
-      cnpj: cnpj,
-      phone: phone,
-      storeEmail: storeEmail,
-    });
-     if (!newStore) {
-      return res.status(400).json({
-        tudoErrado: ":>",
-        // finderData: finder,
-        // outherData: outherFinder,
-        returner: "ERRORRORORORROROROROR",
+      if (!existingStore) {
+        return res.status(400).json({
+          error: "Não existe uma loja no seu nome",
+        });
+      }
+
+      // ✅ Processar imagem da loja
+      let imageInfo = null;
+      const storeImageFile = (req.files || []).find(
+        (f) => f.fieldname === "storeImage"
+      );
+
+      console.log("📸 Arquivo de imagem encontrado:", !!storeImageFile);
+
+      if (storeImageFile?.buffer) {
+        try {
+          const processed = await processImageToWebp(storeImageFile.buffer, {
+            maxWidth: 1024,
+            maxHeight: 1024,
+            quality: 80,
+          });
+
+          // ✅ PASSAR "store" COMO TERCEIRO PARÂMETRO
+          const saved = await saveBufferToDisk(
+            processed.buffer,
+            processed.format,
+            "store"
+          );
+
+          imageInfo = {
+            storage: "disk",
+            path: saved.relPath,
+            filename: saved.fileName,
+            format: processed.format,
+            width: processed.width,
+            height: processed.height,
+            sizeBytes: processed.sizeBytes,
+          };
+
+          console.log("✅ Imagem processada e salva em:", saved.relPath);
+        } catch (imgErr) {
+          console.error("❌ Falha ao processar imagem da loja:", imgErr);
+          // Continua sem imagem
+        }
+      } else {
+        console.log("⚠️ Nenhuma imagem enviada para a loja");
+      }
+
+      // Criar loja no banco
+      if (imageInfo !== null) {
+        const newStore = await StoreCad.findOneAndUpdate(
+          {
+            name: name,
+            email: email,
+          },
+          {
+            description: description || "",
+            closedHours: closedHours || "",
+            closedDays: closedDays || "",
+            openHours: openHours || "",
+            model: pin,
+            storeName: storeNamer,
+            address: address,
+            cnpj: cnpj,
+            phone: phone,
+            storeEmail: storeEmail,
+            storeImagePath: imageInfo?.path ?? null,
+            storeImageMeta: imageInfo ?? null,
+          }
+        );
+        if (!newStore) {
+          return res.status(400).json({
+            tudoErrado: ":>",
+            // finderData: finder,
+            // outherData: outherFinder,
+            returner: "ERRORRORORORROROROROR",
+          });
+        }
+        console.log("✅ Loja cadastrada:", newStore._id);
+      } else {
+        const newStore = await StoreCad.findOneAndUpdate(
+          {
+            name: name,
+            email: email,
+          },
+          {
+            description: description || "",
+            closedHours: closedHours || "",
+            closedDays: closedDays || "",
+            openHours: openHours || "",
+            model: pin,
+            storeName: storeNamer,
+            address: address,
+            cnpj: cnpj,
+            phone: phone,
+            storeEmail: storeEmail,
+          }
+        );
+        if (!newStore) {
+          return res.status(400).json({
+            tudoErrado: ":>",
+            // finderData: finder,
+            // outherData: outherFinder,
+            returner: "ERRORRORORORROROROROR",
+          });
+        }
+        console.log("✅ Loja cadastrada:", newStore._id);
+      }
+      const data = new Date();
+      const legalFormat = data.toLocaleString("pt-br");
+      const createBasicInfos = await store_data_schema.findOneAndUpdate(
+        {
+          name: name,
+          email: email,
+        },
+        {
+          storeName: storeNamer,
+        }
+      );
+      if (!createBasicInfos) {
+        return res.status(400).json({
+          tudoErrado: ":>",
+          // finderData: finder,
+          // outherData: outherFinder,
+          returner: "ERRORRORORORROROROROR",
+        });
+      }
+
+      console.log("📁 Imagem salva em:", imageInfo?.path || "sem imagem");
+      const services = await ServiceCadSchema.findOneAndUpdate(
+        {
+          name: name,
+          email: email,
+        },
+        {
+          storeName: storeNamer,
+        }
+      );
+      if (!services) {
+        return res.status(400).json({
+          tudoErrado: ":>",
+          // finderData: finder,
+          // outherData: outherFinder,
+          returner: "ERRORRORORORROROROROR",
+        });
+      }
+      const functionary = await functionaryCad.findOneAndUpdate(
+        {
+          name: name,
+          email: email,
+        },
+        {
+          storeName: storeNamer,
+        }
+      );
+      if (!functionary) {
+        return res.status(400).json({
+          tudoErrado: ":>",
+          // finderData: finder,
+          // outherData: outherFinder,
+          returner: "ERRORRORORORROROROROR",
+        });
+      }
+      const hour = await HoursStorage.findOneAndUpdate(
+        {
+          storeName: existingStore.storeName,
+        },
+        {
+          storeName: storeNamer,
+        }
+      );
+      if (!hour) {
+        return res.status(400).json({
+          tudoErrado: ":>",
+          // finderData: finder,
+          // outherData: outherFinder,
+          returner: "ERRORRORORORROROROROR",
+        });
+      }
+      const findPlan = await plansSchema.findOne({
+        name: name,
+        email: email,
       });
-    }
-    console.log("✅ Loja cadastrada:", newStore._id);
-    }
-    const data = new Date();
-    const legalFormat = data.toLocaleString("pt-br");
-    const createBasicInfos = await store_data_schema.findOneAndUpdate({
-      name: name,
-      email: email,
-    }, {
-      storeName: storeNamer,
-      storeEmail: storeEmail
-    });
-    if (!createBasicInfos) {
-      return res.status(400).json({
-        tudoErrado: ":>",
-        // finderData: finder,
-        // outherData: outherFinder,
-        returner: "ERRORRORORORROROROROR",
-      });
+      if (findPlan) {
+        const plan = await plansSchema.findOneAndUpdate(
+          {
+            name: name,
+            email: email,
+          },
+          {
+            storeName: storeNamer,
+          }
+        );
+        if (!plan) {
+          return res.status(400).json({
+            tudoErrado: ":>",
+            // finderData: finder,
+            // outherData: outherFinder,
+            returner: "ERRORRORORORROROROROR",
+          });
+        }
+      } // ✅ Atualiza TODOS os agendamentos em uma operação
+      const result = await scheduleSchema.updateMany(
+        { storeName: existingStore.storeName },
+        { $set: { storeName: storeNamer } }
+      );
+      if (!result) {
+        return res.status(400).json({
+          tudoErrado: ":>",
+          // finderData: finder,
+          // outherData: outherFinder,
+          returner: "ERRORRORORORROROROROR",
+        });
+      }
+      const clientD = await recurring.updateMany(
+        { storeName: existingStore.storeName },
+        { $set: { storeName: storeNamer } }
+      );
+      if (!clientD) {
+        return res.status(400).json({
+          tudoErrado: ":>",
+          // finderData: finder,
+          // outherData: outherFinder,
+          returner: "ERRORRORORORROROROROR",
+        });
+      }
+      return res.redirect("/stores/prefs");
+    } catch (error) {
+      console.error("❌ Erro ao cadastrar loja:", error);
 
-    }
-    
-    console.log("📁 Imagem salva em:", imageInfo?.path || "sem imagem");
+      if (error.code === 11000) {
+        return res.status(400).json({
+          error: "Loja com dados duplicados",
+          details: error.message,
+        });
+      }
 
-    return res.redirect("/");
-  } catch (error) {
-    console.error("❌ Erro ao cadastrar loja:", error);
-
-    if (error.code === 11000) {
-      return res.status(400).json({
-        error: "Loja com dados duplicados",
+      return res.status(500).json({
+        error: "Erro ao cadastrar loja",
         details: error.message,
       });
     }
-
-    return res.status(500).json({
-      error: "Erro ao cadastrar loja",
-      details: error.message,
-    });
   }
-});
+);
 app.get("/store-bank", (req, res) => {
   return res
     .status(200)
     .sendFile(path.join(__dirname, "public", "storeBank.html"));
 });
 app.get("/exist-bank-datas", tokenVerify, async (req, res) => {
-  const { name, email } = req.user;
+  const {name, email} = req.user
   try {
     const verifyBank = await BankSchema.findOne({
       name: name,
@@ -6648,7 +6828,7 @@ app.get("/exist-bank-datas", tokenVerify, async (req, res) => {
       if (!bankDel) {
         console.error("NO  DELETER");
         return res.status(400).json({
-          redirect: "/bank/datas"
+          redirect: "/bank/datas",
         });
       }
     }
@@ -6678,7 +6858,7 @@ app.get("/exist-bank-datas", tokenVerify, async (req, res) => {
       }
     }
     return res.status(200).json({
-      ok: 'OK'
+      ok: "OK",
     });
   } catch (error) {
     console.error(error);
@@ -6733,8 +6913,8 @@ app.get("/bank/datas", (req, res) => {
 //       totalCash: 0
 //     }, {new: true})
 //     if (!updateSald) {
-//       return res.status(400).json({ 
-//         error: "Erro ao atualizar saldo" 
+//       return res.status(400).json({
+//         error: "Erro ao atualizar saldo"
 //       });
 //     }
 //     console.log(`✅ Saque processado: R$ ${amount / 100} - ID: ${payout.id}`);
@@ -6760,107 +6940,103 @@ app.get("/bank/datas", (req, res) => {
 //   }
 // });
 app.post("/fav-store", tokenVerify, async (req, res) => {
-  const {name, email} = req.user;
-  const {storeName} = req.body
+  const { name, email } = req.user;
+  const { storeName } = req.body;
   try {
     const verifyFavorite = await favorite.findOne({
       name: name,
       email: email,
-      storeName: storeName
-    })
-    if (verifyFavorite){
-        console.error("NO VERIFY")
-        return res.status(200).json({error: 'no VERIFY'})
-      }
-   
-      const fav = await favorite.create({
+      storeName: storeName,
+    });
+    if (verifyFavorite) {
+      console.error("NO VERIFY");
+      return res.status(200).json({ error: "no VERIFY" });
+    }
+
+    const fav = await favorite.create({
       name: name,
       email: email,
-      storeName: storeName
-      })
-      if (!fav){
-        console.error("NO FAV")
-        return res.status(400).json({error: 'NO FAV'})
-      }
-    
-    
+      storeName: storeName,
+    });
+    if (!fav) {
+      console.error("NO FAV");
+      return res.status(400).json({ error: "NO FAV" });
+    }
+
     return res.status(200).json({
-      ok: 'ok'
-    })
+      ok: "ok",
+    });
   } catch (error) {
-    console.error(error)
-      return res.status(500).json({error: error})
+    console.error(error);
+    return res.status(500).json({ error: error });
   }
-})
+});
 app.post("/unfav-store", tokenVerify, async (req, res) => {
-  const {name, email} = req.user;
-  const {storeName} = req.body;
+  const { name, email } = req.user;
+  const { storeName } = req.body;
   try {
     const verifyFavorite = await favorite.findOne({
       name: name,
       email: email,
-      storeName: storeName
-    })
-    if (!verifyFavorite){
-        console.error("NO VERIFY")
-        return res.status(200).json({error: 'no VERIFY'})
-      }
-   
-      const fav = await favorite.findOneAndDelete({
+      storeName: storeName,
+    });
+    if (!verifyFavorite) {
+      console.error("NO VERIFY");
+      return res.status(200).json({ error: "no VERIFY" });
+    }
+
+    const fav = await favorite.findOneAndDelete({
       name: name,
       email: email,
-      storeName: storeName
-      })
-      if (!fav){
-        console.error("NO FAV")
-        return res.status(400).json({error: 'NO FAV'})
-      }
-    
-    
+      storeName: storeName,
+    });
+    if (!fav) {
+      console.error("NO FAV");
+      return res.status(400).json({ error: "NO FAV" });
+    }
+
     return res.status(200).json({
-      ok: 'ok'
-    })
+      ok: "ok",
+    });
   } catch (error) {
-    console.error(error)
-      return res.status(500).json({error: error})
+    console.error(error);
+    return res.status(500).json({ error: error });
   }
-})
+});
 app.post("/search/stores", tokenVerify, async (req, res) => {
-  const {name, email} = req.user
-  const {value} = req.body
+  const { name, email } = req.user;
+  const { value } = req.body;
   try {
-    console.log(name, email, value)
-    const inputer = value.toString().replaceAll(" ", "/")
+    console.log(name, email, value);
+    const inputer = value.toString().replaceAll(" ", "/");
     const store = await StoreCad.find({
-      storeName: {$regex: inputer, $options: 'i'}
-    }).lean()
+      storeName: { $regex: inputer, $options: "i" },
+    }).lean();
 
     if (!store) {
-      return res.status(404).json({ message: "Loja não encontrada" })
+      return res.status(404).json({ message: "Loja não encontrada" });
     }
-    let arr = []
+    let arr = [];
     for (let i = 0; i < store.length; i++) {
       const verifyFav = await favorite.findOne({
         name: name,
         email: email,
-        storeName: store[i].storeName
-      })
-      let isFav = false
-       let order = ``
-      if (verifyFav){
-       order = `<img src="https://img.icons8.com/?size=100&id=84925&format=png&color=F4D03F" alt="" id="starOff">
-           <img src="https://img.icons8.com/?size=100&id=85784&format=png&color=FFFFFF" alt="" id="starOn">`
-           isFav = true
-      }else{
-        order = `<img src="https://img.icons8.com/?size=100&id=85784&format=png&color=FFFFFF" alt="" id="starOff"><img src="https://img.icons8.com/?size=100&id=84925&format=png&color=F4D03F" alt="" id="starOn">`
-        isFav = false
+        storeName: store[i].storeName,
+      });
+      let isFav = false;
+      let order = ``;
+      if (verifyFav) {
+        order = `<img src="https://img.icons8.com/?size=100&id=84925&format=png&color=F4D03F" alt="" id="starOff">
+           <img src="https://img.icons8.com/?size=100&id=85784&format=png&color=FFFFFF" alt="" id="starOn">`;
+        isFav = true;
+      } else {
+        order = `<img src="https://img.icons8.com/?size=100&id=85784&format=png&color=FFFFFF" alt="" id="starOff"><img src="https://img.icons8.com/?size=100&id=84925&format=png&color=F4D03F" alt="" id="starOn">`;
+        isFav = false;
       }
       const htmlStructure = `<div class="store">
                         <div class="juntos">
                             <div id="img">
-                                <img src="${
-                                  store[i].storeImagePath
-                                }" alt="">
+                                <img src="${store[i].storeImagePath}" alt="">
                             </div>
                             <div id="storeinfos">
                                 <p id="storename"><strong class="GreenCard">&lt;/</strong>${store[
@@ -6875,28 +7051,30 @@ app.post("/search/stores", tokenVerify, async (req, res) => {
                             </div>
                         </div>
                         <div id="moreinfos">
-                            <button data-fav="${isFav}" data-storename="${store[i].storeName}">
+                            <button data-fav="${isFav}" data-storename="${
+        store[i].storeName
+      }">
                                 ${order}
                             </button>
                         </div>
-                    </div>`
-                    arr.push(htmlStructure)
+                    </div>`;
+      arr.push(htmlStructure);
     }
-    
+
     return res.status(200).json({
-      html: arr.join("")
-    })
+      html: arr.join(""),
+    });
   } catch (error) {
-    console.error(error)
-    return res.status(500).json({ error: error.message })
+    console.error(error);
+    return res.status(500).json({ error: error.message });
   }
-})
+});
 app.post("/pay/ass", tokenVerify, async (req, res) => {
-  const {name, email} = req.user
-  const {plan, price, log} = req.body;
+  const { name, email } = req.user;
+  const { plan, price, log } = req.body;
 
   try {
-     const session = await stripe.checkout.sessions.create({
+    const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: [
         "card", // Cartão de crédito/débito
@@ -6917,7 +7095,7 @@ app.post("/pay/ass", tokenVerify, async (req, res) => {
           quantity: 1,
         },
       ],
-      success_url: `http://localhost:3000/cad/store`,
+      success_url: `http://localhost:3000/finish/pay/ass?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `http://localhost:3000/pay/plans`,
       customer_email: email,
       metadata: {
@@ -6931,6 +7109,7 @@ app.post("/pay/ass", tokenVerify, async (req, res) => {
     if (!session) {
       return res.status(400).json({ error: "ERROR in payment :(" });
     }
+
     return res.status(200).json({
       sessionId: session.id,
       url: session.url,
@@ -6942,47 +7121,235 @@ app.post("/pay/ass", tokenVerify, async (req, res) => {
       details: error.message,
     });
   }
-})
-app.post("/prePayModify", tokenVerify, async (req, res) => {
-  const {name, email} = req.user
-  const {type} = req.body
+});
+app.get("/finish/pay/ass", async (req, res) => {
+  const session_id = req.query.session_id;
+
   try {
-    if (type){
-      const storeUp = await store_data_schema.findOneAndUpdate({
-        name: name,
-        email: email
-      }, {
-        prePayment: false
-      }, {new: true})
-      if (!storeUp){
-        console.log(storeUp)
-        return res.status(400).json({
-          erro: 'NO STOREUP'
-        })
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+
+    const { planName, userName, userEmail, planPrice } = session.metadata;
+    if (session.payment_status === "paid") {
+      const stripeId = session.subscription;
+      const requiem = await storePlan.findOne({
+        name: userName,
+        email: userEmail,
+        subscriptionId: stripeId,
+      });
+      if (requiem) {
+        console.log("REQUIEM");
+        return res.status(404).json({
+          eror: "REQUIEM",
+        });
       }
-      return res.status(200).json({
-        storeUp: true
+      const requiemFinal = await storePlan.create({
+        name: userName,
+        email: userEmail,
+        subscriptionId: stripeId,
       })
-    }else{
-      const storeUp = await store_data_schema.findOneAndUpdate({
-        name: name,
-        email: email
-      }, {
-        prePayment: true
-      }, {new: true})
-      if (!storeUp){
-        console.log(storeUp)
-        return res.status(400).json({
-          erro: 'NO STOREUP'
-        })
+      if (!requiemFinal) {
+        console.log("REQUIEMFINAL");
+        return res.status(404).json({
+          eror: "REQUIEMFINAL",
+        });
       }
-      return res.status(200).json({
-        storeUp: true
-      })
+      return res.redirect("/cad/store")
     }
-    
+  } catch (error) {}
+});
+app.post("/prePayModify", tokenVerify, async (req, res) => {
+  const { name, email } = req.user;
+  const { type } = req.body;
+  try {
+    if (type) {
+      const storeUp = await store_data_schema.findOneAndUpdate(
+        {
+          name: name,
+          email: email,
+        },
+        {
+          prePayment: false,
+        },
+        { new: true }
+      );
+      if (!storeUp) {
+        console.log(storeUp);
+        return res.status(400).json({
+          erro: "NO STOREUP",
+        });
+      }
+      return res.status(200).json({
+        storeUp: true,
+      });
+    } else {
+      const storeUp = await store_data_schema.findOneAndUpdate(
+        {
+          name: name,
+          email: email,
+        },
+        {
+          prePayment: true,
+        },
+        { new: true }
+      );
+      if (!storeUp) {
+        console.log(storeUp);
+        return res.status(400).json({
+          erro: "NO STOREUP",
+        });
+      }
+      return res.status(200).json({
+        storeUp: true,
+      });
+    }
   } catch (error) {
+    console.error(error);
+    return res.status(500).json({ erorr: error });
+  }
+});
+app.get("/stores/del", tokenVerify, (req, res) => {
+  return res.status(200).sendFile(path.join(__dirname, "public", "stores-deleter.html"))
+})
+app.get("/obsolence/rend", tokenVerify, async (req, res) => {
+  const {name, email} = req.user
+
+  try {
+    const obs = await obsolence.findOne({
+      name: name,
+      email: email
+    })
+    let stcr = ``
     
+    if (!obs){
+      stcr = `<div class="obsolenceDiv columnUnion">
+              <div class="obsolenceDiv-text">
+                <div class="obsolenceDiv-titles">
+                  <h1>
+                    Store <strong class="jsonWrite">Obsolescence</strong> Mode
+                  </h1>
+                </div>
+                <div class="obsolenceDiv-instructions">
+                  <p>
+                    Activating Obsolescence Mode will
+                    <strong class="jsonWrite">immediately disable</strong> new
+                    appointments and cancel your subscription. Your store will
+                    remain active for
+                    <strong class="jsonWrite">32 days</strong> to complete all
+                    existing scheduled appointments, after which all data will
+                    be <strong class="jsonWrite">permanently deleted</strong>.
+                    This action is irreversible and cannot be undone under any
+                    circumstances<strong class="pointer">.</strong>
+                  </p>
+                </div>
+              </div>
+              <div class="obsolenceDiv-call">
+                <img
+                  src="https://img.icons8.com/?size=100&id=120871&format=png&color=FFFFFF"
+                  alt=""
+                />
+              </div>
+            </div>`
+    }else{
+      const hoje = new Date();
+      const dataFinal = new Date(obs.finisherDay);
+
+      const diferencaMs = dataFinal - hoje
+      let divisor =  1000 * 60 * 60 * 24
+      console.log(hoje, dataFinal, diferencaMs)
+      const diasRestantes = Math.ceil(diferencaMs / divisor)
+      let d = obs.starterDay.toLocaleDateString("pt-BR", {
+        day: "numeric",
+        month: "numeric",
+        year: 'numeric'
+      })
+      let f = obs.finisherDay.toLocaleDateString("pt-BR", {
+        day: "numeric",
+        month: "numeric",
+        year: 'numeric'
+      })
+      if (diferencaMs < 1){
+        const deleter = await StoreCad.findOneAndDelete({
+          name: name,
+          email: email,
+          storeName: obs.storeName,
+        })
+        if (!deleter){
+          return res.status(400).json({
+            error: 'DELETER'
+          })
+        }
+      }
+      const schedu = await scheduleSchema.find({
+        storeName: obs.storeName
+      }).lean()
+      if (!schedu){
+        return res.status(404).json({
+          error: "sch"
+        })
+      }
+      let visitantes = schedu.length
+      stcr = `<div class="unionE"><div class="Identifire"><h1><strong class="consoleWrite">${obs.storeName.replaceAll("/", " ")}</strong> is now obsolete</h1><p>Started at ${d} and finish at ${f}</p> </div><div class="dateNasc">
+      <span class="label">Ends  <strong class="GreenCard"> on</strong></span><br>
+      <span class="dateSpan">${f}</span>
+      </div></div><div class="unionE" style="margin-left:5vw;"><div class="analyticsInfo"><span class="label"><strong class="GreenCard">Total</strong> Schedules Remain </span><br><span class="Numbera">${visitantes}</span> </div><div class="analyticsInfo"><span class="label"><strong class="GreenCard">Total</strong> Days Remain </span><br><span class="Numbera">${diasRestantes}</span> </div></div> `
+    }
+    return res.status(200).json({returner: stcr})
+  } catch (error) {
+    console.log("QUE MERDA BRO")
+    return res.status(500).json({
+      jay: 'IS GAY'
+    })
+  }
+})
+app.get("/starter/obsolence", tokenVerify, async (req, res) => {
+  const {name, email} = req.user
+
+  try {
+    const today = new Date()
+    const em32Dias = new Date();
+  em32Dias.setDate(today.getDate() + 32);
+
+  console.log(today, em32Dias)
+  
+  const storeFind = await StoreCad.findOne({
+    name: name,
+    email: email
+  })
+  if (!storeFind){
+    return res.status(404).json({
+      error: 'EM STOREFIND'
+    })
+  }
+  const finderStripeId = await storePlan.findOne({
+    name: name,
+    email: email,
+  })
+  if (!finderStripeId){
+    return res.status(404).json({
+      totalErr: "EM STRIPE ID"
+    })
+  }
+  const cancel = await stripe.subscriptions.cancel(finderStripeId.subscriptionId);
+  const createrObsolete = await obsolence.create({
+    name: name,
+    email: email,
+    storeName: storeFind.storeName,
+    starterDay: today,
+    finisherDay: em32Dias
+  })
+  if (!createrObsolete){
+    return res.status(400).json({
+      erorr:  'CREATEROBSOLETE'
+    })
+  }
+  return res.status(200).json({
+    ok: "ok"
+  })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({
+      error: error
+    })
   }
 })
 app.listen(PORT, () => {

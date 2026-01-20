@@ -84,15 +84,14 @@
           </div>
           <p>Pref.</p>
         </div>
-        
         <div class="divAndYourLabel">
-          <div id="documents" class="itens" title="Documents">
+          <div id="services" class="itens" title="Your Project">
             <img
-              src="https://img.icons8.com/?size=100&id=84161&format=png&color=FFFFFF"
+              src="https://img.icons8.com/?size=100&id=105512&format=png&color=FFFFFF"
               alt=""
             />
           </div>
-          <p>Manual</p>
+          <p>Obsolence</p>
         </div>
       </aside>
 
@@ -145,7 +144,10 @@
       prefs.addEventListener("click", () => {
         window.location.href = '/stores/prefs'
       })
-       
+       const obsoleto = document.querySelector("#delete")
+      obsoleto.addEventListener("click", () => {
+        window.location.href = '/stores/del'
+      })
       let exist1 = false;
       let exist2 = false;
       let exist3 = false;
