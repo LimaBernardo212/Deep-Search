@@ -3954,3 +3954,24 @@ background-color: var(--cor04);
 .obsolenceDiv-call:hover{
   background-color: var(--cor11);
 }
+.obsolete-store{
+  border: 3px solid var(--cor11);
+  background-color: #bf43384b;
+}
+.obsolete-store:hover{
+  background-color: #8c2f2fb3;
+}
+#bankUpdater{
+  margin: 2vh 3vw;
+  width: 18vw;
+  height: 5vh;
+  background-color: var(--cor03);
+  border: 1px solid var(--cor01Esvoaçada);
+  border-radius: 10px;
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+}
+#bankUpdater:hover{
+  background-color: var(--cor00);
+  transform: translate(-3px, -3px);
+}

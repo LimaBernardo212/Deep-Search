@@ -107,7 +107,7 @@ const upload = multer({
       return cb(null, true);
     }
     return cb(
-      new Error("Tipo de arquivo inválido. Apenas imagens são permitidas.")
+      new Error("Tipo de arquivo inválido. Apenas imagens são permitidas."),
     );
   },
 });
@@ -283,7 +283,7 @@ function criptografar(datas) {
   const cypher = crypto.createCipheriv(
     ALGORITHM,
     Buffer.from(ENCRIPTION_KEY, "hex"),
-    iv
+    iv,
   );
   let encrypted = cypher.update(datas, "utf-8", "hex");
   encrypted += cypher.final("hex");
@@ -301,7 +301,7 @@ function descriptografar(encryptedata) {
   const decipher = crypto.createDecipheriv(
     ALGORITHM,
     Buffer.from(ENCRIPTION_KEY, "hex"),
-    Buffer.from(encryptedata.iv, "hex")
+    Buffer.from(encryptedata.iv, "hex"),
   );
 
   decipher.setAuthTag(Buffer.from(encryptedata.authTag, "hex"));
@@ -322,7 +322,7 @@ async function ensureUploadsDir() {
 }
 async function processImageToWebp(
   buffer,
-  { maxWidth = 1024, maxHeight = 1024, quality = 80 } = {}
+  { maxWidth = 1024, maxHeight = 1024, quality = 80 } = {},
 ) {
   const pipeline = sharp(buffer, { failOn: "none" }).rotate(); // corrige orientação EXIF
   const webpBuffer = await pipeline
@@ -397,7 +397,7 @@ async function verificarAssinaturasExpiradas() {
         },
         {
           totalCash: storePay.totalCash + parseInt(pay.planPrice),
-        }
+        },
       );
       if (!finishPay) {
         console.error("FINISH PAY ERROR");
@@ -417,7 +417,7 @@ async function verificarAssinaturasExpiradas() {
         },
         {
           subscritionDay: nextQuery,
-        }
+        },
       );
       if (!suber) {
         console.error("FINISH PAY ERROR");
@@ -683,7 +683,7 @@ app.post("/update-password", async (req, res) => {
     const hashPassword = await bcrypt.hash(newpassword, 10);
     const updater = await User.findOneAndUpdate(
       { nome: name, Email: email },
-      { password: hashPassword }
+      { password: hashPassword },
     );
     if (!updater) {
       return res.status(404).json({ error: "User not find" });
@@ -727,7 +727,7 @@ app.post("/return/data", tokenVerify, async (req, res) => {
   try {
     const findAllStores = await StoreCad.find();
     if (!findAllStores) {
-      return res.sendStatus(404).json({ error: "Error 404" });
+      return res.status(404).json({ error: "Error 404" });
     }
 
     let counter = 0;
@@ -740,7 +740,7 @@ app.post("/return/data", tokenVerify, async (req, res) => {
       })
       .lean();
     if (!fav) {
-      return res.sendStatus(404).json({ error: "Error 404" });
+      return res.status(404).json({ error: "Error 404" });
     }
     const favMap = new Set(fav.map((f) => f.storeName));
     const sortedStores = findAllStores.sort((a, b) => {
@@ -753,11 +753,11 @@ app.post("/return/data", tokenVerify, async (req, res) => {
     });
     const storesNames = sortedStores.map((store) => store.storeName);
     const storesNum = findAllStores.length;
+    let striker = []
     for (let i = 0; i < sortedStores.length; i++) {
-      const store = sortedStores[counter];
+      const store = sortedStores[i];
       const isFav = favMap.has(store.storeName);
       let order = ``;
-
       if (isFav) {
         order = `<img src="https://img.icons8.com/?size=100&id=84925&format=png&color=F4D03F" alt="" id="starOff">
            <img src="https://img.icons8.com/?size=100&id=85784&format=png&color=FFFFFF" alt="" id="starOn">`;
@@ -765,68 +765,94 @@ app.post("/return/data", tokenVerify, async (req, res) => {
         order = `<img src="https://img.icons8.com/?size=100&id=85784&format=png&color=FFFFFF" alt="" id="starOff"><img src="https://img.icons8.com/?size=100&id=84925&format=png&color=F4D03F" alt="" id="starOn">`;
       }
       const obs = await obsolence.findOne({
-        storeName: sortedStores[i].storeName
-      })
-      if (obs){
-        const hoje = new Date();
-      const dataFinal = new Date(obs.finisherDay);
-
-      const diferencaMs = dataFinal - hoje
-      if (diferencaMs < 1){
-        const storef = await StoreCad.findOne({
-      name: name,
-      email: email,
-    }).lean();
-    if (storef) {
-      const servicesDeleter = await ServicesCad.findOneAndDelete({
-        name: name,
-        email: email,
+        storeName: sortedStores[i].storeName,
       });
-      if (servicesDeleter) {
-        const hourDeleter = await HoursStorage.findOneAndDelete({
-          storeName: store.storeName,
-          storeEmail: store.storeEmail,
-        });
-        if (hourDeleter) {
-          const funcDeleter = await functionaryCad.findOneAndDelete({
-            name: name,
-            email: email,
-          });
-          if (funcDeleter) {
-            const storeDeleter = await StoreCad.findOneAndDelete({
-              name: name,
-              email: email,
+      console.log(obs)
+      if (obs) {
+        const hoje = new Date();
+        const dataFinal = new Date(obs.finisherDay);
+
+        const diferencaMs = dataFinal - hoje;
+
+        const daysFaltantes = Math.floor(diferencaMs / (1000 * 60 * 60 * 24))
+        console.log(diferencaMs)
+        if (diferencaMs < 1) {
+          const storef = await StoreCad.findOne({
+            storeName: sortedStores[i].storeName
+          }).lean();
+          if (storef) {
+            const servicesDeleter = await ServicesCad.findOneAndDelete({
+              storeName: sortedStores[i].storeName
             });
-            if (!storeDeleter) {
-              return res
-                .status(400)
-                .json({ error: "errooooooooooooooooooooooooooooooooooooor" });
+            if (servicesDeleter) {
+              const hourDeleter = await HoursStorage.findOneAndDelete({
+                storeName: sortedStores[i].storeName
+              });
+              if (hourDeleter) {
+                const funcDeleter = await functionaryCad.findOneAndDelete({
+                 storeName: sortedStores[i].storeName
+                });
+                if (funcDeleter) {
+                  const storeDeleter = await StoreCad.findOneAndDelete({
+                    storeName: sortedStores[i].storeName
+                  });
+                  if (!storeDeleter) {
+                    return res
+                      .status(400)
+                      .json({
+                        error: "errooooooooooooooooooooooooooooooooooooor",
+                      });
+                  }
+                }
+              }
             }
           }
-        }
-      }
-    }
-      }else{
-        continue
-      }
-      }
-      if (sortedStores[counter].storeImagePath) {
-        const htmlStructure = `<div class="store">
+        } 
+        let htmlStructure = `<div class="store obsolete-store">
                         <div class="juntos">
                             <div id="img">
                                 <img src="${
-                                  sortedStores[counter].storeImagePath
+                                  sortedStores[i].storeImagePath
                                 }" alt="">
                             </div>
                             <div id="storeinfos">
                                 <p id="storename"><strong class="GreenCard">&lt;/</strong>${sortedStores[
-                                  counter
+                                  i
                                 ].storeName.replaceAll(
                                   "/",
-                                  " "
+                                  " ",
+                                )}<strong class="GreenCard">/></strong></p>
+                                <p id="storeDescription">This store has been deleter in  <strong class="jsonWrite" style="margin-left:10px;"> ${daysFaltantes} days</strong></p>
+                            </div>
+                        </div>
+                        <div id="moreinfos">
+                            <button>
+                                <img src="https://img.icons8.com/?size=100&id=110674&format=png&color=FFFFFF">
+                            </button>
+                        </div>
+                    </div>`;
+        counter++;
+        returner.push(htmlStructure);
+        striker.push(sortedStores[i].storeName)
+      }
+      if (sortedStores[i].storeImagePath) {
+        if (!striker.includes(sortedStores[i].storeName)){
+          const htmlStructure = `<div class="store">
+                        <div class="juntos">
+                            <div id="img">
+                                <img src="${
+                                  sortedStores[i].storeImagePath
+                                }" alt="">
+                            </div>
+                            <div id="storeinfos">
+                                <p id="storename"><strong class="GreenCard">&lt;/</strong>${sortedStores[
+                                  i
+                                ].storeName.replaceAll(
+                                  "/",
+                                  " ",
                                 )}<strong class="GreenCard">/></strong></p>
                                 <p id="storeDescription">${
-                                  sortedStores[counter].description
+                                  sortedStores[i].description
                                 }</p>
                             </div>
                         </div>
@@ -836,18 +862,22 @@ app.post("/return/data", tokenVerify, async (req, res) => {
                             </button>
                         </div>
                     </div>`;
-        counter++;
+                    counter++;
         returner.push(htmlStructure);
+        }
+        
       }
     }
+    console.log(returner.join(""))
     return res.status(200).json({
       return: returner,
       closedHour: findAllStores.map((store) => store.closedHours),
-      closedDays: findAllStores.map((store) => store.closedHours),
+      closedDays: findAllStores.map((store) => store.closedDays),
       openHours: findAllStores.map((store) => store.openHours),
       storeName: storesNames,
     });
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ error: "Error in the server :<" });
   }
 });
@@ -864,7 +894,7 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
         originalname: f.originalname,
         mimetype: f.mimetype,
         size: f.size,
-      }))
+      })),
     );
 
     const { id, name, email } = req.user;
@@ -898,7 +928,7 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
     // ✅ Processar imagem da loja
     let imageInfo = null;
     const storeImageFile = (req.files || []).find(
-      (f) => f.fieldname === "storeImage"
+      (f) => f.fieldname === "storeImage",
     );
 
     console.log("📸 Arquivo de imagem encontrado:", !!storeImageFile);
@@ -915,7 +945,7 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
         const saved = await saveBufferToDisk(
           processed.buffer,
           processed.format,
-          "store"
+          "store",
         );
 
         imageInfo = {
@@ -1024,7 +1054,7 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
         originalname: f.originalname,
         mimetype: f.mimetype,
         size: f.size,
-      }))
+      })),
     );
 
     const { name, email } = req.user;
@@ -1041,16 +1071,16 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
     const toArray = (v) => (Array.isArray(v) ? v : v !== undefined ? [v] : []);
 
     const serviceNames = toArray(
-      req.body["serviceName[]"] ?? req.body.serviceName
+      req.body["serviceName[]"] ?? req.body.serviceName,
     );
     const serviceDescs = toArray(
-      req.body["serviceDesc[]"] ?? req.body.serviceDesc
+      req.body["serviceDesc[]"] ?? req.body.serviceDesc,
     );
     const servicePricesRaw = toArray(
-      req.body["servicePrice[]"] ?? req.body.servicePrice
+      req.body["servicePrice[]"] ?? req.body.servicePrice,
     );
     const servicesTime = toArray(
-      req.body["servicesTime[]"] ?? req.body.servicesTime
+      req.body["servicesTime[]"] ?? req.body.servicesTime,
     );
     const files = req.files || [];
 
@@ -1058,7 +1088,7 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
       Math.max(
         serviceNames.length,
         serviceDescs.length,
-        servicePricesRaw.length
+        servicePricesRaw.length,
       ) || 0;
 
     if (
@@ -1093,7 +1123,7 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
         const saved = await saveBufferToDisk(
           processed.buffer,
           processed.format,
-          "service"
+          "service",
         );
         imageInfo = {
           storage: "disk",
@@ -1138,7 +1168,7 @@ app.post("/servicesCad", tokenVerify, upload.any(), async (req, res) => {
     }
 
     console.log(
-      `Criados ${created.length} serviço(s). files.length=${files.length}`
+      `Criados ${created.length} serviço(s). files.length=${files.length}`,
     );
     return res.redirect("/hour/register");
   } catch (error) {
@@ -1276,7 +1306,7 @@ app.post("/api/selected/hours", tokenVerify, async (req, res) => {
 
     console.log(hoursArray);
     let html = `<div class="renderedHours"><div class="calendarOfHours">${hoursArray.join(
-      " "
+      " ",
     )}</div></div><footer class="selectedIndicatorB"  id="finished"><button>Finish<strong class="consoleWrite"> >></strong></button></footer>`;
 
     return res.status(200).json({
@@ -1666,7 +1696,7 @@ app.post("/schedule", tokenVerify, async (req, res) => {
         <div class="content">
             <div class="greeting">
                 <h2>Hello, <span class="highlight">${choiceFunctionary.join(
-                  ""
+                  "",
                 )}</span>!</h2>
                 <p style="color: rgba(242, 242, 242, 0.8); margin-top: 8px;">
                     A new appointment has been confirmed for you.
@@ -1772,7 +1802,7 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
         storeName: schedule.storeName,
       }).lean();
       console.log(
-        "Sou seus serviços" + services + "Sou seu nome:" + schedule.storeName
+        "Sou seus serviços" + services + "Sou seu nome:" + schedule.storeName,
       );
       if (!services) {
         return res.status(404).json({ msg: "error" });
@@ -1837,8 +1867,8 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
                   </div>
                   <div class="schedule-Hour">
                      <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${
-          schedule.finishHour
-        }</strong>
+                       schedule.finishHour
+                     }</strong>
                   </div>
                 </div>
           </div>
@@ -1884,8 +1914,8 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
                   </div>
                   <div class="schedule-Hour">
                      <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${
-          schedule.finishHour
-        }</strong>
+                       schedule.finishHour
+                     }</strong>
                   </div>
                 </div>
           </div>
@@ -1981,7 +2011,7 @@ app.delete("/delete/schedules", tokenVerify, async (req, res) => {
       {
         totalCash: f.totalCash - (parseInt(finder.totalPrice) * 80) / 100,
         money: f.money - (parseInt(finder.totalPrice) * 80) / 100,
-      }
+      },
     );
     if (!value) {
       return res.status(400).json({
@@ -2347,7 +2377,7 @@ app.put("/update/user", tokenVerify, async (req, res) => {
         nome: new_name,
         Email: new_email,
       },
-      { new: true }
+      { new: true },
     );
     if (!updater) {
       return res
@@ -2373,7 +2403,7 @@ app.put("/update/user", tokenVerify, async (req, res) => {
             name: new_name,
             email: new_email,
           },
-          { new: true }
+          { new: true },
         );
         if (!updateRecurring) {
           console.log("UPDATE RECURRING");
@@ -2399,7 +2429,7 @@ app.put("/update/user", tokenVerify, async (req, res) => {
             name: new_name,
             email: new_email,
           },
-          { new: true }
+          { new: true },
         );
         if (!updateSchedules) {
           console.log("UPDATE SCHEDULES");
@@ -2426,7 +2456,7 @@ app.put("/update/user", tokenVerify, async (req, res) => {
             name: new_name,
             email: new_email,
           },
-          { new: true }
+          { new: true },
         );
         if (!updatePlans) {
           console.log("ERRO AO ATUALIZAR ESTE RECURRING", findToUpdate[i]);
@@ -2452,7 +2482,7 @@ app.put("/update/user", tokenVerify, async (req, res) => {
             name: new_name,
             email: new_email,
           },
-          { new: true }
+          { new: true },
         );
         if (!updateReembolso) {
           console.log("ERRO AO ATUALIZAR ESTE RECURRING", findToUpdate[i]);
@@ -2474,7 +2504,7 @@ app.put("/update/user", tokenVerify, async (req, res) => {
           name: new_name,
           email: new_email,
         },
-        { new: true }
+        { new: true },
       );
       if (!updater2) {
         return res
@@ -2490,7 +2520,7 @@ app.put("/update/user", tokenVerify, async (req, res) => {
           name: new_name,
           email: new_email,
         },
-        { new: true }
+        { new: true },
       );
       if (!updater3) {
         return res
@@ -2506,7 +2536,7 @@ app.put("/update/user", tokenVerify, async (req, res) => {
           name: new_name,
           email: new_email,
         },
-        { new: true }
+        { new: true },
       );
       if (!updater4) {
         return res
@@ -2522,7 +2552,7 @@ app.put("/update/user", tokenVerify, async (req, res) => {
           name: new_name,
           email: new_email,
         },
-        { new: true }
+        { new: true },
       );
       if (!updater6) {
         return res
@@ -2561,7 +2591,7 @@ app.put("/update/user", tokenVerify, async (req, res) => {
           name: new_name,
           email: new_email,
         },
-        { new: true }
+        { new: true },
       );
       if (!updater8) {
         return res
@@ -2848,7 +2878,7 @@ Manage your ${scheduleRemanescentes} other <strong class="GreenCard">appointment
     <div class="unionE">
       <div class="welcomeDiv"><h1>Welcome back <strong class="consoleWrite">${finder.storeName.replaceAll(
         "/",
-        " "
+        " ",
       )}!</strong></h1><p><strong class="consoleWrite">$</strong>${
         finder.description
       }</p></div>
@@ -2869,7 +2899,7 @@ Manage your ${scheduleRemanescentes} other <strong class="GreenCard">appointment
       .padStart(2, "0")}</strong></p></div>
     <div class="localSchedule"data-name="${finder.storeName.replaceAll(
       "/",
-      "_"
+      "_",
     )}"><span><strong class="GreenCard">Local</strong> Scheduling</span></div>
     </div>
     <div class="unionE">
@@ -2911,10 +2941,10 @@ Manage your ${scheduleRemanescentes} other <strong class="GreenCard">appointment
     <div class="unionE">
       <div class="welcomeDiv"><h1>Welcome back <strong class="consoleWrite">${finder.storeName.replaceAll(
         "/",
-        " "
+        " ",
       )}!</strong></h1><p><strong class="consoleWrite">$</strong>${
-      finder.description
-    }</p></div>
+        finder.description
+      }</p></div>
       <div class="columnUnion">
         <span class="label" style="font-size:0.8em; margin:0 0 2vh 0;">Store opening <strong class="GreenCard">control</strong><strong class="pointer">.</strong></span>
         <div class="weekOpen">${nextDays.slice(0, 4).join("")}</div>
@@ -2932,7 +2962,7 @@ Manage your ${scheduleRemanescentes} other <strong class="GreenCard">appointment
       .padStart(2, "0")}</strong></p></div>
     <div class="localSchedule"data-name="${finder.storeName.replaceAll(
       "/",
-      "_"
+      "_",
     )}"><span><strong class="GreenCard">Local</strong> Scheduling</span></div>
     </div>
     <div class="unionE">
@@ -2980,7 +3010,7 @@ app.post("/cadFunctionary", tokenVerify, upload.any(), async (req, res) => {
         originalname: f.originalname,
         mimetype: f.mimetype,
         size: f.size,
-      }))
+      })),
     );
 
     const findStore = await StoreCad.findOne({ name: name, email: email });
@@ -2996,10 +3026,10 @@ app.post("/cadFunctionary", tokenVerify, upload.any(), async (req, res) => {
     const toArray = (v) => (Array.isArray(v) ? v : v !== undefined ? [v] : []);
 
     const functionaryName = toArray(
-      req.body["functionaryName[]"] ?? req.body.functionaryName
+      req.body["functionaryName[]"] ?? req.body.functionaryName,
     );
     const functionaryEmail = toArray(
-      req.body["functionaryEmail[]"] ?? req.body.functionaryEmail
+      req.body["functionaryEmail[]"] ?? req.body.functionaryEmail,
     );
 
     const files = req.files || [];
@@ -3028,7 +3058,7 @@ app.post("/cadFunctionary", tokenVerify, upload.any(), async (req, res) => {
         const saved = await saveBufferToDisk(
           processed.buffer,
           processed.format,
-          "functionary"
+          "functionary",
         );
 
         const imageInfo = {
@@ -3079,7 +3109,23 @@ app.post("/cadFunctionary", tokenVerify, upload.any(), async (req, res) => {
   }
 });
 app.get(`/store/:storeName`, async (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "base.html"));
+  const storeName = req.params.storeName;
+  let real = storeName.replaceAll("_", "/");
+  console.log(real);
+  try {
+    const obsolente = await obsolence.findOne({
+      storeName: real.replace(":", ""),
+    });
+    if (!obsolente) {
+      return res.sendFile(path.join(__dirname, "public", "base.html"));
+    } else {
+      return res.redirect("/home.html");
+    }
+  } catch (error) {
+    return res.status(500).json({
+      error: error,
+    });
+  }
 });
 app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
   const { name, email } = req.user;
@@ -3156,7 +3202,7 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
         let structure = `
         <div class="Basic Plan ${name[pd].replaceAll(
           " ",
-          "-"
+          "-",
         )}" style="opacity: 1; margin: 2vw;" data-name="${
           realName[pd]
         }" data-price="${price[pd]}" data-store="${storeData.storeName}">
@@ -3204,8 +3250,8 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
                 <p class="adressD"><strong class="GreenCard">Adress:</strong> ${
                   storeData.address
                 }</p><p class="adressD"><strong class="GreenCard">Contact:</strong> ${storeData.phone
-      .replaceAll("(", "<strong class='jsonWrite'>(</strong>")
-      .replaceAll(")", '<strong class="jsonWrite">)</strong>')}</p>
+                  .replaceAll("(", "<strong class='jsonWrite'>(</strong>")
+                  .replaceAll(")", '<strong class="jsonWrite">)</strong>')}</p>
               </div>
               <div class="hours">
                 <div class="openAt">${storeData.openHours}</div>
@@ -3397,7 +3443,7 @@ app.get("/cad/plan", async (req, res) => {
           totalCash: verify.totalCash + parseInt(planPrice / 100),
           planNumber: (verify.planNumber += 1),
           money: verify.money + parseInt(planPrice),
-        }
+        },
       );
       if (!att) {
         return res.status(400).json({ error: "Na ganhação de money " });
@@ -3514,7 +3560,7 @@ app.post("/plans/register/bank", tokenVerify, async (req, res) => {
           account_number: account_number,
           // account_type: "checking",
         },
-      }
+      },
     );
     const registerData = {
       holder_name: holder_name,
@@ -3605,8 +3651,8 @@ app.post("/plans/register/plans", tokenVerify, async (req, res) => {
         const unitAmount = Math.round(priceValue * 100);
         console.log(
           `💰 Plan ${i}: ${name_product[i]} = R$ ${priceValue.toFixed(
-            2
-          )} (${unitAmount} centavos)`
+            2,
+          )} (${unitAmount} centavos)`,
         );
 
         // Validar description
@@ -3661,8 +3707,8 @@ app.post("/plans/register/plans", tokenVerify, async (req, res) => {
       const unitAmount = Math.round(priceValue * 100);
       console.log(
         `💰 Plan único: ${name_product} = R$ ${priceValue.toFixed(
-          2
-        )} (${unitAmount} centavos)`
+          2,
+        )} (${unitAmount} centavos)`,
       );
 
       // Validar description
@@ -3784,7 +3830,7 @@ app.post("/pay/schedule", tokenVerify, async (req, res) => {
   const price = findSchema.totalPrice;
   const description = "Pay via App";
   const product_name = `Pay Via App : ${JSON.stringify(
-    criptografar(generateCode()).authTag
+    criptografar(generateCode()).authTag,
   )}`;
 
   try {
@@ -3896,7 +3942,7 @@ app.get("/schedule/success", async (req, res) => {
         { stripeId: session_id },
         {
           payed: true,
-        }
+        },
       );
       if (!find) {
         return res.status(404).json({ error: "n encontrado" });
@@ -3916,7 +3962,7 @@ app.get("/schedule/success", async (req, res) => {
           totalCash: findOne.totalCash + parseInt(find.totalPrice),
           totalAppointmentsPayed: findOne.totalAppointmentsPayed + 1,
           money: findOne.money + find.totalPrice,
-        }
+        },
       );
       if (!updt) {
         return res.status(400).json({ error: "ao encontrar" });
@@ -4284,11 +4330,11 @@ app.get("/return/data/plans", tokenVerify, async (req, res) => {
       const dbStore = store.replaceAll(" ", "/");
       let div = `<div class="columnUnion">
         <div class="myPlan"><div class="plan-name">${plan}<div class="store-name-plan"><strong class="consoleWrite">#</strong>${store}</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>${(
-        planPrice / 100
-      ).toLocaleString("pt-BR", {
-        maximumFractionDigits: 2,
-        minimumFractionDigits: 2,
-      })}</div></div>
+          planPrice / 100
+        ).toLocaleString("pt-BR", {
+          maximumFractionDigits: 2,
+          minimumFractionDigits: 2,
+        })}</div></div>
         <div class="cancel-plan"  data-name="${planName}" data-store="${dbStore}">Cancel Plan</div>
       </div>`;
       htmlArray.push(div);
@@ -4421,19 +4467,19 @@ app.get("/render/stores/plan", tokenVerify, async (req, res) => {
         <div class="myPlan"><div class="plan-name">${
           planName[j]
         }<div class="store-name-plan"><strong class="consoleWrite">#</strong>${store.replaceAll(
-            "/",
-            " "
-          )}</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>${(
-            price[j] / 100
-          ).toLocaleString("pt-BR", {
-            maximumFractionDigits: 2,
-            minimumFractionDigits: 2,
-          })}</div></div>
+          "/",
+          " ",
+        )}</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>${(
+          price[j] / 100
+        ).toLocaleString("pt-BR", {
+          maximumFractionDigits: 2,
+          minimumFractionDigits: 2,
+        })}</div></div>
         <div class="cancel-plan"  data-name="${
           plan[j]
         }" data-store="${store}" data-index="${i}" data-code="${
-            find[i].planCode
-          }">Delete Plan</div>
+          find[i].planCode
+        }">Delete Plan</div>
       </div>`;
           htmlArray.push(html);
           havePlan = true;
@@ -4480,7 +4526,7 @@ app.get("/render/stores/plan", tokenVerify, async (req, res) => {
       <span class="dateSpan">${date}/${monthR}/${year}</span>
       </div>
         </div><div class="marginer">${htmlArray.join(
-          ""
+          "",
         )}</div><section class="emailSect">
           <div class="emailDiver">${emailArray.join("")}</div>
         </section>`,
@@ -4690,7 +4736,7 @@ app.delete("/backMyMoney/me", async (req, res) => {
         },
         {
           totalCash: f.totalCash - finder.totalPrice,
-        }
+        },
       );
       if (!value) {
         console.log("tu");
@@ -4760,7 +4806,7 @@ app.get("/analitics", tokenVerify, async (req, res) => {
     }
     const Cash = analiticsPush.totalCash / 100;
     const visitantes = analiticsPush.totalVisits;
-    const dateNasc = analiticsPush.createdAt;
+    const dateNasc = analiticsPush.createdAt.split(",");
     const totalAppointmentsPayed = analiticsPush.totalAppointmentsPayed;
     const totalAppointments = analiticsPush.totalAppointments;
     let planNumber = 0;
@@ -4809,13 +4855,13 @@ app.get("/analitics", tokenVerify, async (req, res) => {
       (acumulador, valorAtual) => {
         return acumulador + valorAtual;
       },
-      0
+      0,
     );
     const scheduleNumberSoma = scheduleNumberArray.reduce(
       (acumulador, valorAtual) => {
         return acumulador + valorAtual;
       },
-      0
+      0,
     );
     const mediaDeCancelamentos =
       (scheduleCancelSoma / scheduleNumberSoma) * 100;
@@ -4831,7 +4877,9 @@ app.get("/analitics", tokenVerify, async (req, res) => {
       maximumSignificantDigits: 2,
     });
     let mediaDePrePagamentos =
-      (totalAppointmentsPayed / totalAppointments) * 100;
+      totalAppointments > 0
+     ? (totalAppointmentsPayed / totalAppointments) * 100
+     : 0;;
     let structure = `
     <div class="unionE">
       <div class="Identifire">
@@ -4840,7 +4888,7 @@ app.get("/analitics", tokenVerify, async (req, res) => {
       </div>
       <div class="dateNasc">
       <span class="label">Created <strong class="GreenCard">in</strong></span><br>
-      <span class="dateSpan">${dateNasc}</span>
+      <span class="dateSpan">${dateNasc[0]}</span>
       </div>
     </div>
     <div class="unionE" style="margin: 5vh 5vw; flex-wrap:wrap; max-width: 95vw;">
@@ -4849,11 +4897,11 @@ app.get("/analitics", tokenVerify, async (req, res) => {
     <div class="analyticsInfo"><span class="label"><strong class="GreenCard">Total</strong> Appointments  </span><br><span class="Numbera">${totalAppointments}</span></div>
     <div class="analyticsInfo"><span class="label"> Total of Paid<strong class="GreenCard"> Appointments</strong> </span><br><span class="Numbera">${totalAppointmentsPayed}</span></div>
     <div class="analyticsInfo"><span class="label"> Payment<strong class="GreenCard"> Rate</strong> </span><br><span class="Numbera">${Math.ceil(
-      mediaDePrePagamentos
+      mediaDePrePagamentos,
     )}%</span></div>
     <div class="analyticsInfo"><span class="label">Total<strong class="GreenCard"> Subscribers</strong>  </span><br><span class="Numbera">${planNumber}</span></div>
     <div class="analyticsInfo"><span class="label">  <strong class="GreenCard"> Cancelled</strong> Appointments </span><br><span class="Numbera">${Math.ceil(
-      mediaDeCancelamentos
+      mediaDeCancelamentos,
     )}%</span></div>
     <div class="analyticsInfo"><span class="label">Average total <strong class="GreenCard">expenditure</strong> </span><br><span class="pricer">R$ ${formatGastos}</span></div>
     
@@ -5033,7 +5081,7 @@ app.get("/today-schedules", tokenVerify, async (req, res) => {
       }
     }
     let html = `<div class="schedule-union" id="opacitor1">${htmlArr.join(
-      ""
+      "",
     )}</div>'<div class="store-content" id="weekDiv"></div>'`;
     return res.status(200).json({
       returner: html,
@@ -5152,8 +5200,8 @@ app.get("/week-schedules", tokenVerify, async (req, res) => {
                   </div>
                   <div class="schedule-Hour">
                      <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${
-            daySchedule[s].finishHour
-          }</strong>
+                       daySchedule[s].finishHour
+                     }</strong>
                   </div>
                 </div>
           </div>
@@ -5195,8 +5243,8 @@ app.get("/week-schedules", tokenVerify, async (req, res) => {
                   </div>
                   <div class="schedule-Hour">
                      <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${
-            daySchedule[s].finishHour
-          }</strong>
+                       daySchedule[s].finishHour
+                     }</strong>
                   </div>
                 </div>
           </div>
@@ -5209,7 +5257,7 @@ app.get("/week-schedules", tokenVerify, async (req, res) => {
     }
 
     let html = `<div class="schedule-union" id="opacitor2">${htmlArr.join(
-      '<div class="store-content" id="weekDiv"></div>'
+      '<div class="store-content" id="weekDiv"></div>',
     )}</div>`;
     return res.status(200).json({
       returner: html,
@@ -5328,8 +5376,8 @@ app.get("/month-schedules", tokenVerify, async (req, res) => {
                   </div>
                   <div class="schedule-Hour">
                      <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${
-            daySchedule[s].finishHour
-          }</strong>
+                       daySchedule[s].finishHour
+                     }</strong>
                   </div>
                 </div>
           </div>
@@ -5371,8 +5419,8 @@ app.get("/month-schedules", tokenVerify, async (req, res) => {
                   </div>
                   <div class="schedule-Hour">
                      <strong class="dayEHour" style="font-size:0.9em;">${hour} - ${
-            daySchedule[s].finishHour
-          }</strong>
+                       daySchedule[s].finishHour
+                     }</strong>
                   </div>
                 </div>
           </div>
@@ -5385,7 +5433,7 @@ app.get("/month-schedules", tokenVerify, async (req, res) => {
     }
 
     let html = `<div class="schedule-union" id="opacitor3">${htmlArr.join(
-      '<div class="store-content" id="weekDiv"></div>'
+      '<div class="store-content" id="weekDiv"></div>',
     )}</div>`;
     return res.status(200).json({
       returner: html,
@@ -5443,7 +5491,7 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
         let html = `<div class="columnUnion">
         <div class="myPlan temPlan" style="margin: 3vh;"><div class="plan-name">${planNamer}<div class="store-name-plan"><strong class="consoleWrite">#</strong>${storePlan.replaceAll(
           "/",
-          " "
+          " ",
         )}</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>${trueFormat}</div></div>
         <div class="ocultEditor"><img src="https://img.icons8.com/?size=100&id=89802&format=png&color=FFFFFF" alt="" style="width:24px; height:24px;"></div>
       </div>
@@ -5477,6 +5525,14 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
     if (!functionar) {
       console.log("ERROR EM FUNCTIONARY");
       return res.status(404).json({ error: "N ENCONTRADO EM FUNCTIONARY" });
+    }
+    const bankDatas = await BankSchema.findOne({
+      name: name,
+      email: email,
+    })
+    if (!bankDatas){
+      console.log("ERROR EM BANK DATAS");
+      return res.status(404).json({ error: "N ENCONTRADO EM BANK DATAS" });
     }
     let servicesArray = [];
     const ServicesimagePath = services.serviceImagePath;
@@ -5523,6 +5579,16 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
       st = `<img src="https://img.icons8.com/?size=100&id=122178&format=png&color=FFFFFF" id="prePayOn"><img src="https://img.icons8.com/?size=100&id=90219&format=png&color=FFFFFF" id="prePayOff"></img>`;
     } else {
       st = `<img src="https://img.icons8.com/?size=100&id=90219&format=png&color=FFFFFF" id="prePayOn"></img><img src="https://img.icons8.com/?size=100&id=122178&format=png&color=FFFFFF" id="prePayOff">`;
+    }
+    let ri = ``
+
+    if (bankDatas.holder_type === 'company'){
+
+      ri = `<option value="company"> Company</option>
+      <option value="individual">Individual</option>`
+    }else{
+      ri = `<option value="individual">Individual</option>
+                          <option value="company"> Company</option>`
     }
     let render = `<div class="unionE">
       <div class="Identifire">
@@ -5579,6 +5645,55 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
     <div class="functionaryBreaker"${functionarysArray
       .slice(0, 7)
       .join("")}</div></div>
+    <div class="columnUnion" style="margin: 5vh 0;">
+    <span class="label" style="margin: 1vh -5vw"
+          >Your bank   <strong class="GreenCard">Datas</strong
+          ><strong class="pointer">.</strong></span>
+      <form action="/update/bank" method="post" style=" margin-top: 5vh;">
+                  <div class="FormSeparate">
+                      <input
+                        type="text"
+                        name="holder_name"
+                        id="holder_name"
+                        placeholder="Holder Name: "
+                        value="${bankDatas.holder_name}"
+                      />
+      
+                      <input
+                        type="text"
+                        name="account_number"
+                        id="account_number"
+                        placeholder="Account Number"
+                        value="${descriptografar(bankDatas.account_number)}"
+                      />
+                      <select name="holder_type" id="holder_type">
+                          ${ri}
+                      </select>
+                  </div>
+                  <div class="cvvForm">
+                      <input
+                        type="text"
+                        name="bank_code"
+                        id="bank_code"
+                        placeholder="Bank Code"
+                        maxlength="3"
+                        value="${bankDatas.bank_code}"
+                      />
+                      <input
+                        type="text"
+                        name="branch_code"
+                        id="branch_code"
+                        placeholder="Agency Number"
+                        maxlength="4"
+                        value="${bankDatas.branch_code}"
+                      />
+      
+                  </div>
+                  <input type="submit" value="Update" id="bankUpdater">
+                </form>
+          </div>
+            </div>
+    </div>
     <div class="forgot-password-div" style="margin:2vh 10vw;">
                 <div class="txt">
                     <h1><strong class="consoleWrite">>></strong>Edit your store <strong class="GreenCard">datas</strong> </h1>
@@ -5702,7 +5817,7 @@ app.post("/hour/updater", tokenVerify, async (req, res) => {
       },
       {
         hour: uniqueHours,
-      }
+      },
     );
     if (!updaterLancher) {
       return res.status(400).json({ message: "ERRO AO LANÇAR", invalid });
@@ -5822,7 +5937,7 @@ app.post("/plan/updater", tokenVerify, async (req, res) => {
 
         const unitAmount = Math.round(priceValue * 100);
         console.log(
-          `💰 Plan ${i}: ${name_product[i]} = R$ ${priceValue} (${unitAmount} centavos)`
+          `💰 Plan ${i}: ${name_product[i]} = R$ ${priceValue} (${unitAmount} centavos)`,
         );
 
         const stripeProduct = await stripe.products.create({
@@ -5865,7 +5980,7 @@ app.post("/plan/updater", tokenVerify, async (req, res) => {
 
       const unitAmount = Math.round(priceValue * 100);
       console.log(
-        `💰 Plan único: ${name_product} = R$ ${priceValue} (${unitAmount} centavos)`
+        `💰 Plan único: ${name_product} = R$ ${priceValue} (${unitAmount} centavos)`,
       );
 
       const stripeProduct = await stripe.products.create({
@@ -5920,7 +6035,7 @@ app.post("/plan/updater", tokenVerify, async (req, res) => {
           planStripeCode: stripeId,
         },
       },
-      { new: true }
+      { new: true },
     );
 
     if (!updater) {
@@ -6029,7 +6144,7 @@ app.post("/services/updater", tokenVerify, upload.any(), async (req, res) => {
         originalname: f.originalname,
         mimetype: f.mimetype,
         size: f.size,
-      }))
+      })),
     );
 
     const { name, email } = req.user;
@@ -6046,16 +6161,16 @@ app.post("/services/updater", tokenVerify, upload.any(), async (req, res) => {
     const toArray = (v) => (Array.isArray(v) ? v : v !== undefined ? [v] : []);
 
     const serviceNames = toArray(
-      req.body["serviceName[]"] ?? req.body.serviceName
+      req.body["serviceName[]"] ?? req.body.serviceName,
     );
     const serviceDescs = toArray(
-      req.body["serviceDesc[]"] ?? req.body.serviceDesc
+      req.body["serviceDesc[]"] ?? req.body.serviceDesc,
     );
     const servicePricesRaw = toArray(
-      req.body["servicePrice[]"] ?? req.body.servicePrice
+      req.body["servicePrice[]"] ?? req.body.servicePrice,
     );
     const servicesTime = toArray(
-      req.body["servicesTime[]"] ?? req.body.servicesTime
+      req.body["servicesTime[]"] ?? req.body.servicesTime,
     );
     const files = req.files || [];
 
@@ -6063,7 +6178,7 @@ app.post("/services/updater", tokenVerify, upload.any(), async (req, res) => {
       Math.max(
         serviceNames.length,
         serviceDescs.length,
-        servicePricesRaw.length
+        servicePricesRaw.length,
       ) || 0;
 
     if (
@@ -6098,7 +6213,7 @@ app.post("/services/updater", tokenVerify, upload.any(), async (req, res) => {
         const saved = await saveBufferToDisk(
           processed.buffer,
           processed.format,
-          "service"
+          "service",
         );
         imageInfo = {
           storage: "disk",
@@ -6133,7 +6248,7 @@ app.post("/services/updater", tokenVerify, upload.any(), async (req, res) => {
         servicesTime: servicesTime,
         serviceImagePath: imagePaths ?? null,
         serviceImageMeta: imageMeta ?? null,
-      }
+      },
     );
     created.push({
       ...newService.toObject(),
@@ -6147,7 +6262,7 @@ app.post("/services/updater", tokenVerify, upload.any(), async (req, res) => {
     }
 
     console.log(
-      `Criados ${created.length} serviço(s). files.length=${files.length}`
+      `Criados ${created.length} serviço(s). files.length=${files.length}`,
     );
     return res.redirect("/stores/prefs");
   } catch (error) {
@@ -6213,7 +6328,7 @@ app.post("/team/updater", tokenVerify, upload.any(), async (req, res) => {
         originalname: f.originalname,
         mimetype: f.mimetype,
         size: f.size,
-      }))
+      })),
     );
 
     const findStore = await StoreCad.findOne({ name: name, email: email });
@@ -6229,10 +6344,10 @@ app.post("/team/updater", tokenVerify, upload.any(), async (req, res) => {
     const toArray = (v) => (Array.isArray(v) ? v : v !== undefined ? [v] : []);
 
     const functionaryName = toArray(
-      req.body["functionaryName[]"] ?? req.body.functionaryName
+      req.body["functionaryName[]"] ?? req.body.functionaryName,
     );
     const functionaryEmail = toArray(
-      req.body["functionaryEmail[]"] ?? req.body.functionaryEmail
+      req.body["functionaryEmail[]"] ?? req.body.functionaryEmail,
     );
 
     const files = req.files || [];
@@ -6261,7 +6376,7 @@ app.post("/team/updater", tokenVerify, upload.any(), async (req, res) => {
         const saved = await saveBufferToDisk(
           processed.buffer,
           processed.format,
-          "functionary"
+          "functionary",
         );
 
         const imageInfo = {
@@ -6300,7 +6415,7 @@ app.post("/team/updater", tokenVerify, upload.any(), async (req, res) => {
         functionarysEmail: functionaryEmail,
         functionaryImagePath: imagePaths,
         functionaryImageMeta: imageMeta,
-      }
+      },
     );
     if (newFunctionary) {
       console.log(`Criados funcionários. files.length=${files.length}`);
@@ -6469,25 +6584,25 @@ app.get("/updater/storeDatas", tokenVerify, async (req, res) => {
             <h1 class="label"><strong class="consoleWrite">//</strong>Closed Days</h1>
              <div class="daysForSelect">
               <div class="dayOfWeek ${isDayClosed(
-                "Sunday"
+                "Sunday",
               )}" id="sunday" data-day="Sunday">Sunday <input type="checkbox" name="" id=""></div>
               <div class="dayOfWeek ${isDayClosed(
-                "Monday"
+                "Monday",
               )}" data-day="Monday">Monday <input type="checkbox" name="" id=""></div>
               <div class="dayOfWeek ${isDayClosed(
-                "Tuesday"
+                "Tuesday",
               )}" data-day="Tuesday">Tuesday <input type="checkbox" name="" id=""></div>
               <div class="dayOfWeek ${isDayClosed(
-                "Wednesday"
+                "Wednesday",
               )}" data-day="Wednesday">Wednesday <input type="checkbox" name="" id=""></div>
               <div class="dayOfWeek ${isDayClosed(
-                "Thursday"
+                "Thursday",
               )}" data-day="Thursday">Thursday <input type="checkbox" name="" id=""></div>
               <div class="dayOfWeek ${isDayClosed(
-                "Friday"
+                "Friday",
               )}" data-day="Friday">Friday <input type="checkbox" name="" id=""></div>
               <div class="dayOfWeek ${isDayClosed(
-                "Saturday"
+                "Saturday",
               )}" data-day="Saturday">Saturday <input type="checkbox" name="" id=""></div>
             </div>
           </div>
@@ -6534,7 +6649,7 @@ app.post(
           originalname: f.originalname,
           mimetype: f.mimetype,
           size: f.size,
-        }))
+        })),
       );
 
       const { id, name, email } = req.user;
@@ -6571,7 +6686,7 @@ app.post(
       // ✅ Processar imagem da loja
       let imageInfo = null;
       const storeImageFile = (req.files || []).find(
-        (f) => f.fieldname === "storeImage"
+        (f) => f.fieldname === "storeImage",
       );
 
       console.log("📸 Arquivo de imagem encontrado:", !!storeImageFile);
@@ -6588,7 +6703,7 @@ app.post(
           const saved = await saveBufferToDisk(
             processed.buffer,
             processed.format,
-            "store"
+            "store",
           );
 
           imageInfo = {
@@ -6630,7 +6745,7 @@ app.post(
             storeEmail: storeEmail,
             storeImagePath: imageInfo?.path ?? null,
             storeImageMeta: imageInfo ?? null,
-          }
+          },
         );
         if (!newStore) {
           return res.status(400).json({
@@ -6658,7 +6773,7 @@ app.post(
             cnpj: cnpj,
             phone: phone,
             storeEmail: storeEmail,
-          }
+          },
         );
         if (!newStore) {
           return res.status(400).json({
@@ -6679,7 +6794,7 @@ app.post(
         },
         {
           storeName: storeNamer,
-        }
+        },
       );
       if (!createBasicInfos) {
         return res.status(400).json({
@@ -6698,7 +6813,7 @@ app.post(
         },
         {
           storeName: storeNamer,
-        }
+        },
       );
       if (!services) {
         return res.status(400).json({
@@ -6715,7 +6830,7 @@ app.post(
         },
         {
           storeName: storeNamer,
-        }
+        },
       );
       if (!functionary) {
         return res.status(400).json({
@@ -6731,7 +6846,7 @@ app.post(
         },
         {
           storeName: storeNamer,
-        }
+        },
       );
       if (!hour) {
         return res.status(400).json({
@@ -6753,7 +6868,7 @@ app.post(
           },
           {
             storeName: storeNamer,
-          }
+          },
         );
         if (!plan) {
           return res.status(400).json({
@@ -6766,7 +6881,7 @@ app.post(
       } // ✅ Atualiza TODOS os agendamentos em uma operação
       const result = await scheduleSchema.updateMany(
         { storeName: existingStore.storeName },
-        { $set: { storeName: storeNamer } }
+        { $set: { storeName: storeNamer } },
       );
       if (!result) {
         return res.status(400).json({
@@ -6778,7 +6893,7 @@ app.post(
       }
       const clientD = await recurring.updateMany(
         { storeName: existingStore.storeName },
-        { $set: { storeName: storeNamer } }
+        { $set: { storeName: storeNamer } },
       );
       if (!clientD) {
         return res.status(400).json({
@@ -6804,7 +6919,7 @@ app.post(
         details: error.message,
       });
     }
-  }
+  },
 );
 app.get("/store-bank", (req, res) => {
   return res
@@ -6812,7 +6927,7 @@ app.get("/store-bank", (req, res) => {
     .sendFile(path.join(__dirname, "public", "storeBank.html"));
 });
 app.get("/exist-bank-datas", tokenVerify, async (req, res) => {
-  const {name, email} = req.user
+  const { name, email } = req.user;
   try {
     const verifyBank = await BankSchema.findOne({
       name: name,
@@ -6848,7 +6963,7 @@ app.get("/exist-bank-datas", tokenVerify, async (req, res) => {
         {
           active: true,
         },
-        { new: true }
+        { new: true },
       );
       if (!updt) {
         console.error("NO UPDATER");
@@ -7033,7 +7148,11 @@ app.post("/search/stores", tokenVerify, async (req, res) => {
         order = `<img src="https://img.icons8.com/?size=100&id=85784&format=png&color=FFFFFF" alt="" id="starOff"><img src="https://img.icons8.com/?size=100&id=84925&format=png&color=F4D03F" alt="" id="starOn">`;
         isFav = false;
       }
-      const htmlStructure = `<div class="store">
+      const verifyObs = await obsolence.findOne({
+        storeName: store[i].storeName
+      })
+      if (!verifyObs){
+        const htmlStructure = `<div class="store">
                         <div class="juntos">
                             <div id="img">
                                 <img src="${store[i].storeImagePath}" alt="">
@@ -7043,7 +7162,7 @@ app.post("/search/stores", tokenVerify, async (req, res) => {
                                   i
                                 ].storeName.replaceAll(
                                   "/",
-                                  " "
+                                  " ",
                                 )}<strong class="GreenCard">/></strong></p>
                                 <p id="storeDescription">${
                                   store[i].description
@@ -7052,13 +7171,79 @@ app.post("/search/stores", tokenVerify, async (req, res) => {
                         </div>
                         <div id="moreinfos">
                             <button data-fav="${isFav}" data-storename="${
-        store[i].storeName
-      }">
+                              store[i].storeName
+                            }">
                                 ${order}
                             </button>
                         </div>
                     </div>`;
       arr.push(htmlStructure);
+      }
+      else{
+        const hoje = new Date();
+        const dataFinal = new Date(verifyObs.finisherDay);
+
+        const diferencaMs = dataFinal - hoje;
+
+        const daysFaltantes = Math.floor(diferencaMs / (1000 * 60 * 60 * 24))
+        console.log(diferencaMs)
+        if (diferencaMs < 1) {
+          const storef = await StoreCad.findOne({
+            storeName: store[i].storeName
+          }).lean();
+          if (storef) {
+            const servicesDeleter = await ServicesCad.findOneAndDelete({
+              storeName: store[i].storeName
+            });
+            if (servicesDeleter) {
+              const hourDeleter = await HoursStorage.findOneAndDelete({
+                storeName: store[i].storeName
+              });
+              if (hourDeleter) {
+                const funcDeleter = await functionaryCad.findOneAndDelete({
+                 storeName: store[i].storeName
+                });
+                if (funcDeleter) {
+                  const storeDeleter = await StoreCad.findOneAndDelete({
+                    storeName: store[i].storeName
+                  });
+                  if (!storeDeleter) {
+                    return res
+                      .status(400)
+                      .json({
+                        error: "errooooooooooooooooooooooooooooooooooooor",
+                      });
+                  }
+                }
+              }
+            }
+          }
+        } 
+        const htmlStructure = `<div class="store obsolete-store">
+                        <div class="juntos">
+                            <div id="img">
+                                <img src="${
+                                  store[i].storeImagePath
+                                }" alt="">
+                            </div>
+                            <div id="storeinfos">
+                                <p id="storename"><strong class="GreenCard">&lt;/</strong>${store[
+                                  i
+                                ].storeName.replaceAll(
+                                  "/",
+                                  " ",
+                                )}<strong class="GreenCard">/></strong></p>
+                                <p id="storeDescription">This store has been deleter in  <strong class="jsonWrite" style="margin-left:10px;"> ${daysFaltantes} days</strong></p>
+                            </div>
+                        </div>
+                        <div id="moreinfos">
+                            <button>
+                                <img src="https://img.icons8.com/?size=100&id=110674&format=png&color=FFFFFF">
+                            </button>
+                        </div>
+                    </div>`
+        arr.push(htmlStructure);
+      }
     }
 
     return res.status(200).json({
@@ -7146,14 +7331,14 @@ app.get("/finish/pay/ass", async (req, res) => {
         name: userName,
         email: userEmail,
         subscriptionId: stripeId,
-      })
+      });
       if (!requiemFinal) {
         console.log("REQUIEMFINAL");
         return res.status(404).json({
           eror: "REQUIEMFINAL",
         });
       }
-      return res.redirect("/cad/store")
+      return res.redirect("/cad/store");
     }
   } catch (error) {}
 });
@@ -7170,7 +7355,7 @@ app.post("/prePayModify", tokenVerify, async (req, res) => {
         {
           prePayment: false,
         },
-        { new: true }
+        { new: true },
       );
       if (!storeUp) {
         console.log(storeUp);
@@ -7190,7 +7375,7 @@ app.post("/prePayModify", tokenVerify, async (req, res) => {
         {
           prePayment: true,
         },
-        { new: true }
+        { new: true },
       );
       if (!storeUp) {
         console.log(storeUp);
@@ -7208,19 +7393,21 @@ app.post("/prePayModify", tokenVerify, async (req, res) => {
   }
 });
 app.get("/stores/del", tokenVerify, (req, res) => {
-  return res.status(200).sendFile(path.join(__dirname, "public", "stores-deleter.html"))
-})
+  return res
+    .status(200)
+    .sendFile(path.join(__dirname, "public", "stores-deleter.html"));
+});
 app.get("/obsolence/rend", tokenVerify, async (req, res) => {
-  const {name, email} = req.user
+  const { name, email } = req.user;
 
   try {
     const obs = await obsolence.findOne({
       name: name,
-      email: email
-    })
-    let stcr = ``
-    
-    if (!obs){
+      email: email,
+    });
+    let stcr = ``;
+
+    if (!obs) {
       stcr = `<div class="obsolenceDiv columnUnion">
               <div class="obsolenceDiv-text">
                 <div class="obsolenceDiv-titles">
@@ -7248,110 +7435,159 @@ app.get("/obsolence/rend", tokenVerify, async (req, res) => {
                   alt=""
                 />
               </div>
-            </div>`
-    }else{
+            </div>`;
+    } else {
       const hoje = new Date();
       const dataFinal = new Date(obs.finisherDay);
 
-      const diferencaMs = dataFinal - hoje
-      let divisor =  1000 * 60 * 60 * 24
-      console.log(hoje, dataFinal, diferencaMs)
-      const diasRestantes = Math.ceil(diferencaMs / divisor)
+      const diferencaMs = dataFinal - hoje;
+      let divisor = 1000 * 60 * 60 * 24;
+      console.log(hoje, dataFinal, diferencaMs);
+      const diasRestantes = Math.floor(diferencaMs / divisor);
       let d = obs.starterDay.toLocaleDateString("pt-BR", {
         day: "numeric",
         month: "numeric",
-        year: 'numeric'
-      })
+        year: "numeric",
+      });
       let f = obs.finisherDay.toLocaleDateString("pt-BR", {
         day: "numeric",
         month: "numeric",
-        year: 'numeric'
-      })
-      if (diferencaMs < 1){
+        year: "numeric",
+      });
+      if (diferencaMs < 1) {
         const deleter = await StoreCad.findOneAndDelete({
           name: name,
           email: email,
           storeName: obs.storeName,
-        })
-        if (!deleter){
+        });
+        if (!deleter) {
           return res.status(400).json({
-            error: 'DELETER'
-          })
+            error: "DELETER",
+          });
         }
       }
-      const schedu = await scheduleSchema.find({
-        storeName: obs.storeName
-      }).lean()
-      if (!schedu){
-        return res.status(404).json({
-          error: "sch"
+      const schedu = await scheduleSchema
+        .find({
+          storeName: obs.storeName,
         })
+        .lean();
+      if (!schedu) {
+        return res.status(404).json({
+          error: "sch",
+        });
       }
-      let visitantes = schedu.length
+      let visitantes = schedu.length;
       stcr = `<div class="unionE"><div class="Identifire"><h1><strong class="consoleWrite">${obs.storeName.replaceAll("/", " ")}</strong> is now obsolete</h1><p>Started at ${d} and finish at ${f}</p> </div><div class="dateNasc">
       <span class="label">Ends  <strong class="GreenCard"> on</strong></span><br>
       <span class="dateSpan">${f}</span>
-      </div></div><div class="unionE" style="margin-left:5vw;"><div class="analyticsInfo"><span class="label"><strong class="GreenCard">Total</strong> Schedules Remain </span><br><span class="Numbera">${visitantes}</span> </div><div class="analyticsInfo"><span class="label"><strong class="GreenCard">Total</strong> Days Remain </span><br><span class="Numbera">${diasRestantes}</span> </div></div> `
+      </div></div><div class="unionE" style="margin-left:5vw;"><div class="analyticsInfo"><span class="label"><strong class="GreenCard">Total</strong> Schedules Remain </span><br><span class="Numbera">${visitantes}</span> </div><div class="analyticsInfo"><span class="label"><strong class="GreenCard">Total</strong> Days Remain </span><br><span class="Numbera">${diasRestantes}</span> </div></div> `;
     }
-    return res.status(200).json({returner: stcr})
+    return res.status(200).json({ returner: stcr });
   } catch (error) {
-    console.log("QUE MERDA BRO")
+    console.log("QUE MERDA BRO");
     return res.status(500).json({
-      jay: 'IS GAY'
-    })
+      jay: "IS GAY",
+    });
   }
-})
+});
 app.get("/starter/obsolence", tokenVerify, async (req, res) => {
-  const {name, email} = req.user
+  const { name, email } = req.user;
 
   try {
-    const today = new Date()
+    const today = new Date();
     const em32Dias = new Date();
-  em32Dias.setDate(today.getDate() + 32);
+    em32Dias.setDate(today.getDate() + 32);
 
-  console.log(today, em32Dias)
-  
-  const storeFind = await StoreCad.findOne({
-    name: name,
-    email: email
-  })
-  if (!storeFind){
-    return res.status(404).json({
-      error: 'EM STOREFIND'
-    })
-  }
-  const finderStripeId = await storePlan.findOne({
-    name: name,
-    email: email,
-  })
-  if (!finderStripeId){
-    return res.status(404).json({
-      totalErr: "EM STRIPE ID"
-    })
-  }
-  const cancel = await stripe.subscriptions.cancel(finderStripeId.subscriptionId);
-  const createrObsolete = await obsolence.create({
-    name: name,
-    email: email,
-    storeName: storeFind.storeName,
-    starterDay: today,
-    finisherDay: em32Dias
-  })
-  if (!createrObsolete){
-    return res.status(400).json({
-      erorr:  'CREATEROBSOLETE'
-    })
-  }
-  return res.status(200).json({
-    ok: "ok"
-  })
+    console.log(today, em32Dias);
+
+    const storeFind = await StoreCad.findOne({
+      name: name,
+      email: email,
+    });
+    if (!storeFind) {
+      return res.status(404).json({
+        error: "EM STOREFIND",
+      });
+    }
+    const finderStripeId = await storePlan.findOne({
+      name: name,
+      email: email,
+    });
+    if (!finderStripeId) {
+      return res.status(404).json({
+        totalErr: "EM STRIPE ID",
+      });
+    }
+    const cancel = await stripe.subscriptions.cancel(
+      finderStripeId.subscriptionId,
+    );
+    const createrObsolete = await obsolence.create({
+      name: name,
+      email: email,
+      storeName: storeFind.storeName,
+      starterDay: today,
+      finisherDay: em32Dias,
+    });
+    if (!createrObsolete) {
+      return res.status(400).json({
+        erorr: "CREATEROBSOLETE",
+      });
+    }
+    return res.status(200).json({
+      ok: "ok",
+    });
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return res.status(500).json({
-      error: error
-    })
+      error: error,
+    });
   }
-})
+});
+app.post("/update/bank", tokenVerify, async (req, res) => {
+  const {name, email} = req.user
+  const { holder_name, holder_type, bank_code, branch_code, account_number } =
+    req.body;
+  console.log("📦 Dados recebidos:", {
+    holder_name,
+    holder_type,
+    bank_code,
+    branch_code,
+    account_number,
+  });
+  try {
+    // console.log(registerData);
+    const bankDatas = await BankSchema.findOne({
+      name: name,
+      email: email
+    });
+    if (bankDatas) {
+      const loginLink = await stripe.accounts.createLoginLink(
+      bankDatas.stripe_id
+    );
+    const criptNumber = criptografar(account_number.toString());
+      const cadBankDatas = await BankSchema.findOneAndUpdate({
+        name: name,
+        email: email,
+      }, {
+        holder_name: holder_name,
+        holder_type: holder_type,
+        bank_code: bank_code,
+        branch_code: branch_code,
+        stripe_id: bankDatas.stripe_id,
+        account_number: criptNumber,
+        active: true,
+      });
+      if (cadBankDatas) {
+        return res.redirect(loginLink.url);
+      }
+    }
+    return res.status(404).json({ error: "Usuario ja cadastrado" });
+  } catch (error) {
+    console.error("Erro:", error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
   console.log(`📧 Sistema de recuperação de senha ativo`);
