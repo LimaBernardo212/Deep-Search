@@ -22,7 +22,7 @@
                 <form id="loginForm" method="POST" action="/api/login">
                     <input type="text" name="name" id="name" placeholder="Name:" required>
                     <input type="email" name="email" id="email" placeholder="Email:" required>
-                    <input type="hidden" name="redirect" value="/home.html">
+                    <input type="hidden" name="redirect" id="redirect">
                     <div class="eye">
                         <input type="password" name="password" id="password" placeholder="Password:" required>
                         <div class="eyeimg">
@@ -72,7 +72,11 @@
         document.querySelector('#back').addEventListener('click', () => {
             window.history.back();
         });
-
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectUrl = urlParams.get('redirect');
+        let finalUrl = redirectUrl.replaceAll("'", "")
+        const redirect = document.querySelector("#redirect")
+        redirect.value = finalUrl
         // Eye Toggle
         const onEye = document.querySelector('#eyeOn');
         const offEye = document.querySelector('#eyeOff');
@@ -125,7 +129,7 @@
                     body: JSON.stringify({
                         email: data.email,
                         name: data.name,
-                        sub: data.sub
+                        sub: data.sub,
                     })
                 })
                 .then(response => response.json())
@@ -134,7 +138,7 @@
                     
                     if (result.msg === 'Sucesss' || result.msg === 'SUPER SUCESS') {
                         console.log('SUCESS')
-                        window.location.href = '/home.html'
+                        window.location.href = finalUrl
                     } else {
                         //alert('Erro: ' + (result.msg || 'Erro desconhecido'));
                     }

@@ -150,7 +150,19 @@
       obsoleto.addEventListener("click", () => {
         window.location.href = '/stores/del'
       })
-
+      const init = await fetch("/api/me", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!init.ok){
+        window.location.href = `/login-redirect?redirect='/stores/home'`
+      }
+      else{
+        const data = await req.json()
+        if (data.storeName){
+          window.location.href = "/stores/home"
+        }
+      }
       const ini = await fetch("/prefs/render", {
         method: 'GET',
         headers : {

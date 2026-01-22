@@ -152,6 +152,19 @@
       let exist2 = false;
       let exist3 = false;
       try {
+        const ini = await fetch("/api/me", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!ini.ok){
+        window.location.href = `/login-redirect?redirect='/stores/home'`
+      }
+      else{
+        const data = await req.json()
+        if (data.storeName){
+          window.location.href = "/stores/home"
+        }
+      }
         const req = await fetch("/today-schedules", {
           method: "GET",
           headers: {

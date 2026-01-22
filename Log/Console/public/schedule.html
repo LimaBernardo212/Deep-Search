@@ -144,6 +144,19 @@ console.log(contenter);
       return element;
     }
     window.addEventListener("load", async () => {
+      const ini = await fetch("/api/me", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!ini.ok){
+        window.location.href = `/Login.html`
+      }
+      else{
+        const data = await req.json()
+        if (data.storeName){
+          window.location.href = "/stores/home"
+        }
+      }
       const schedule = document.querySelector(".store-content");
       const req = await fetch("/return/data/schedule", {
         method: "GET",

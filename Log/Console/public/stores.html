@@ -137,12 +137,24 @@
       // bbk.addEventListener("click", () => {
       //   window.location.href = "/home.html";
       // });
-      
+      const ini = await fetch("/api/me", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!ini.ok){
+        window.location.href = `/login-redirect?redirect='/stores/home'`
+      }
+      else{
+        const data = await req.json()
+        if (data.storeName){
+          window.location.href = "/stores/home"
+        }
+      }
       const initial = await fetch("/exist-bank-datas", {
         method: "GET",
         headers: {"Content-Type": "application/json"}
       })
-      if (initial.ok){
+      
         const req = await fetch("/verify/have/stores", {
         method: "GET",
         headers: {
@@ -273,7 +285,7 @@
         
         
       }
-      }
+      
     });
   </script>
 </html>

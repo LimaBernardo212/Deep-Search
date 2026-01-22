@@ -16,7 +16,7 @@ import multer from "multer";
 import sharp from "sharp";
 import fs from "fs/promises";
 import HoursStorage from "./HourSchema.js";
-import { count } from "console";
+import { count, error } from "console";
 import HourSchema from "./HourSchema.js";
 import scheduleSchema from "./scheduleSchema.js";
 import functionaryCad from "./functionaryCad.js";
@@ -438,7 +438,7 @@ cron.schedule("0 * * * *", async () => {
 
 app.post("/api/login", async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, redirect } = req.body;
 
     if (!name || !email || !password) {
       return res
@@ -473,7 +473,7 @@ app.post("/api/login", async (req, res) => {
         maxAge: 30 * 24 * 60 * 60 * 1000,
       });
 
-      res.redirect("/home.html");
+      return res.redirect(redirect);
     } else {
       const senhaHash = await bcrypt.hash(password, 10);
 
@@ -501,7 +501,7 @@ app.post("/api/login", async (req, res) => {
       });
 
       if (token) {
-        res.redirect("/home.html");
+        res.redirect(redirect);
       }
     }
   } catch (error) {
@@ -753,7 +753,7 @@ app.post("/return/data", tokenVerify, async (req, res) => {
     });
     const storesNames = sortedStores.map((store) => store.storeName);
     const storesNum = findAllStores.length;
-    let striker = []
+    let striker = [];
     for (let i = 0; i < sortedStores.length; i++) {
       const store = sortedStores[i];
       const isFav = favMap.has(store.storeName);
@@ -767,47 +767,45 @@ app.post("/return/data", tokenVerify, async (req, res) => {
       const obs = await obsolence.findOne({
         storeName: sortedStores[i].storeName,
       });
-      console.log(obs)
+      console.log(obs);
       if (obs) {
         const hoje = new Date();
         const dataFinal = new Date(obs.finisherDay);
 
         const diferencaMs = dataFinal - hoje;
 
-        const daysFaltantes = Math.floor(diferencaMs / (1000 * 60 * 60 * 24))
-        console.log(diferencaMs)
+        const daysFaltantes = Math.floor(diferencaMs / (1000 * 60 * 60 * 24));
+        console.log(diferencaMs);
         if (diferencaMs < 1) {
           const storef = await StoreCad.findOne({
-            storeName: sortedStores[i].storeName
+            storeName: sortedStores[i].storeName,
           }).lean();
           if (storef) {
             const servicesDeleter = await ServicesCad.findOneAndDelete({
-              storeName: sortedStores[i].storeName
+              storeName: sortedStores[i].storeName,
             });
             if (servicesDeleter) {
               const hourDeleter = await HoursStorage.findOneAndDelete({
-                storeName: sortedStores[i].storeName
+                storeName: sortedStores[i].storeName,
               });
               if (hourDeleter) {
                 const funcDeleter = await functionaryCad.findOneAndDelete({
-                 storeName: sortedStores[i].storeName
+                  storeName: sortedStores[i].storeName,
                 });
                 if (funcDeleter) {
                   const storeDeleter = await StoreCad.findOneAndDelete({
-                    storeName: sortedStores[i].storeName
+                    storeName: sortedStores[i].storeName,
                   });
                   if (!storeDeleter) {
-                    return res
-                      .status(400)
-                      .json({
-                        error: "errooooooooooooooooooooooooooooooooooooor",
-                      });
+                    return res.status(400).json({
+                      error: "errooooooooooooooooooooooooooooooooooooor",
+                    });
                   }
                 }
               }
             }
           }
-        } 
+        }
         let htmlStructure = `<div class="store obsolete-store">
                         <div class="juntos">
                             <div id="img">
@@ -833,10 +831,10 @@ app.post("/return/data", tokenVerify, async (req, res) => {
                     </div>`;
         counter++;
         returner.push(htmlStructure);
-        striker.push(sortedStores[i].storeName)
+        striker.push(sortedStores[i].storeName);
       }
       if (sortedStores[i].storeImagePath) {
-        if (!striker.includes(sortedStores[i].storeName)){
+        if (!striker.includes(sortedStores[i].storeName)) {
           const htmlStructure = `<div class="store">
                         <div class="juntos">
                             <div id="img">
@@ -862,13 +860,12 @@ app.post("/return/data", tokenVerify, async (req, res) => {
                             </button>
                         </div>
                     </div>`;
-                    counter++;
-        returner.push(htmlStructure);
+          counter++;
+          returner.push(htmlStructure);
         }
-        
       }
     }
-    console.log(returner.join(""))
+    console.log(returner.join(""));
     return res.status(200).json({
       return: returner,
       closedHour: findAllStores.map((store) => store.closedHours),
@@ -877,7 +874,7 @@ app.post("/return/data", tokenVerify, async (req, res) => {
       storeName: storesNames,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(500).json({ error: "Error in the server :<" });
   }
 });
@@ -3110,6 +3107,11 @@ app.post("/cadFunctionary", tokenVerify, upload.any(), async (req, res) => {
 });
 app.get(`/store/:storeName`, async (req, res) => {
   const storeName = req.params.storeName;
+  const token = req.cookies.authToken;
+
+  if (!token) {
+    return res.redirect(`/login-redirect?redirect='/store/${storeName}'`);
+  }
   let real = storeName.replaceAll("_", "/");
   console.log(real);
   try {
@@ -3130,8 +3132,11 @@ app.get(`/store/:storeName`, async (req, res) => {
 app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
   const { name, email } = req.user;
   const storeName = req.params.storeName;
-  const realStoreName = storeName.replaceAll("_", "/");
+  console.log(storeName);
+  let realStoreName = storeName.replaceAll("_", "/");
+  realStoreName = realStoreName.replaceAll(":", "");
   const trueName = realStoreName.replaceAll("/", " ");
+
   try {
     const storeData = await StoreCad.findOne({ storeName: realStoreName });
     if (!storeData) {
@@ -4878,8 +4883,8 @@ app.get("/analitics", tokenVerify, async (req, res) => {
     });
     let mediaDePrePagamentos =
       totalAppointments > 0
-     ? (totalAppointmentsPayed / totalAppointments) * 100
-     : 0;;
+        ? (totalAppointmentsPayed / totalAppointments) * 100
+        : 0;
     let structure = `
     <div class="unionE">
       <div class="Identifire">
@@ -5529,8 +5534,8 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
     const bankDatas = await BankSchema.findOne({
       name: name,
       email: email,
-    })
-    if (!bankDatas){
+    });
+    if (!bankDatas) {
       console.log("ERROR EM BANK DATAS");
       return res.status(404).json({ error: "N ENCONTRADO EM BANK DATAS" });
     }
@@ -5580,15 +5585,14 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
     } else {
       st = `<img src="https://img.icons8.com/?size=100&id=90219&format=png&color=FFFFFF" id="prePayOn"></img><img src="https://img.icons8.com/?size=100&id=122178&format=png&color=FFFFFF" id="prePayOff">`;
     }
-    let ri = ``
+    let ri = ``;
 
-    if (bankDatas.holder_type === 'company'){
-
+    if (bankDatas.holder_type === "company") {
       ri = `<option value="company"> Company</option>
-      <option value="individual">Individual</option>`
-    }else{
+      <option value="individual">Individual</option>`;
+    } else {
       ri = `<option value="individual">Individual</option>
-                          <option value="company"> Company</option>`
+                          <option value="company"> Company</option>`;
     }
     let render = `<div class="unionE">
       <div class="Identifire">
@@ -6933,6 +6937,11 @@ app.get("/exist-bank-datas", tokenVerify, async (req, res) => {
       name: name,
       email: email,
     });
+    if (!verifyBank) {
+      return res.status(500).json({
+        error: "VerifyBank",
+      });
+    }
     const verifyAccount = await stripe.accounts.retrieve(verifyBank.stripe_id);
     if (verifyAccount.payouts_enabled == false) {
       const bankDel = await BankSchema.findOneAndDelete({
@@ -7149,9 +7158,9 @@ app.post("/search/stores", tokenVerify, async (req, res) => {
         isFav = false;
       }
       const verifyObs = await obsolence.findOne({
-        storeName: store[i].storeName
-      })
-      if (!verifyObs){
+        storeName: store[i].storeName,
+      });
+      if (!verifyObs) {
         const htmlStructure = `<div class="store">
                         <div class="juntos">
                             <div id="img">
@@ -7177,54 +7186,49 @@ app.post("/search/stores", tokenVerify, async (req, res) => {
                             </button>
                         </div>
                     </div>`;
-      arr.push(htmlStructure);
-      }
-      else{
+        arr.push(htmlStructure);
+      } else {
         const hoje = new Date();
         const dataFinal = new Date(verifyObs.finisherDay);
 
         const diferencaMs = dataFinal - hoje;
 
-        const daysFaltantes = Math.floor(diferencaMs / (1000 * 60 * 60 * 24))
-        console.log(diferencaMs)
+        const daysFaltantes = Math.floor(diferencaMs / (1000 * 60 * 60 * 24));
+        console.log(diferencaMs);
         if (diferencaMs < 1) {
           const storef = await StoreCad.findOne({
-            storeName: store[i].storeName
+            storeName: store[i].storeName,
           }).lean();
           if (storef) {
             const servicesDeleter = await ServicesCad.findOneAndDelete({
-              storeName: store[i].storeName
+              storeName: store[i].storeName,
             });
             if (servicesDeleter) {
               const hourDeleter = await HoursStorage.findOneAndDelete({
-                storeName: store[i].storeName
+                storeName: store[i].storeName,
               });
               if (hourDeleter) {
                 const funcDeleter = await functionaryCad.findOneAndDelete({
-                 storeName: store[i].storeName
+                  storeName: store[i].storeName,
                 });
                 if (funcDeleter) {
                   const storeDeleter = await StoreCad.findOneAndDelete({
-                    storeName: store[i].storeName
+                    storeName: store[i].storeName,
                   });
                   if (!storeDeleter) {
-                    return res
-                      .status(400)
-                      .json({
-                        error: "errooooooooooooooooooooooooooooooooooooor",
-                      });
+                    return res.status(400).json({
+                      error: "errooooooooooooooooooooooooooooooooooooor",
+                    });
                   }
                 }
               }
             }
           }
-        } 
+        }
         const htmlStructure = `<div class="store obsolete-store">
                         <div class="juntos">
                             <div id="img">
-                                <img src="${
-                                  store[i].storeImagePath
-                                }" alt="">
+                                <img src="${store[i].storeImagePath}" alt="">
                             </div>
                             <div id="storeinfos">
                                 <p id="storename"><strong class="GreenCard">&lt;/</strong>${store[
@@ -7241,7 +7245,7 @@ app.post("/search/stores", tokenVerify, async (req, res) => {
                                 <img src="https://img.icons8.com/?size=100&id=110674&format=png&color=FFFFFF">
                             </button>
                         </div>
-                    </div>`
+                    </div>`;
         arr.push(htmlStructure);
       }
     }
@@ -7455,15 +7459,40 @@ app.get("/obsolence/rend", tokenVerify, async (req, res) => {
         year: "numeric",
       });
       if (diferencaMs < 1) {
-        const deleter = await StoreCad.findOneAndDelete({
+        const store = await StoreCad.findOne({
           name: name,
           email: email,
-          storeName: obs.storeName,
-        });
-        if (!deleter) {
-          return res.status(400).json({
-            error: "DELETER",
+        }).lean();
+        if (store) {
+          const servicesDeleter = await ServicesCad.findOneAndDelete({
+            name: name,
+            email: email,
           });
+          if (servicesDeleter) {
+            const hourDeleter = await HoursStorage.findOneAndDelete({
+              storeName: store.storeName,
+              storeEmail: store.storeEmail,
+            });
+            if (hourDeleter) {
+              const funcDeleter = await functionaryCad.findOneAndDelete({
+                name: name,
+                email: email,
+              });
+              if (funcDeleter) {
+                const storeDeleter = await StoreCad.findOneAndDelete({
+                  name: name,
+                  email: email,
+                });
+                if (!storeDeleter) {
+                  return res
+                    .status(400)
+                    .json({
+                      error: "errooooooooooooooooooooooooooooooooooooor",
+                    });
+                }
+              }
+            }
+          }
         }
       }
       const schedu = await scheduleSchema
@@ -7544,7 +7573,7 @@ app.get("/starter/obsolence", tokenVerify, async (req, res) => {
   }
 });
 app.post("/update/bank", tokenVerify, async (req, res) => {
-  const {name, email} = req.user
+  const { name, email } = req.user;
   const { holder_name, holder_type, bank_code, branch_code, account_number } =
     req.body;
   console.log("📦 Dados recebidos:", {
@@ -7558,25 +7587,28 @@ app.post("/update/bank", tokenVerify, async (req, res) => {
     // console.log(registerData);
     const bankDatas = await BankSchema.findOne({
       name: name,
-      email: email
+      email: email,
     });
     if (bankDatas) {
       const loginLink = await stripe.accounts.createLoginLink(
-      bankDatas.stripe_id
-    );
-    const criptNumber = criptografar(account_number.toString());
-      const cadBankDatas = await BankSchema.findOneAndUpdate({
-        name: name,
-        email: email,
-      }, {
-        holder_name: holder_name,
-        holder_type: holder_type,
-        bank_code: bank_code,
-        branch_code: branch_code,
-        stripe_id: bankDatas.stripe_id,
-        account_number: criptNumber,
-        active: true,
-      });
+        bankDatas.stripe_id,
+      );
+      const criptNumber = criptografar(account_number.toString());
+      const cadBankDatas = await BankSchema.findOneAndUpdate(
+        {
+          name: name,
+          email: email,
+        },
+        {
+          holder_name: holder_name,
+          holder_type: holder_type,
+          bank_code: bank_code,
+          branch_code: branch_code,
+          stripe_id: bankDatas.stripe_id,
+          account_number: criptNumber,
+          active: true,
+        },
+      );
       if (cadBankDatas) {
         return res.redirect(loginLink.url);
       }
@@ -7586,6 +7618,11 @@ app.post("/update/bank", tokenVerify, async (req, res) => {
     console.error("Erro:", error);
     return res.status(500).json({ error: error.message });
   }
+});
+app.get("/login-redirect", async (req, res) => {
+  return res
+    .status(200)
+    .sendFile(path.join(__dirname, "public", "login-redirect.html"));
 });
 
 app.listen(PORT, () => {
