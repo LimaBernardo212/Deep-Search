@@ -2357,7 +2357,7 @@ app.delete("/delete/schedules", tokenVerify, async (req, res) => {
 app.get("/reload", (req, res) => {
   return res.redirect("/schedule/home");
 });
-app.get("/more", tokenVerify, (req, res) => {
+app.get("/more", (req, res) => {
   return res.sendFile(path.join(__dirname, "public", "account.html"));
 });
 app.put("/update/user", tokenVerify, async (req, res) => {
@@ -3843,6 +3843,7 @@ app.post("/pay/schedule", tokenVerify, async (req, res) => {
       storeName: findSchema.storeName,
     });
     if (!findStore) {
+      console.log("n possui loja")
       return res.status(400).json({
         error: "Loja não ENCONTRADA",
       });
@@ -3854,6 +3855,7 @@ app.post("/pay/schedule", tokenVerify, async (req, res) => {
     });
 
     if (!bankData) {
+      console.log('n possui banco')
       return res.status(400).json({
         error: "Loja não possui dados bancários",
       });

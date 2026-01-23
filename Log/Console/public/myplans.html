@@ -148,7 +148,7 @@
         window.location.href = `/Login.html`
       }
       else{
-        const data = await req.json()
+        const data = await ini.json()
         if (data.storeName){
           window.location.href = "/stores/home"
         }

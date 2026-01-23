@@ -1,0 +1,44 @@
+@charset "UTF-8";
+@import url("https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inconsolata:wght@200..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Roboto:ital,wght@0,100..900;1,100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+/* Basic Configurations */
+
+:root {
+  --cor00: transparent;
+  --cor01: #a6a6a6;
+  --cor02: #595959;
+  --cor03: #262526;
+  --cor04: #0d0d0d;
+  --cor05: #f2f2f2;
+  --cor06: #042326;
+  --cor07: #246b73;
+  --cor08: #238c6e;
+  --cor09: #29a65f;
+  --cor10: #3bd952;
+  --cor01Esvoaçada: #a6a6a64d;
+  --cor05Esvoaçada: #f2f2f29c;
+  --cor06Esvoaçada: #0423269b;
+  --logoColor: #1a1a1a;
+  --fullWhite: white;
+  --cor11: #8c2f2f;
+  --cor12:#bf4338;
+  --cor13: #f5a623;
+  --cor14: #F4D03F;
+  --fontJetBrains: "JetBrains Mono", monospace;
+  --fontRoboto: "Roboto", sans-serif;
+  --fontInconsolata: "Inconsolata", monospace;
+  --fontIBM: "IBM Plex Mono", monospace;
+  --fontAnonymous: "Anonymous Pro", monospace;
+  --fontSpace: "Space Mono", monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  transition: 0.7s all;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+}
+body {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
