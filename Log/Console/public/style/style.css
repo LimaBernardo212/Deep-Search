@@ -49,15 +49,17 @@ body {
 .nav-content {
   width: 100vw;
   height: 13vh;
-  background-color: var(--logoColor);
+  background-color: var(--cor04);
   display: flex;
   align-items: center;
   position: sticky;
+  position: -webkit-sticky;
   top: 0;
   z-index: 99;
   transition: 1s all;
   justify-content: space-between;
   border: 3px solid var(--cor00);
+  will-change: transform;
 }
 .img-content {
   margin-left: 2vw;
@@ -496,11 +498,14 @@ body {
 .desapearRandom {
   width: 98vw;
   min-height: 30vh;
-  background-color: var(--logoColor);
+  background-color: var(--cor04);
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-top-left-radius: 20px;
+  border-top: 1px solid var(--cor01Esvoaçada);
+  border-left: 1px solid var(--cor01Esvoaçada);
+  border-right: 1px solid var(--cor01Esvoaçada);
   border-top-right-radius: 20px;
   margin: -33.5vh auto 0 auto;
 }

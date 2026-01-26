@@ -658,10 +658,12 @@ app.post("/forgot-password", async (req, res) => {
     if (!registerCode) {
       return res.status(500).json({ error: "Error in cad. the code" });
     }
-    await enviarEmailRecuperacao(request_email, codet);
+    console.log(codet)
+    //await enviarEmailRecuperacao(request_email, codet);
     res.redirect("forgot.html");
   } catch (error) {
-    return res.status(500).json({ mensage: "Error in the route :<" });
+    console.error(error)
+    return res.status(500).json({ mensage: "Error in the route :<", error: error });
   }
 });
 app.post("/sending-password", async (req, res) => {

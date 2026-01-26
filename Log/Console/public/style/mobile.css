@@ -39,6 +39,205 @@
   scrollbar-width: thin;
 }
 body {
-  overflow-x: hidden;
+  overflow-x: hidden !important;
   scroll-behavior: smooth;
+}
+
+.links-content{
+  display: none;
+}
+.nav-content{
+  position: relative;
+  width: 100vw;
+  will-change: transform;
+}
+.img-content img{
+  width: 40vw;
+}
+.loginButton{
+  width: 35vw;
+  height: 5vh;
+  margin-right: 5vw;
+}
+.text-content h1{
+  font-size: 2em;
+}
+.text-content p{
+  max-width: 90vw;
+  margin-top: 3vh;
+  word-break: break-all;
+  word-wrap: break-word;
+  word-spacing: normal;
+}
+.ApexButton{
+  width: 35vw;
+  height: 6vh;
+  margin-right: 5vw;
+}
+.NavigatorActive{
+  margin: auto;
+  transition: 0.7s all;
+  width: 92vw;
+}
+#dinamicState{
+  font-size: 0.9em;
+}
+#heroToSBN{
+  width: 100vw;
+  height: 7vh;
+  margin-top: -2vh;
+}
+.SBN-Section{
+  overflow: hidden !important;
+  width: 100vw;
+}
+.text p{
+  max-width: 80vw;
+  word-break: break-all;
+  word-wrap: break-word;
+  word-spacing: normal;
+}
+.TapaBuraco{
+  width: 85vh;
+   object-fit: cover;
+   object-position: center;
+   right: -144vw;
+}
+.light{
+  z-index: -1;
+}
+.image-Section{
+  display: flex;
+  align-items: center;
+  width: 45vw;
+  height: 100vh;
+  right: 0;
+  overflow-x: hidden !important;
+}
+@keyframes ImagesUpper {
+  0% {
+    transform: translateY(10vh);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(-5vh);
+    opacity: 1;
+  }
+}
+#SBNToService{
+  margin-top: -10px;
+}
+.Ass-Plan{
+  margin-top: -10px;
+}
+.Pro{
+  width: 85vw;
+}
+.Indicated{
+  width: 25vw;
+}
+.beneficios{
+  width: 60vw;
+}
+.Pro .beneficios button{
+  width: 45vw;
+  height: 6vh;
+  font-size: 1.1em;
+}
+.mediaLink{
+  display: none;
+}
+.footLogo img{
+  width: 45vw;
+  margin-left: 5vw;
+}
+.importantLinks{
+  margin-right: 5vw;
+}
+
+#MainToFooter{
+  height: 10vh;
+  margin-bottom: -1vh !important;
+  background-color: var(--cor04);
+}
+.desapearRandom{
+  width: 100vw;
+  margin: 0 auto -1vh auto;
+  border-left: 1px solid var(--cor00);
+  border-right: 1px solid var(--cor00);
+  min-height: 20vh;
+  border-radius: 0;
+}
+.letrasMiudas{
+  display: none;
+}
+.nb{
+  margin-bottom: -10px;
+}
+.nButton{
+  margin-left: 7vw;
+  margin-top: 2vh;
+}
+.loginFormulary{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+.or{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.orLine{
+  width: 48vw;
+  height: 1px;
+}
+.formulary input, .newEmail, #former input{
+  width: 75vw;
+}
+#password{
+  width: 75vw;
+}
+.eye{
+  width: 80vw;
+  gap: 2vw;
+}
+.SubmitButton{
+  width: 83vw;
+}
+.buttons button{
+  width: 85vw;
+}
+#buttonDiv{
+  width: 85vw;
+}
+.secretForm{
+  margin-left: 33vw;
+  margin-bottom: -25vh;
+}
+#nbtoforgot{
+  margin: -10px 0;
+}
+.breakLine{
+  margin: -10vh 7vw;
+}
+.codeDiv{
+  width: 20vw;
+  margin: 1vh 1vw;
+}
+.breakLine form{
+  margin: 5vw;
+}
+.nbu{
+  margin-bottom: -10px;
+}
+#forgottonb{
+  margin-bottom: -10px;
+}
+.newPassword{
+  display: flex;
+  flex-direction: column;
+}
+.breakLines{
+  margin-top: 5vh;
 }
