@@ -377,7 +377,7 @@ body {
 }
 .Plan {
   width: 23vw;
-  height: 70vh;
+ height: 70vh;
   border: 4px solid var(--cor08);
   display: flex;
   flex-direction: column;
@@ -403,6 +403,7 @@ body {
   display: flex;
   flex-direction: column;
 }
+
 .beneficios p {
   margin: 2vh 2vw;
   font-family: var(--fontJetBrains);
@@ -997,14 +998,12 @@ body {
 .account img {
   width: 24px;
 }
-.person,
-.settings {
-  margin-right: 1vw;
-  transition: 0.7s all;
-}
 .person:hover,
 .settings:hover {
   transform: translate(-3px, -3px);
+}
+.settings{
+  margin-left: 1vw;
 }
 .leftBar {
   position: sticky;
@@ -1639,9 +1638,10 @@ main.infoContent {
   justify-content: center;
 }
 .calendarOfHours{
-  width: 46vw;
-  height: 75vh;
+  max-width: 75vw;
+  max-height: 85vh;
   display: flex;
+  background-color: var(--cor03);
 border: 1px solid var(--cor01Esvoaçada);
   flex-wrap: wrap;
   align-items: center;

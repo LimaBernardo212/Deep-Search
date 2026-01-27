@@ -1,11 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Log : Home</title>
+    <title>While Whale - Home</title>
 
     <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
     <link
       rel="shortcut icon"
       href="/favicons/favicon-32x32.png"
@@ -27,10 +32,8 @@
     <script>
       function timeToMinutes(time) {
         const [horas, minutos] = time.toString().split(":");
-       
+
         return parseInt(horas) * 60 + parseInt(minutos);
-
-
       }
 
       // Função para converter minutos de volta para "HH:MM"
@@ -39,7 +42,7 @@
         const minutos = totalMinutes % 60;
         return `${String(horas).padStart(2, "0")}:${String(minutos).padStart(
           2,
-          "0"
+          "0",
         )}`;
       }
 
@@ -53,9 +56,9 @@
         const totalMinutos = timeArray.reduce((total, tempo) => {
           return total + timeToMinutes(tempo);
         }, 0);
-         const [hh, mm] = hours.toString().split(':')
-         const hhmm = parseInt(hh) * 60 + parseInt(mm)
-         const finishTime = hhmm + totalMinutos
+        const [hh, mm] = hours.toString().split(":");
+        const hhmm = parseInt(hh) * 60 + parseInt(mm);
+        const finishTime = hhmm + totalMinutos;
         // Converte de volta para formato HH:MM
         return minutesToTime(finishTime);
       }
@@ -106,7 +109,7 @@
             window.location.href = "#forScrollPreguiçosos";
           });
           document.querySelector("#back").addEventListener("click", () => {
-            window.location.href = `/home.html`
+            window.location.href = `/home.html`;
           });
           servicesDiv.forEach((el, i) => {
             el.addEventListener("click", () => {
@@ -140,7 +143,7 @@
             el.addEventListener("click", async () => {
               const plan = el.getAttribute("data-name");
               const price = el.getAttribute("data-price");
-              const store = el.getAttribute("data-store")
+              const store = el.getAttribute("data-store");
               try {
                 const req = await fetch("/pay/plans/buy", {
                   method: "POST",
@@ -148,7 +151,7 @@
                   body: JSON.stringify({
                     plan: plan,
                     price: parseInt(price, 10) * 100,
-                    storeName: store
+                    storeName: store,
                   }),
                 });
                 if (req.ok) {
@@ -174,7 +177,7 @@
                   storeName: name,
                 }),
               });
-
+              
               if (!fetcher.ok) return;
 
               const data = await fetcher.json();
@@ -251,7 +254,7 @@
                 <button class="nxtBtn"> Next <strong class="consoleWrite"> >></strong></button>`;
 
               services_content.appendChild(render(codeHtml));
-
+                window.location.href = '#toThing'
               let currentP = 0;
               const backer = document.querySelector(".backer");
               const scroll = document.querySelector(".scroll");
@@ -261,15 +264,33 @@
               let arrayD = [];
 
               backer.addEventListener("click", () => {
-                currentP += 5;
-                if (currentP > 50) currentP = 50;
-                scroll.style.transform = `translateX(${currentP}vw)`;
+                if (!window.matchMedia("(orientation: portrait)").matches){
+                  currentP += 10;
+                }else{
+                  currentP += 25
+                }
+                if (!window.matchMedia("(orientation: portrait)").matches) {
+                  if (currentP > 50) currentP = 50; // ❌ ERA < AGORA É >
+                  scroll.style.transform = `translateX(${currentP}vw)`;
+                } else {
+                  if (currentP > 250) currentP = 250; // ❌ ERA < AGORA É >
+                  scroll.style.transform = `translateX(${currentP}vw)`;
+                }
               });
 
               nexter.addEventListener("click", () => {
-                currentP -= 5;
-                if (currentP < -50) currentP = -50;
-                scroll.style.transform = `translateX(${currentP}vw)`;
+                if (!window.matchMedia("(orientation: portrait)").matches){
+                  currentP -= 10;
+                }else{
+                  currentP -= 25
+                }
+                if (!window.matchMedia("(orientation: portrait)").matches) {
+                  if (currentP < -50) currentP = -50;
+                  scroll.style.transform = `translateX(${currentP}vw)`;
+                } else {
+                  if (currentP < -250) currentP = -250; // ❌ ERA 50 AGORA É -150
+                  scroll.style.transform = `translateX(${currentP}vw)`;
+                }
               });
               const nextBtn = document.querySelector(".nxtBtn");
               david.forEach((el) => {
@@ -308,11 +329,11 @@
                   const codeHtml = data.code;
 
                   services_content.appendChild(render(codeHtml));
-
+                  window.location.href = '#toThing'
                   const fun = document.querySelectorAll(".functionaryBaseDiv");
                   let arrayF = [];
                   const indicatorA = document.querySelector(
-                    ".selectedIndicatorA"
+                    ".selectedIndicatorA",
                   );
                   fun.forEach((el, i) => {
                     el.addEventListener("click", () => {
@@ -353,16 +374,16 @@
                         hoursSistem.remove();
                       }, 500);
                       services_content.appendChild(render(htmlPager));
-
+                      window.location.href = '#toThing'
                       const ourHours = document.querySelectorAll(".ourhours");
                       const indicatorB = document.querySelector(
-                        ".selectedIndicatorB"
+                        ".selectedIndicatorB",
                       );
                       let arrayO = [];
                       ourHours.forEach((el, i) => {
                         el.addEventListener("click", () => {
                           ourHours.forEach((o) =>
-                            o.classList.remove("hourSelect")
+                            o.classList.remove("hourSelect"),
                           );
 
                           arrayO.splice(0);
@@ -378,7 +399,7 @@
                         let totalPrice = priceArray.reduce((ac, av) => {
                           return ac + av;
                         }, 0);
-                        let totalTimer = totalTime(timeArray, arrayO.join(""))
+                        let totalTimer = totalTime(timeArray, arrayO.join(""));
                         const req = await fetch("/schedule", {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },

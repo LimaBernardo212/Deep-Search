@@ -1217,7 +1217,7 @@ app.post("/api/selected/fun", tokenVerify, async (req, res) => {
       <div class="imageFunctionary"><img src="${imagePath[c]}"></div><div class="nameOfFunctionary">
         <p>${nameOfFunctionarys[c]}</p>
       </div>
-    </div><div class="functionaryMore">
+    </div><div class="functionaryMore" style="opacity:0;">
     <button>
         <img src="https://img.icons8.com/?size=100&id=85501&format=png&color=FFFFFF" alt="">
     </button>
@@ -3269,7 +3269,7 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
                 storeData.closedDays
               }</div></div>
               </div>
-              <button class="servicesBtn">Schedule Now</button>
+              <button class="servicesBtn"  id="toThing">Schedule Now</button>
             </div>
           </div>
           

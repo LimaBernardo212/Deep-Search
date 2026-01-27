@@ -37,10 +37,12 @@
   transition: 0.7s all;
   scroll-behavior: smooth;
   scrollbar-width: thin;
+  box-sizing: border-box;
 }
 body {
   overflow-x: hidden !important;
   scroll-behavior: smooth;
+  max-width: 100vw;
 }
 
 .links-content{
@@ -134,7 +136,9 @@ body {
   width: 85vw;
 }
 .Indicated{
-  width: 25vw;
+  width: 30vw;
+  padding: 5px 10px;
+  margin-top: -2vh;
 }
 .beneficios{
   width: 60vw;
@@ -194,12 +198,13 @@ body {
 }
 .formulary input, .newEmail, #former input{
   width: 75vw;
+  height: 6vh;
 }
 #password{
-  width: 75vw;
+  width: 65vw;
 }
 .eye{
-  width: 80vw;
+  width: 75vw;
   gap: 2vw;
 }
 .SubmitButton{
@@ -240,4 +245,269 @@ body {
 }
 .breakLines{
   margin-top: 5vh;
+}
+.leftBar{
+  position: fixed;  
+  top: 83vh;      /* ✅ CORRIGIDO */
+  bottom: 0 !important;            /* ✅ CORRIGIDO */
+  left: 0;                /* ✅ NOVO */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around; /* ✅ NOVO */
+  width: 100vw;
+  height: 10vh;
+  margin: 0;
+  background-color: var(--cor03); /* ✅ NOVO */
+  z-index: 1000;          /* ✅ NOVO */
+  padding: 0 2vw;         /* ✅ NOVO */
+  box-sizing: border-box; /* ✅ NOVO */
+}
+.account{
+  margin-left: 60vw;
+}
+.consoleImg{
+  margin: 0 5vw;
+}
+.person,
+.settings {
+  margin-right: 2vw;
+  transition: 0.7s all;
+}
+.content{
+  width: 100vw;
+}
+.search input{
+  width: 90vw;
+}
+#searchForm input{
+  width: 90vw;
+   margin:  0 5vw 0 8vw;
+}
+main.infoContent{
+  width: 100vw;
+  margin-top: -10px;
+}
+.exclude{
+  display: none;
+}
+.itens{
+  margin-top: 0;
+}
+#treatments, #projects{
+  display: none;
+}
+.store{
+  width: 95vw;
+  height: 13vh;
+
+}
+.store #img img{
+  width: 44px;
+}
+.store #img {
+  margin-left: 4vw;
+}
+.store #storename{
+  font-size: 0.95em;
+}
+.store #storeinfos{
+  margin-left: 2vw;
+}
+#moreinfos{
+  margin-right: 2vw;
+}
+.store #storeDescription{
+  font-size: 0.65em !important;
+  line-height: 1.3;
+  max-height: 3.9em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+}
+#loading{
+  width: 20vw;
+  height: 20vw;
+}
+.imgData img{
+  width: 30vw;
+  height: 30vw;
+}
+.imgData{
+  margin-top: 2vh;
+}
+.storeData{
+  display: flex;
+  flex-direction: column;
+  width: 90vw;
+}
+.infoData p{
+  max-width: 85vw;
+}
+.infoData h1{
+  font-size: 1.6em;
+}
+.storeGrandSect{
+  padding:  20px 5px;
+  height: 70vh;
+  display: flex;
+  align-items: center;
+  margin: 10vh auto;
+}
+.unionE{
+  flex-wrap: wrap;
+}
+.functionDays{
+  margin: 2vh 0;
+}
+.storeData button{
+  margin: -1vh 5vw;
+  width: 75vw;
+  height: 6vh;
+}
+.services-content{
+  display: flex;
+  flex-wrap: wrap;
+}
+.Service{
+  width: 90vw;
+  height: 65vh;
+}
+.imageService img{
+  width: 96px;
+  height: 96px;
+}
+.servicesInfos{
+  width: 85vw;
+}
+.servicesInfos h1{
+  max-width: 85vw;
+  font-size: 1.7em;
+}
+.scheduleBtn{
+  width: 45vw;
+  height: 6vh;
+}
+.servicesInfos p{
+  max-width: 65vw;
+}
+.Plans-content{
+  flex-wrap: wrap;
+}
+.Basic .beneficios button{
+  margin-bottom: 2vh;
+  width: 60vw;
+  height: 6vh;
+}
+.Price{
+  margin-top: 3vh;
+}
+.Basic .Price{
+  margin-top: 10vh;
+}
+.Plan{
+  justify-content: center;
+  align-items: center;
+  width: 90vw;
+  height: 65vh;
+}
+.selectedIndicator{
+  width: 30vw;
+  left: 65vw;
+}
+.selectedIndicator button{
+  width: 30vw;
+}
+.nxtBtn{
+  width: 30vw;
+  left: 65vw;
+}
+.day{
+  width: 20vw;
+  height: 5vh;
+}
+.linerDays{
+  width: 80vw;
+  height: 10vh;
+}
+.scroll{
+  gap: 2vw;
+}
+.DavidJoneDay{
+  width: 20vw;
+  height: 6vh;
+  margin: -1vw 2vw;
+}
+.unionring{
+  margin-left: 2vw;
+}
+.imageSelected{
+  width: 32px;
+  height: 32px;
+  margin-right: 2vw;
+}
+.OnSelectedServices{
+  width: 65vw;
+}
+.functionaryBaseDiv{
+  width: 90vw;
+}
+.imageFunctionary{
+  margin: 0  3vw;
+  
+}
+.imageFunctionary img{
+  width: 32px;
+  height: 32px;
+}
+.selectedIndicatorA{
+  width: 30vw;
+  left: 65vw;
+}
+.selectedIndicatorA button{
+  width: 30vw;
+}
+.calendarOfHours{
+  max-width: 95vw;
+  max-height: 50vh;
+}
+.ourhours{
+  width: 20vw;
+  height: 7vh;
+  margin-left: 3vw;
+}
+.selectedIndicatorB{
+  width: 30vw;
+  left: 65vw;
+}
+.selectedIndicatorB button{
+  width: 30vw;
+}
+.window{
+  width: 90vw;
+  height: 40vh;
+}
+.window h1{
+  font-size: 1.8em;
+  margin-left: 5vw;
+  margin-bottom: 2vh;
+}
+.window p{
+  font-size: 0.9em;
+  max-width: 85vw;
+  margin-left: 6vw;
+}
+.windowButtons{
+  width: 70vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4vh 10vw -2vh 10vw;
+}
+.windowButtons button{
+  width: 35vw;
+  margin: 0 2vw;
 }
