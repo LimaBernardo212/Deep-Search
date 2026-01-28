@@ -3,15 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log: Refund Policy</title>
+    <title>While Whale - Refund Policy</title>
     <link rel="stylesheet" href="/style/style.css">
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
     <link rel="shortcut icon" href="/favicons/favicon-32x32.png" type="image/x-icon">
 </head>
 <body>
     <header class="nbT">
         <button class="nButton" id="back">
-            <img src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF" alt="">
+            <img src="https://img.icons8.com/?size=100&id=99996&format=png&color=000000" alt="">
         </button>
+        <button class="burgerButton" id="burguer">
+        <img src="https://img.icons8.com/?size=100&id=83195&format=png&color=000000" alt="">
+      </button>
     </header>
     <section class="USER-POVT">
         <aside class="leftOptionsT">
@@ -440,6 +448,18 @@ payment.addEventListener("click", () => {
 refund.addEventListener("click", () => {
     window.location.href = '/refund-policy';
 });
+const burguer = document.querySelector("#burguer")
+      const leftOpt = document.querySelector(".leftOptionsT")
+      let clBClicked = false
+      burguer.addEventListener("click", () => {
+        if (!clBClicked){
+          leftOpt.style.left = "0%"
+          clBClicked = true
+        }else{
+          leftOpt.style.left = '-100%'
+          clBClicked = false
+        }
+      })
 </script>
 </body>
 </html>

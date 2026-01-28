@@ -6,11 +6,16 @@
 
     <link rel="stylesheet" href="/style/style.css" />
     <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
+    <link
       rel="shortcut icon"
       href="/favicons/favicon-32x32.png"
       type="image/x-icon"
     />
-    <title>Log: More</title>
+    <title>While Whale - More</title>
   </head>
   <body>
     <header class="nbu">
@@ -19,6 +24,9 @@
           src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF"
           alt=""
         />
+      </button>
+      <button class="burgerButton" id="burguer">
+        <img src="https://img.icons8.com/?size=100&id=83195&format=png&color=FFFFFF" alt="">
       </button>
     </header>
     <section class="USER-POV">
@@ -147,6 +155,18 @@
       const conditions = document.querySelector("#conditions");
       const privacy = document.querySelector("#privacy"); //🤨
       const pay = document.querySelector("#payment");
+      const burguer = document.querySelector("#burguer")
+      const leftOpt = document.querySelector(".leftOptions")
+      let clBClicked = false
+      burguer.addEventListener("click", () => {
+        if (!clBClicked){
+          leftOpt.style.left = "0%"
+          clBClicked = true
+        }else{
+          leftOpt.style.left = '-100%'
+          clBClicked = false
+        }
+      })
       conditions.addEventListener("click", () => {
         window.location.href = "/conditions";
       });

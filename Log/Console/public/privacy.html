@@ -3,15 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log: Privacy and Security</title>
+    <title>While Whale - Privacy and Security</title>
     <link rel="stylesheet" href="/style/style.css">
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
     <link rel="shortcut icon" href="/favicons/favicon-32x32.png" type="image/x-icon">
 </head>
 <body>
     <header class="nbT">
         <button class="nButton" id="back">
-            <img src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF" alt="">
+            <img src="https://img.icons8.com/?size=100&id=99996&format=png&color=000000" alt="">
         </button>
+        <button class="burgerButton" id="burguer">
+        <img src="https://img.icons8.com/?size=100&id=83195&format=png&color=000000" alt="">
+      </button>
     </header>
     <section class="USER-POVT">
         <aside class="leftOptionsT">
@@ -52,9 +60,9 @@
                 <main>
                     <section>
                         <h2>1. INTRODUCTION</h2>
-                        <p>Welcome to Log's Privacy Policy. This policy describes how we collect, use, store, and protect your personal information when you use our marketplace platform. Log connects customers with service providers for booking, scheduling, and payment processing. We are committed to protecting your privacy and ensuring the security of your personal data.</p>
+                        <p>Welcome to While Whale's Privacy Policy. This policy describes how we collect, use, store, and protect your personal information when you use our marketplace platform. While Whale connects customers with service providers for booking, scheduling, and payment processing. We are committed to protecting your privacy and ensuring the security of your personal data.</p>
                         
-                        <p>By using Log, you agree to the collection and use of information in accordance with this policy. This policy applies to all users, including both customers booking services and service providers offering their services.</p>
+                        <p>By using While Whale, you agree to the collection and use of information in accordance with this policy. This policy applies to all users, including both customers booking services and service providers offering their services.</p>
                     </section>
 
                     <section>
@@ -199,7 +207,7 @@
                         </ul>
                         
                         <h3>4.6. Business Transfers</h3>
-                        <p>If Log is involved in a merger, acquisition, or sale, your information may be transferred. We will notify you before your information becomes subject to a different privacy policy.</p>
+                        <p>If While Whale is involved in a merger, acquisition, or sale, your information may be transferred. We will notify you before your information becomes subject to a different privacy policy.</p>
                     </section>
 
                     <section>
@@ -358,7 +366,7 @@
                     <section>
                         <h2>10. CHILDREN'S PRIVACY</h2>
                         
-                        <p>Log is not intended for users under 18 years of age. We do not knowingly collect information from minors. If you are a parent and believe your child has provided us with personal information, please contact us immediately at log.tools.app@gmail.com.</p>
+                        <p>While Whale is not intended for users under 18 years of age. We do not knowingly collect information from minors. If you are a parent and believe your child has provided us with personal information, please contact us immediately at whilewhale.app@gmail.com.</p>
                     </section>
 
                     <section>
@@ -397,7 +405,7 @@
                             <li>Revoke consent</li>
                         </ul>
                         
-                        <p>To exercise these rights, contact us at log.tools.app@gmail.com</p>
+                        <p>To exercise these rights, contact us at whilewhale.app@gmail.com</p>
                     </section>
 
                     <section>
@@ -438,7 +446,7 @@
                             <li>Displaying in-app notifications</li>
                         </ul>
                         
-                        <p>Continued use of Log after changes constitutes acceptance of the updated policy.</p>
+                        <p>Continued use of While Whale after changes constitutes acceptance of the updated policy.</p>
                     </section>
 
                     <section>
@@ -446,7 +454,7 @@
                         
                         <h3>Privacy Questions</h3>
                         <p>For questions about this Privacy Policy or our privacy practices:</p>
-                        <p><strong>Email:</strong> log.tools.app@gmail.com</p>
+                        <p><strong>Email:</strong> whilewhale.app@gmail.com</p>
                         <p><strong>Subject Line:</strong> Include "PRIVACY REQUEST" for faster processing</p>
                         
                         <h3>Response Time</h3>
@@ -462,7 +470,7 @@
                     </section>
 
                     <footer>
-                        <p><em>Thank you for trusting Log with your personal information. We are committed to protecting your privacy and maintaining the security of your data.</em></p>
+                        <p><em>Thank you for trusting While Whale with your personal information. We are committed to protecting your privacy and maintaining the security of your data.</em></p>
                         <p><em>Last Updated: January 14, 2026</em></p>
                     </footer>
                 </main>
@@ -505,5 +513,17 @@
     refund.addEventListener("click", () => {
         window.location.href = '/refund-policy';
     });
+     const burguer = document.querySelector("#burguer")
+      const leftOpt = document.querySelector(".leftOptionsT")
+      let clBClicked = false
+      burguer.addEventListener("click", () => {
+        if (!clBClicked){
+          leftOpt.style.left = "0%"
+          clBClicked = true
+        }else{
+          leftOpt.style.left = '-100%'
+          clBClicked = false
+        }
+      })
 </script>
 </html>

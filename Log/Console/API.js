@@ -1844,7 +1844,7 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
           <strong class="GreenCard">Services:</strong><br><strong class="jsonWrite">{</strong><br>
             <div class="schedule-services">${cS
               .splice(0, 3)
-              .join(" ,")},<br> ...</p></div>
+              .join(" ,")},<br></p></div>
             <br>
             <strong class="jsonWrite">}</strong>
           </div>
@@ -1890,14 +1890,10 @@ app.get("/return/data/schedule", tokenVerify, async (req, res) => {
         <strong class="GreenCard">Services:</strong><br><strong class="jsonWrite">{</strong><br>
           <div class="schedule-services">${cS
             .splice(0, 3)
-            .join(" ,")}<br>...</p></div>
+            .join(" ,")}<br></p></div>
           <br>
           <strong class="jsonWrite">}</strong>
         </div>
-          
-        
-
-        
       </div>
       <div class="lateralInfos">
         <div class="delete">
@@ -4337,7 +4333,7 @@ app.get("/return/data/plans", tokenVerify, async (req, res) => {
       const plan = parts[1];
       const store = parts[0];
       const dbStore = store.replaceAll(" ", "/");
-      let div = `<div class="columnUnion">
+      let div = `<div class="columnUnion planColumnUnion">
         <div class="myPlan"><div class="plan-name">${plan}<div class="store-name-plan"><strong class="consoleWrite">#</strong>${store}</div><br></div><div class="plan-price"><strong class="consoleWrite">$</strong>${(
           planPrice / 100
         ).toLocaleString("pt-BR", {
@@ -4345,7 +4341,8 @@ app.get("/return/data/plans", tokenVerify, async (req, res) => {
           minimumFractionDigits: 2,
         })}</div></div>
         <div class="cancel-plan"  data-name="${planName}" data-store="${dbStore}">Cancel Plan</div>
-      </div>`;
+      </div>
+      `;
       htmlArray.push(div);
       havePlans = true;
     }
@@ -7628,7 +7625,25 @@ app.get("/login-redirect", async (req, res) => {
     .status(200)
     .sendFile(path.join(__dirname, "public", "login-redirect.html"));
 });
+app.get("/stripeDashBoard", tokenVerify, async (req, res) => {
+  const {name, email} = req.user;
 
+  try {
+  const bankDatas = await BankSchema.findOne({
+      name: name,
+      email: email,
+    });
+    if (bankDatas) {
+      const loginLink = await stripe.accounts.createLoginLink(
+        bankDatas.stripe_id,
+      );
+      return res.redirect(loginLink.url)
+    }
+    return res.redirect("/stores/home")
+  } catch (error) {
+    return res.redirect("/stores/home")
+  }
+})
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
   console.log(`📧 Sistema de recuperação de senha ativo`);

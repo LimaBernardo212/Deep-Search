@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log: My subscription plans</title>
+    <title>While Whale -  My subscription plans</title>
     <link
       rel="shortcut icon"
       href="/favicons/favicon-32x32.png"
       type="image/x-icon"
     />
     <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
 </head>
 <body>
     <header class="homenav">
@@ -17,20 +22,23 @@
         <img src="/img/().png" alt="" />
       </div>
 
-      <div class="account">
-        <div class="person" id="people">
-          <img
-            src="https://img.icons8.com/?size=100&id=85147&format=png&color=FFFFFF"
-            alt=""
-          />
-        </div>
-        <div class="settings" id="sett">
-          <img
-            src="https://img.icons8.com/?size=100&id=83214&format=png&color=FFFFFF"
-            alt=""
-          />
-        </div>
-      </div>
+      <a href="/more">
+        <div class="account">
+          <div class="person" id="people">
+            <img
+              src="https://img.icons8.com/?size=100&id=85147&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+      </a>
+        <a href="/stores/home">
+          <div class="settings" id="sett">
+            <img
+              src="https://img.icons8.com/?size=100&id=85183&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+        </a>
     </header>
     <section class="userPOV">
       <aside class="leftBar">
@@ -54,7 +62,7 @@
           <p>Schedules</p>
         </div>
 
-        <div class="divAndYourLabel">
+        <div class="divAndYourLabel exclude">
           <div id="treatments" class="itens" title="Your Treatments">
             <img
               src="https://img.icons8.com/?size=100&id=86312&format=png&color=FFFFFF"
@@ -74,7 +82,7 @@
           <p>Plans</p>
         </div>
 
-        <div class="divAndYourLabel">
+        <div class="divAndYourLabel exclude">
           <div id="projects" class="itens" title="Your Project">
             <img
               src="https://img.icons8.com/?size=100&id=85615&format=png&color=FFFFFF"
@@ -111,8 +119,8 @@
       </aside>
       <main class="infoContent">
         <div id="loading"></div>
-        <div class="content " style="flex-wrap: wrap;">
-          <div class="plans-content" style="opacity: 1;"></div>
+        <div class="content">
+          <div class="store-content" style="opacity: 1; margin-bottom: 10vh;"></div>
         </div>
       </main>
 </body>
@@ -125,7 +133,7 @@
     }
     window.addEventListener('load', async () => {
       
-        const plans_content = document.querySelector('.plans-content');
+        const plans_content = document.querySelector('.store-content');
         const content = document.querySelector(".content");
         const loading = document.querySelector("#loading")
         const more = document.querySelector(".moreIten")
