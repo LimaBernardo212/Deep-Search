@@ -2635,7 +2635,7 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
         returner: `<div class="notAllowed">
   <div class="call-action">
     <h1 class="call-h1">
-      No stores found under your  <strong class="GreenCard">account</strong><strong class="pointer">.</strong>
+      Your don't have  <strong class="GreenCard">stores</strong><strong class="pointer">.</strong>
     </h1>
     <p class="call-p">Register your store below to start managing appointments, services, and staff.</p>
   </div>
@@ -3581,7 +3581,7 @@ app.post("/plans/register/bank", tokenVerify, async (req, res) => {
       const criptNumber = criptografar(account_number.toString());
       const accountLink = await stripe.accountLinks.create({
         account: account.id,
-        refresh_url: `http://localhost:3000/pay/plans`, // URL se expirar
+        refresh_url: `http://localhost:3000/bank/datas`, // URL se expirar
         return_url: `http://localhost:3000/stores/home`, // URL após completar
         type: "account_onboarding",
         collect: "currently_due",

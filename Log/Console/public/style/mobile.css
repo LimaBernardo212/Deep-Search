@@ -702,3 +702,204 @@ main.infoContent{
   font-size: 0.9em;
   max-width: 85vw;
 }
+.cad-storeContent{
+  padding-top: 5vh;
+}
+.formularyOrder{
+  margin-top: 5vh;
+  flex-wrap: wrap;
+}
+.break{
+  width: 90vw;
+  border-right: 1px solid var(--cor00);
+  border-bottom: 1px solid var(--cor01Esvoaçada);
+}
+.query{
+  flex-wrap: wrap;
+}
+.normal{
+  margin-left: 0;
+  width: 90vw;
+}
+.txtAreaDiv{
+  margin-top: 2vh;
+  display: flex;
+  flex-direction: column;
+  width: 90vw;
+}
+.txtAreaDiv #description{
+  width: 90vw;
+  height: 25vh;
+  margin:  0 5vw;
+}
+.pinDiv input{
+  width: 20vw;
+}.selectedIndicatorC{
+  position: fixed;
+  width: 35vw;
+  left: 60vw;
+
+}
+.selectedIndicatorC button{
+  width: 35vw;
+}
+.mid{
+  flex-wrap: wrap;
+}
+.imager{
+  width: 100vw;
+  height: 40vh;
+  margin-bottom: 2vh;
+}
+.selectDay{
+  width: 90vw;
+  margin: 3vh auto;
+}
+.daysForSelect{
+  width: 90vw;
+  
+}
+.dayOfWeek{
+  width: 70vw;
+}
+.openingAt{
+  width: 45vw;
+  margin-left: 1.5vw;
+  margin-top: 3vh;
+}
+.openHours{
+  width: 45vw;
+}
+.servicesForm{
+  flex-wrap: wrap;
+}
+.services-tesxt #ob{
+  margin-left: 2vw;
+  font-size: 1.8em;
+}
+.services-tesxt p{
+  margin-left: 3vw;
+}
+.especialPortrait{
+  width: 95vw;
+}
+.ServiceInput{
+  width: 95vw;
+  height: 65vh;
+}
+.imageServiceInput{
+  margin-top: 4vh;
+}
+#serviceName{
+  width: 80vw;
+  height: 5vh;
+}
+#serviceDesc{
+  width: 80vw;
+  height: 15vh;
+}
+#servicesTime{
+  width: 80vw;
+}
+#servicePrice{
+  width: 40vw;
+  margin-left: 3vw;
+}
+.hours-calendar{
+  max-width: 95vw;
+  margin: 2vh 3.5vw; 
+}
+.coolImager{
+  width: 40vw;
+  height: 20vh;
+  margin-left: 2vw;
+}
+.spawner{
+  max-width: 95vw;
+}
+.hours{
+  max-width: 95vw;
+}
+.padder-container{
+  padding-left: 1vw;
+}
+.functionary-base{
+  width: 80vw;
+}
+.functionary-base .imager span{
+  margin-bottom: 2vh;
+}
+.stressTest{
+  width: 30vw;
+  height: 15vh;
+  margin: 0 auto 3vh auto;
+}
+.cadFunctionaryForm{
+  margin-left: 2vw;
+}
+.inputer input{
+  width: 35vw;
+}
+.hours input{
+  width: 20vw;
+}
+.hours-add{
+  width: 20vw;
+}
+.portraitMarginer{
+  margin-left: 5vw;
+}
+.FormSeparate input{
+  width: 70vw;
+}
+.bankFormulary{
+  margin:  5vh auto;
+}
+#holder_type{
+  width: 70vw;
+}
+#bank_code, #branch_code{
+  width: 34vw;
+}
+.welcomeDiv{
+  width: 95vw;
+}
+.welcomeDiv h1{
+  font-size: 1.5em;
+  margin-left: 5vw;
+}
+.welcomeDiv p{
+  max-width: 80vw;
+  word-break: break-all;
+  word-wrap: break-word;
+  margin-left: 6vw;
+}
+.weekOpen{
+  width: 80vw;
+  margin: 2vh 10vw;
+}
+.weekDiv{
+  width: 15vw;
+}
+.dashboardBalance{
+  width: 45vw;
+}
+.dashboardBalance .test{
+  margin-top: 2.5vh;
+  font-size: 0.7em;
+}
+.CASH{
+  font-size: 1em;
+}
+.CASH img{
+  width: 16px;
+  height: 16px;
+}
+.todayAppointments{
+  width: 45vw;
+  font-size: 0.7em;
+}
+.localSchedule{
+  width: 90vw;
+  margin-bottom: 5vh;
+}

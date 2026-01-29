@@ -3,15 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Partner employee registration</title>
+    <title>While Whale - Partner employee registration</title>
     <link rel="stylesheet" href="/style/style.css" />
+        <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
     <link
       rel="shortcut icon"
       href="/favicons/favicon-32x32.png"
       type="image/x-icon"
     />
   </head>
-  <body>
+  <body style="background-image: linear-gradient(to bottom, #042326, #0d0d0d);">
     <header class="nbu">
       <!-- <button class="nButton" id="back">
         <img
@@ -20,7 +25,7 @@
         />
       </button> -->
     </header>
-    <section class="services-container" style="padding-left: 3vw">
+    <section class="services-container padder-container" >
       <div>
         <h1 id="ob">
           <strong class="consoleWrite">$</strong>Team
@@ -34,18 +39,13 @@
       </div>
       <form
         action="/cadFunctionary"
-        style="
-          display: flex;
-          align-items: center;
-          flex-wrap: wrap;
-          margin-left: 8vw;
-        "
+        class="cadFunctonaryForm"
         method="post"
         enctype="multipart/form-data"
       >
         <div class="spawner">
           <div class="functionary-base">
-            <div class="imager" style="width: 15vw; height: 30vh">
+            <div class="imager coolImager">
               <span>Drag <strong class="GreenCard">or</strong> Select</span>
               <img
                 src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
@@ -69,7 +69,7 @@
             </div>
           </div>
         </div>
-        <div class="imager-add imager" style="width: 10vw; height: 20vh">
+        <div class="imager-add imager stressTest">
           <img
             src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
             alt=""
@@ -78,8 +78,8 @@
         
       </form>
       <div
-          class="selectedIndicatorA"
-          style="opacity: 1; top: 88vh; left: 87vw;"
+          class="selectedIndicatorC"
+          
         >
           <button type="submit">
             Register<strong class="consoleWrite">>></strong>
@@ -98,7 +98,7 @@
       const row = document.createElement("div");
       row.classList.add("hour-row");
       row.innerHTML = `<div class="functionary-base">
-                    <div class="imager" style="width: 15vw; height: 30vh; ">
+                    <div class="imager coolImager">
                         <span>Drag <strong class="GreenCard">or</strong> Select</span>
                         <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt="">
                         <input type="file" name="image[]" id="image" style="opacity: 0;" />

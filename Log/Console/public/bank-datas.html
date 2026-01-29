@@ -3,8 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Log: Bank</title>
+    <title>While Whale - Bank</title>
     <link rel="stylesheet" href="/style/style.css" />
+        <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
     <link
       rel="shortcut icon"
       href="/favicons/favicon-32x32.png"
@@ -13,13 +18,13 @@
   </head>
   <body>
     <header class="nbu">
-        <button class="nButton" id="back">
+        <!-- <button class="nButton" id="back">
             <img src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF" alt="">
-        </button>
+        </button> -->
     </header>
       <main class="services-container" style=" display: flex; align-items: center; padding: 0;">
         <div class="unionE">
-            <div class="services-tesxt">
+            <div class="services-tesxt portraitMarginer">
   <h1 id="ob">
     <strong class="consoleWrite">>></strong>
     Payment setup
@@ -32,7 +37,7 @@
   </p>
 </div>
             
-             <form action="/plans/register/bank" method="post" style="margin-left: 35vw; margin-top: 5vh;">
+             <form action="/plans/register/bank" method="post" class="bankFormulary">
                 <div class="FormSeparate">
                     <input
                       type="text"
@@ -76,13 +81,13 @@
 
           </div>
          
-        <div class="selectedIndicator" style="opacity: 1; top: 88vh; left: 10vw; margin-left: -3vw;"><button type="submit">Create <strong class="consoleWrite">>></strong></button> 
+        <div class="selectedIndicatorC" ><button type="submit">Create <strong class="consoleWrite">>></strong></button> 
     </section>
   </body>
   <script>
-    document.querySelector('#back').addEventListener('click', () => {
-            window.history.back();
-        });
+    // document.querySelector('#back').addEventListener('click', () => {
+    //         window.history.back();
+    //     });
     const adder = document.querySelector("#adder");
     const container = document.querySelector("#contenterFormer")
     const selectedIndicatorBtn = document.querySelector(".selectedIndicator")

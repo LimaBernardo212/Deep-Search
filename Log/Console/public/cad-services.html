@@ -3,15 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Log: Services Register</title>
+    <title>While Whale - Services Register</title>
     <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
     <link
       rel="shortcut icon"
       href="/favicons/favicon-32x32.png"
       type="image/x-icon"
     />
   </head>
-  <body>
+  <body style="background-image: linear-gradient(to bottom, #042326, #0d0d0d);">
     <header class="nbu">
       <!-- <button class="nButton" id="back">
         <img
@@ -82,7 +87,7 @@
                   <option value="05:00">5h</option>
                 </select>
            
-              <h2 style="display: flex; align-items: center">
+              <h2 style="display: flex; align-items: center;">
                 <img
                   src="https://img.icons8.com/?size=100&id=123084&format=png&color=FFFFFF"
                   alt=""
@@ -93,9 +98,9 @@
           </div>
         </form>
         <div class="wid">
-          <div class="central-plus" style="height: 50vh; width: 30vw;" id="adder">
+          <div class="central-plus especialPortrait" id="adderer">
             <div class="label-plus">
-              <p>Add new<strong class="GreenCard">Service</strong></p>
+              <p>Add new <strong class="GreenCard">Service</strong></p>
             </div>
             <div class="img-plus">
               <img
@@ -105,7 +110,7 @@
           </div>
         </div>
       </div>
-      <div class="selectedIndicatorA" style="opacity: 1">
+      <div class="selectedIndicatorC" style="opacity: 1">
         <button type="submit">
           Register Services<strong class="consoleWrite">>></strong>
         </button>
@@ -244,13 +249,13 @@
       const serviceInput = document.querySelector(".ServiceInput");
       setupListeners(serviceInput);
       const container = document.querySelector(".servicesForm");
-      const adder = document.querySelector("#adder");
+      const adder = document.querySelector("#adderer");
       adder.addEventListener("click", () => {
         container.appendChild(createService());
       });
       const txtArea = document.querySelector("textarea");
       const span = document.querySelector(".Caracters");
-      const selectedIndicatorA = document.querySelector(".selectedIndicatorA");
+      const selectedIndicatorA = document.querySelector(".selectedIndicatorCA");
       txtArea.addEventListener("input", () => {
         let n = txtArea.value.length;
         span.innerHTML = `Caracters: <strong class="GreenCard">${n}</strong> / <strong class="GreenCard">100</strong>`

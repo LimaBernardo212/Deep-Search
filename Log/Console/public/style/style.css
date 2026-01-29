@@ -992,7 +992,7 @@ body {
 }
 .account {
   display: flex;
-  margin-left: 82vw;
+  margin-left: 80vw;
   align-items: center;
 }
 .account img {
@@ -1141,6 +1141,7 @@ main.infoContent {
 }
 .store #img img{
     width: 56px;
+    height: 56px;
 }
 .store #img{
     margin: 0 2vw;
@@ -2759,8 +2760,8 @@ border: 1px solid var(--cor01Esvoaçada);
 }
 .selectedIndicatorC{
   opacity: 1;
-  position: absolute;
-  bottom: -55vh;
+  position: fixed;
+  bottom: 5vh;
   left: 87vw;
   width: 10vw;
   height: 6vh;
@@ -2791,6 +2792,12 @@ border: 1px solid var(--cor01Esvoaçada);
 }
 .selectedIndicatorC button:hover .consoleWrite{
   transform: translate(3px, 0);
+}
+.especialPortrait{
+  height: 50vh; width: 30vw; margin-bottom: 3vh;
+}
+.coolImager{
+  width: 15vw; height: 30vh
 }
 .Caracters{
   color: var(--cor05);
@@ -3041,6 +3048,21 @@ border: 1px solid var(--cor01Esvoaçada);
   align-items: center;
   flex-wrap: wrap;
   max-width: 85vw;
+}
+.stressTest{
+   width: 10vw; height: 20vh
+}
+.padder-container{
+  padding-left: 3vw
+}
+.cadFunctonaryForm{
+  display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          margin-left: 8vw;
+}
+.bankFormulary{
+  margin-left: 35vw; margin-top: 5vh;
 }
 .functionary-base{
   margin-top: 2vh;
