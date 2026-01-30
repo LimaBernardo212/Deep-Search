@@ -2664,7 +2664,7 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
     console.log(hrEmMin);
     const ordenadosAgendamentos = outherFinder
       .map((agendamento) => {
-        const [hora, minutos] = agendamento.hour.split(":").map(Number);
+        const [hora, minutos] = agendamento.finishHour.split(":").map(Number);
         const horaAgendamentosMinutos = hora * 60 + minutos;
         const diferenca = horaAgendamentosMinutos - hrEmMin;
 
@@ -2714,7 +2714,7 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
           value: value,
         });
         if (!payed) {
-          let structure = `<div class="schedule-content">
+          let structure = `<div class="schedule-content schedule-portrait">
       <div class="schedule-data" data-dia="${day}" data-hour="${hour}" data-storeName="${storeName}" data-functionary="${functionary}"  data-nameC="${nameC}" data-emailC="${emailC}">
         <div class="schedule-StoreName" ><strong class="consoleWrite">${
           randomSymbol[random]
@@ -2758,9 +2758,9 @@ app.get("/verify/have/stores", tokenVerify, async (req, res) => {
       `;
           htmlArray.push(structure);
         } else {
-          let structure = `<div class="union">
+          let structure = `<div class="union schedule-portrait" >
           <div class="payed-symbol" title="Previously paid"> <img src="https://img.icons8.com/?size=100&id=122142&format=png&color=FFFFFF"></div>
-              <div class="schedule-content schedule-payed">
+              <div class="schedule-content schedule-payed ">
                 <div class="schedule-data" data-dia="${day}" data-hour="${hour}" data-storeName="${storeName}" data-functionary="${functionary}" data-nameC="${nameC}" data-emailC="${emailC}">
           <div class="schedule-StoreName" ><strong class="consoleWrite">${
             randomSymbol[random]
@@ -3211,6 +3211,7 @@ app.get(`/api/store/:storeName`, tokenVerify, async (req, res) => {
         }" data-price="${price[pd]}" data-store="${storeData.storeName}">
           <h1 class="Price"><strong class="GreenCard">$</strong>${totalPrice}</h1>
           <div class="beneficios">
+            <h1>${name[pd]}</h1>
             <p><strong class="consoleWrite">>></strong>${desc[pd]}</p>
             <button style="margin-top: 4vh;">Subscribe Now</button>
           </div>
@@ -4489,10 +4490,11 @@ app.get("/render/stores/plan", tokenVerify, async (req, res) => {
       </div>`;
           htmlArray.push(html);
           havePlan = true;
+          console.log(plan[j])
           const findUser = await userPlansSchema.find({
-            planName: plan[j],
-            planPrice: parseInt(price[j]) * 100,
+            planName: plan[j]
           });
+          console.log(findUser)
           if (findUser) {
             for (let k = 0; k < findUser.length; k++) {
               const nameC = findUser[k].name;
@@ -4575,6 +4577,16 @@ app.post("/delete/plan", tokenVerify, async (req, res) => {
           active: false,
         });
       }
+    }
+    const deleteUserPlans = await userPlansSchema.deleteMany({
+      planName: plan,
+      planPrice: findStripeId.planPrice[index],
+    })
+    if (!deleteUserPlans){
+      console.log("DELETE USER PLANS")
+      return res.status(400).json({
+        error: "DELETEUSERPLANS"
+      })
     }
     //const deleteProduct = await stripe.products.del(stripeId);
     findStripeId.planName.splice(index, 1);
@@ -4897,7 +4909,7 @@ app.get("/analitics", tokenVerify, async (req, res) => {
       <span class="dateSpan">${dateNasc[0]}</span>
       </div>
     </div>
-    <div class="unionE" style="margin: 5vh 5vw; flex-wrap:wrap; max-width: 95vw;">
+    <div class="unionE bottomPortraitMargin">
     <div class="analyticsInfo"><span class="label">Pending <strong class="GreenCard">Collection:</strong> </span><br><span class="pricer">${formattedBalance}</span></div>
     <div class="analyticsInfo"><span class="label"><strong class="GreenCard">Total</strong> visitors  </span><br><span class="Numbera">${visitantes}</span></div>
     <div class="analyticsInfo"><span class="label"><strong class="GreenCard">Total</strong> Appointments  </span><br><span class="Numbera">${totalAppointments}</span></div>
@@ -4963,7 +4975,7 @@ app.get("/today-schedules", tokenVerify, async (req, res) => {
     console.log(hrEmMin);
     const ordenadosAgendamentos = findToday
       .map((agendamento) => {
-        const [hora, minutos] = agendamento.hour.split(":").map(Number);
+        const [hora, minutos] = agendamento.finishHour.split(":").map(Number);
         const horaAgendamentosMinutos = hora * 60 + minutos;
         const diferenca = horaAgendamentosMinutos - hrEmMin;
 
@@ -4985,7 +4997,7 @@ app.get("/today-schedules", tokenVerify, async (req, res) => {
       let emailC = ordenadosAgendamentos[i].email;
       let value = ordenadosAgendamentos[i].totalPrice / 100;
       let services = ordenadosAgendamentos[i].services;
-
+      let finishHour = ordenadosAgendamentos[i].finishHour
       let cS = [];
       for (let j = 0; j < services.length; j++) {
         let serviceName = services[j];
@@ -5033,7 +5045,7 @@ app.get("/today-schedules", tokenVerify, async (req, res) => {
                    .replace(".", ",")}</strong>
               </div>
                  <div class="schedule-Hour">
-                 <strong class="dayEHour">${hour}</strong>
+                 <strong class="dayEHour">${hour} - ${finishHour}</strong>
               </div>
               </div>
                 </div>
@@ -5077,7 +5089,7 @@ app.get("/today-schedules", tokenVerify, async (req, res) => {
                    .replace(".", ",")}</strong>
               </div>
               <div class="schedule-Hour">
-                 <strong class="dayEHour">${hour}</strong>
+                 <strong class="dayEHour">${hour} - ${finishHour}</strong>
               </div>
             </div>
       </div>
@@ -7507,7 +7519,7 @@ app.get("/obsolence/rend", tokenVerify, async (req, res) => {
         });
       }
       let visitantes = schedu.length;
-      stcr = `<div class="unionE"><div class="Identifire"><h1><strong class="consoleWrite">${obs.storeName.replaceAll("/", " ")}</strong> is now obsolete</h1><p>Started at ${d} and finish at ${f}</p> </div><div class="dateNasc">
+      stcr = `<div class="unionE"><div class="Identifire"><h1><strong class="consoleWrite">${obs.storeName.replaceAll("/", " ")}</strong> is obsolete</h1><p>Started at ${d} and finish at ${f}</p> </div><div class="dateNasc">
       <span class="label">Ends  <strong class="GreenCard"> on</strong></span><br>
       <span class="dateSpan">${f}</span>
       </div></div><div class="unionE" style="margin-left:5vw;"><div class="analyticsInfo"><span class="label"><strong class="GreenCard">Total</strong> Schedules Remain </span><br><span class="Numbera">${visitantes}</span> </div><div class="analyticsInfo"><span class="label"><strong class="GreenCard">Total</strong> Days Remain </span><br><span class="Numbera">${diasRestantes}</span> </div></div> `;

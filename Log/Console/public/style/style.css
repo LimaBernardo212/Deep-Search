@@ -412,6 +412,12 @@ body {
     word-break: break-word;
     overflow-wrap: break-word;
 }
+.beneficios h1{
+  font-size: 1.2em;
+  margin: auto;
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+}
 .Basic .beneficios button {
   margin: 10vh auto;
   width: 15vw;
@@ -1958,6 +1964,9 @@ border: 1px solid var(--cor01Esvoaçada);
   margin-right: 4vw;
   transform: translateY(-15vh);
   border: 1px solid var(--cor01Esvoaçada);
+}
+.bottomPortraitMargin{
+  margin: 5vh 5vw; flex-wrap:wrap; max-width: 95vw;
 }
 .delete{
   opacity: 1;

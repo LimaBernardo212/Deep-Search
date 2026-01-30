@@ -39,6 +39,7 @@
   scrollbar-width: thin;
   box-sizing: border-box;
 }
+
 body {
   overflow-x: hidden !important;
   scroll-behavior: smooth;
@@ -250,7 +251,10 @@ body {
   margin-top: 5vh;
 }
 main.infoContent{
+  width: 100vw;
+  margin-top: -10px;
   margin-left: 0;
+  padding-bottom: 12vh;
 }
 .leftBar {
   position: fixed;
@@ -298,10 +302,7 @@ main.infoContent{
   width: 90vw;
    margin:  0 5vw 0 8vw;
 }
-main.infoContent{
-  width: 100vw;
-  margin-top: -10px;
-}
+
 .exclude{
   display: none;
 }
@@ -594,7 +595,7 @@ main.infoContent{
 }
 
 .schedule-dayEHour{
-  width: 27vw;
+  width: 30vw;
   height: 11vh;
 }
 .payed-symbol img{
@@ -605,7 +606,7 @@ main.infoContent{
 }
 .myPlan{
   width: 90vw;
-  margin: 2vh 5vw;
+  margin: 2vh auto;
   
 }
 .plan-name{
@@ -902,4 +903,99 @@ main.infoContent{
 .localSchedule{
   width: 90vw;
   margin-bottom: 5vh;
+}
+.confirm{
+  transform: translateY(-9vh);
+  margin-right: 12vw;
+}
+.schedule-portrait{
+  margin-bottom: 5vh;
+}
+.Identifire{
+  width: 98vw;
+}
+.Identifire h1{
+  margin-left: 3vw;
+  font-size: 1.8em;
+}
+
+.dateNasc{
+  width: 80vw;
+  margin: 1vh auto;
+}
+.analyticsInfo{
+  width: 60vw;
+  height: 25vh;
+  margin: 1vh auto;
+}
+.bottomPortraitMargin{
+  margin-bottom: 15vh;
+}
+.operatorsBottom{
+  width: 25vw;
+  margin:  0 1vw;
+}
+.operators{
+  margin: 10vh auto;
+}
+#weekDiv{
+  margin-bottom: -15vh;
+}
+#opacitor1{
+  margin-bottom: 8vh;
+}
+#opacitor2, #opacitor3{
+  margin-bottom: 12vh;
+}
+.marginer{
+  margin: 0 auto;
+}
+.plansNamers{
+  width: 90vw;
+  margin: 1vh auto;
+}
+.emailDiver{
+  margin: 0;
+  max-height: 50vh;
+  width: 100vw;
+  overflow-y: scroll;
+}
+ .emailSect{
+  
+  margin: 0 auto 0vh auto; 
+} 
+.portraitLeftMargin{
+  margin-left: 7vw;
+}
+#contenterForm{
+  min-height: 60vh;
+}
+#contentForm{
+  width: 90vw;
+  height: 30vh;
+}
+#contentForm input{
+  width: 40vw;
+}
+#description{
+  width: 80vw;
+}
+.PlanType{
+  max-width: 35vw;
+  word-break: break-all;
+  word-wrap: break-word;
+  margin-right: 4vw;
+  margin-left: 3vw;
+  font-size: 0.8em;
+}
+.obsolenceDiv-titles{
+  font-size: 1em;
+}
+.obsolenceDiv-text{
+  height: 35vh;
+  width: 95vw;
+}
+.obsolenceDiv-call{
+  width: 95vw;
+  height: 35vh;
 }
