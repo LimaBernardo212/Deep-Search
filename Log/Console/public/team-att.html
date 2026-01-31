@@ -3,8 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Log: Team Update</title>
+    <title>While Whale - Team Update</title>
     <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
     <link
       rel="shortcut icon"
       href="/favicons/favicon-32x32.png"
@@ -50,8 +55,7 @@
           </div>
         </form>
         <div
-          class="selectedIndicator"
-          style="opacity: 1; top: 88vh; position: sticky"
+          class="selectedIndicatorC"
         >
           <button type="button" id="submitBtn">
             Edit <strong class="consoleWrite">>></strong>
@@ -71,14 +75,14 @@
       const row = document.createElement("div");
       row.classList.add("ServiceDiv");
       row.innerHTML = `<div class="functionary-base">
-        <div class="imager" style="width: 15vw; height: 30vh;">
+        <div class="imager coolImager">
           <span>Drag <strong class="GreenCard">or</strong> Select</span>
           <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt="">
           <input type="file" name="image[]" class="imageInput" style="opacity: 0;width: 15vw; height: 30vh; position:absolute; z-index:9999;" accept="image/*" "/>
         </div>
         <div class="inputer">
           <input type="text" name="functionaryName[]" placeholder="Member Name:">
-          <input type="email" name="functionaryEmail[]" placeholder="Member Email:">
+          <input type="email" name="functionaryEmail[]" placeholder="Member Email:" class="width15">
         </div>
       </div>`;
       
@@ -166,7 +170,9 @@
       const renderization = document.querySelector(".renderization");
       const form = document.querySelector("#mainForm");
       const submitBtn = document.querySelector("#submitBtn");
-
+      document.querySelector("#back").addEventListener("click", () => {
+        window.history.back();
+      });
       const ini = await fetch("/updater/team", {
         method: "GET",
         headers: { "Content-Type": "application/json" },

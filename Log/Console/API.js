@@ -5564,7 +5564,7 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
     const nameOfFunctionarys = functionar.functionarysName;
     const imagePath = functionar.functionaryImagePath;
     for (let i = 0; i < nameOfFunctionarys.length; i++) {
-      const moreBase = `<br><div class="functionaryBaseDiv" style="max-width:55vw;" name-of="${nameOfFunctionarys[i]}"><div class="uniondivers">
+      const moreBase = `<br><div class="functionaryBaseDiv max55"  name-of="${nameOfFunctionarys[i]}"><div class="uniondivers">
       <div class="imageFunctionary"><img src="${imagePath[i]}"></div><div class="nameOfFunctionary">
         <p>${nameOfFunctionarys[i]}</p>
       </div>
@@ -5648,7 +5648,7 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
     <div class="unionE">
       <div class="centralize">
         <div class="Empire">
-          <span class="label" style="margin: 2vh 5vw"
+          <span class="label"
             >Some of your <strong class="GreenCard">plans</strong
             ><strong class="pointer">.</strong></span>
           <div class="unionE">${planArray.slice(0, 3).join("")}</div>
@@ -5656,17 +5656,17 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
       </div>
     </div>
     <div class="columnUnion">
-    ><span class="label" style="margin: 1vh -5vw"
+    ><span class="label"
           >Some of the members of your  <strong class="GreenCard">Team</strong
           ><strong class="pointer">.</strong></span>
     <div class="functionaryBreaker"${functionarysArray
       .slice(0, 7)
       .join("")}</div></div>
-    <div class="columnUnion" style="margin: 5vh 0;">
-    <span class="label" style="margin: 1vh -5vw"
+    <div class="columnUnion">
+    <span class="label"
           >Your bank   <strong class="GreenCard">Datas</strong
           ><strong class="pointer">.</strong></span>
-      <form action="/update/bank" method="post" style=" margin-top: 5vh;">
+      <form action="/update/bank" method="post"  style=" margin-top: 5vh;">
                   <div class="FormSeparate">
                       <input
                         type="text"
@@ -5711,7 +5711,7 @@ app.get("/prefs/render", tokenVerify, async (req, res) => {
           </div>
             </div>
     </div>
-    <div class="forgot-password-div" style="margin:2vh 10vw;">
+    <div class=" ofr-div">
                 <div class="txt">
                     <h1><strong class="consoleWrite">>></strong>Edit your store <strong class="GreenCard">datas</strong> </h1>
                     <p>To update your <strong class="jsonWrite">store information</strong>, click in one field, and make your changes.<strong class="pointer">.</strong></p>
@@ -6307,14 +6307,14 @@ app.get("/updater/team", tokenVerify, async (req, res) => {
     for (let i = 0; i < fnct.functionarysName.length; i++) {
       let stcr = `<div class="ServiceDiv" data-img="${fnct.functionaryImagePath[i]}">
         <div class="functionary-base">
-                      <div class="imager" style="width: 15vw; height: 30vh; ">
+                      <div class="imager coolImager"; ">
                           <span>Drag <strong class="GreenCard">or</strong> Select</span>
                           <img src="${fnct.functionaryImagePath[i]}" alt="">
                           <input type="file" name="image[]" id="image" style="opacity: 0;" value="${fnct.functionaryImagePath[i]}" />
                       </div>
                       <div class="inputer">
                           <input type="text" name="functionaryName[]" id="functionaryName" placeholder="Member Name:" value="${fnct.functionarysName[i]}">
-                          <input type="email" name="functionaryEmail[]" id="functionaryEmail" placeholder="Member Email:" value="${fnct.functionarysEmail[i]}" style="width: 15vw;">
+                          <input type="email" name="functionaryEmail[]" id="functionaryEmail" placeholder="Member Email:" value="${fnct.functionarysEmail[i]}" >
                       </div>
                   </div>
       </div>`;

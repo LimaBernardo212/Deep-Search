@@ -3,8 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Log: Plan Update</title>
+    <title>While Whale - Plan Update</title>
     <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
     <link
       rel="shortcut icon"
       href="/favicons/favicon-32x32.png"
@@ -55,7 +60,7 @@
             </div>
           
           </form>
-          <div class="selectedIndicator" style="opacity: 1; top: 88vh; position: sticky;"><button type="submit">Edit <strong class="consoleWrite">>></strong></button> </div>
+          <div class="selectedIndicatorC"><button type="submit">Edit <strong class="consoleWrite">>></strong></button> </div>
       </section>
       
     </main>
@@ -103,6 +108,9 @@
     }
 
     window.addEventListener("load", async () => {
+      document.querySelector("#back").addEventListener("click", () => {
+        window.history.back();
+      });
       const ini = await fetch("/updater/plans", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -112,7 +120,7 @@
         const adder = document.querySelector("#adder");
         const container = document.querySelector("#contenterFormer");
         const selectedIndicatorBtn =
-          document.querySelector(".selectedIndicator");
+          document.querySelector(".selectedIndicatorC");
         const data = await ini.json();
         const loading = document.querySelector("#loading");
         loading.style.opacity = "0";
