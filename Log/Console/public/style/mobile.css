@@ -830,6 +830,7 @@ main.infoContent{
 }
 .spawner{
   max-width: 95vw;
+  margin-left: 5vw;
 }
 .hours{
   max-width: 95vw;
@@ -848,9 +849,10 @@ main.infoContent{
   height: 15vh;
   margin: 0 auto 3vh auto;
 }
-.cadFunctionaryForm{
-  margin-left: 2vw;
+.cadFunctonaryForm{
+  margin-left: 0vw;
 }
+
 .inputer input{
   width: 35vw;
 }
@@ -1050,4 +1052,47 @@ main.infoContent{
 .ServiceDiv{
   width: 90vw;
   margin-left: 10vw;
+}
+.PlanEmail{
+    width: 40vw;
+    font-size: 0.6em;
+    word-break: break-all;
+    word-wrap: break-word;
+  }
+@media (orientation: portrait) and (max-width: 399px) {
+  .text-content h1{
+    font-size: 1.8em;
+    margin-bottom: 5vh;
+  }
+  .text-content p{
+    font-size: 0.9em;
+  }
+  .Pro{
+    width: 90vw;
+    height: 80vh;
+  }
+  .Indicated{
+    width: 45vw;
+  }
+  .store{
+    height: 12vh;
+  }
+  .storeGrandSect{
+    height: 80vh;
+  }
+  .selectedIndicator{
+    width: 35vw;
+  }
+  .requestBtn{
+    height: 7vh;
+  }
+  .sendBtn{
+    height: 7vh;
+  }
+  .imager-add{
+    margin: auto;
+  }
+  .ofr-div{
+    height: 30vh;
+  }
 }
