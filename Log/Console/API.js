@@ -35,6 +35,7 @@ import cron from "node-cron"; // ✅ CORRETO
 import favorite from "./favorite.js";
 import storePlan from "./storePlan.js";
 import obsolence from "./obsolence.js";
+import ads from "./whilewhale.js";
 dotenv.config();
 
 const app = express();
@@ -4571,6 +4572,22 @@ app.post("/delete/plan", tokenVerify, async (req, res) => {
       product: stripeId,
       limit: 100,
     });
+
+    const priceIds = prices.data.map(price => price.id)
+
+    for (const priceId of priceIds) {
+      const subscriptions = await stripe.subscriptions.list({
+        price: priceId,
+        status: 'active',
+        limit: 100,
+      })
+      for (const subscription of subscriptions.data){
+        await stripe.subscriptions.cancel(subscription.id);
+        console.log(`Assinatura ${subscription.id} cancelada`);
+      }
+    }
+
+
     for (const price of prices.data) {
       if (price.active) {
         await stripe.prices.update(price.id, {
@@ -4578,11 +4595,13 @@ app.post("/delete/plan", tokenVerify, async (req, res) => {
         });
       }
     }
+    console.log('planName:'+  findStripeId.planName[index] +
+      'planPrice: ' + findStripeId.planPrice[index])
     const deleteUserPlans = await userPlansSchema.deleteMany({
-      planName: plan,
-      planPrice: findStripeId.planPrice[index],
+      planName: findStripeId.planName[index],
+      planPrice: findStripeId.planPrice[index]
     })
-    if (!deleteUserPlans){
+    if (deleteUserPlans.deletedCount === 0){
       console.log("DELETE USER PLANS")
       return res.status(400).json({
         error: "DELETEUSERPLANS"
@@ -7655,6 +7674,37 @@ app.get("/stripeDashBoard", tokenVerify, async (req, res) => {
   } catch (error) {
     return res.redirect("/stores/home")
   }
+})
+app.get("/register/whilewhale-datas", async (req, res) => {
+  const type = req.query.data
+  console.log(type)
+  let tipo = type.replaceAll("'", "")
+  const updt = await ads.findOne()
+  if (!updt){
+    return res.status(404).redirect("/pay/plans")
+  }
+  let key = "ads"
+  console.log(tipo)
+  switch (tipo) {
+    case "search":
+      updt.search += 1
+
+      await updt.save()
+      break;
+    case "friends":
+      updt.friends += 1
+
+      await updt.save()
+
+      break;
+    default:
+      updt.ads += 1
+
+      await updt.save()
+
+      break;
+  }
+  return res.status(200).redirect("/pay/plans")
 })
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);

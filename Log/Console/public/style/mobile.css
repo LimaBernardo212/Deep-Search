@@ -1059,6 +1059,29 @@ main.infoContent{
     word-break: break-all;
     word-wrap: break-word;
   }
+.EspecialAssPlan{
+  flex-wrap: wrap;
+  height: 175vh;
+}
+.stringSeparater{
+  width: 80vw;
+  height: 1px;
+  margin:  10vh auto;
+}
+.EspecialPlan{
+  margin: 5vh auto;
+}
+.searchesDiv{
+ width: 90vw;
+ margin-left:10vw;
+}
+#stringMargin{
+  margin: 5vh auto;
+}
+.searchesDiv button{
+  width: 80vw;
+  margin: 1vh 0;
+}
 @media (orientation: portrait) and (max-width: 399px) {
   .text-content h1{
     font-size: 1.8em;

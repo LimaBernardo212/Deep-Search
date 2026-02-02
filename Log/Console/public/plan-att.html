@@ -51,12 +51,7 @@
                     alt=""
                   />
                 </div>
-                <div id="remover">
-                  <img
-                    src="https://img.icons8.com/?size=100&id=85496&format=png&color=FFFFFF"
-                    alt=""
-                  />
-                </div>
+                
             </div>
           
           </form>
@@ -133,17 +128,10 @@
           container.appendChild(child);
         }
         const add = document.querySelector("#adder");
-        const sub = document.querySelector("#remover");
         add.addEventListener("click", () => {
           container.appendChild(createHour());
         });
-        
-        sub.addEventListener("click", () => {
-            const rows = document.querySelectorAll(".hour-row");
-            if (rows.length > 1){
-                removeHour(container);  
-            }
-        });
+
         const form = document.querySelector("form")
         selectedIndicatorBtn.addEventListener("click", () => {
             form.submit()

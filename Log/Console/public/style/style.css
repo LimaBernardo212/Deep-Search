@@ -4061,3 +4061,54 @@ background-color: var(--cor04);
 .burgerButton{
   display: none;
 }
+.stringSeparater{
+  width: 1px;
+  height: 70vh;
+  background-color: var(--cor01Esvoaçada);
+}
+.EspecialAssPlan{
+  flex-direction: row;
+}
+.EspecialPlan{
+  margin-top: -30vh;
+  margin-right: 15vw;
+}
+.searchesDiv{
+  margin-left: 15vw;
+  display: flex;
+  flex-direction: column;
+}
+#stringMargin{
+  margin-top: -25vh;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.searchesDiv h1{
+  color: var(--cor05);
+  font-family: var(--fontRoboto);
+  margin-bottom: 3vh;
+}
+.searchesDiv img{
+  width: 32px;
+  height: 32px;
+}
+.searchesDiv button{
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+  height: 7vh;
+  padding-left: 20px;
+  margin: 1vh 2vw;
+  color: var(--cor05);
+  background-color: var(--cor00);
+  border: 1px solid var(--cor01Esvoaçada);
+  width: 20vw;
+  border-radius: 10px;
+}
+.searchesDiv a{
+  text-decoration: none;
+}
+.searchesDiv button:hover{
+  background-color: var(--cor08);
+}
