@@ -1119,3 +1119,64 @@ main.infoContent{
     height: 30vh;
   }
 }
+@media (orientation: portrait) and (min-width: 750px) {
+  .text-content h1{
+    font-size: 2.1em;
+  }
+  .text-content p{
+    margin-top: -5vh;
+  }
+  .TapaBuraco{
+    right: -60vh;
+  }
+  .Pro{
+    width: 65vw;
+    height: 60vh;
+  }
+  .SubmitButton{
+    border-radius: 50px;
+  }
+  #password{
+    width: 67vw;
+  }
+  .buttons button{
+    border-radius: 50px;
+  }
+  .leftBar{
+    justify-content: space-evenly;
+  }
+  .schedule-content{
+    width: 75vw;
+  }
+  .schedule-dayEHour{
+    width: 20vw;
+  }
+  .lateralInfos{
+    margin-right: -1vh;
+  }
+  .schedule-data{
+    margin-right: 5vw;
+  }
+  .delete{
+    margin-right: -11vw;
+    margin-bottom: -5vh;
+  }
+  .schedule-union{
+    margin: 1vh auto 3vh auto;
+    width: 95vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .account{
+    margin-left: 70vw;
+  }
+  .confirm{
+    transform: translateY(-8vh);
+    margin-right: 5vw;
+  }
+  #loading{
+    width: 15vw;
+    height: 15vw;
+  }
+}
