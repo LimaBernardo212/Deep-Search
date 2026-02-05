@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>While Whale - Loja</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <header class="homenav">
+      <div class="consoleImg">
+        <img src="/img/().png" alt="" />
+      </div>
+      
+      <a href="/stores/prefs">
+        <div class="account" >
+          <div class="person exclude" id="people">
+            <img
+              src="https://img.icons8.com/?size=100&id=85183&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+      </a>
+        <a href="/stripeDashBoard">
+          <div class="settings" id="sett">
+            <img
+              src="https://img.icons8.com/?size=100&id=85150&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+        </a>
+        <a href="/stores/del"  style="margin-left: 1vw;">
+        <div class="person" class="burguerButton"><img src="https://img.icons8.com/?size=100&id=105512&format=png&color=FFFFFF" alt=""></div>
+      </a>
+      </div>
+    </header>
+
+    <section class="userPOV">
+      <aside class="leftBar">
+        <div class="divAndYourLabel">
+          <div id="store" class="itenSelected itens" title="store">
+            <img
+              src="https://img.icons8.com/?size=100&id=92137&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Home</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="analitics" class="itens" title="Your Schedules">
+            <img
+              src="https://img.icons8.com/?size=100&id=98067&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Analytics</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="clientArea" class="itens" title="Your Treatments">
+            <img
+              src="https://img.icons8.com/?size=100&id=88302&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Agendamentos</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="plansinapp" class="itens" title="Yours Plans in Stores">
+            <img
+              src="https://img.icons8.com/?size=100&id=86440&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Planos</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="services" class="itens" title="Your Project">
+            <img
+              src="https://img.icons8.com/?size=100&id=86844&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Pref.</p>
+        </div>
+        <div class="divAndYourLabel exclude">
+          <div id="delete" class="itens" title="Your Project">
+            <img
+              src="https://img.icons8.com/?size=100&id=105512&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Obsolencia</p>
+        </div>
+      </aside>
+
+      <main class="infoContent">
+        <div id="loading"></div>
+
+        <div class="content">
+          <div class="store-content"></div>
+        </div>
+      </main>
+    </section>
+  </body>
+  <script>
+    window.addEventListener("load", async () => {
+      function render(el) {
+        const element = document.createElement("div");
+        element.classList.add("scheduleData");
+        element.innerHTML = el;
+        return element;
+      }
+
+      const load = document.querySelector("#loading");
+      const content = document.querySelector(".content");
+      const plans = document.querySelector("#plansinapp");
+      const client = document.querySelector("#clientArea");
+      client.addEventListener("click", () => {
+        window.location.href = "/client/schedules"
+      })
+      plans.addEventListener("click", () => {
+        window.location.href = "/store-plans";
+      });
+      const analitics = document.querySelector("#analitics");
+      analitics.addEventListener("click", () => {
+        window.location.href = "/stores/analitics";
+      })
+      const prefs = document.querySelector("#services")
+      prefs.addEventListener("click", () => {
+        window.location.href = '/stores/prefs'
+      })
+      const obsoleto = document.querySelector("#delete")
+      obsoleto.addEventListener("click", () => {
+        window.location.href = '/stores/del'
+      })
+      
+      const storeData = document.querySelector(".store-content");
+      const bbk = document.querySelector("#bbk");
+      // bbk.addEventListener("click", () => {
+      //   window.location.href = "/home.html";
+      // });
+      const ini = await fetch("/api/me", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!ini.ok){
+        window.location.href = `/login-redirect?redirect='/stores/home'`
+      }
+      
+      const initial = await fetch("/exist-bank-datas", {
+        method: "GET",
+        headers: {"Content-Type": "application/json"}
+      })
+      
+        const req = await fetch("/verify/have/stores", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (req.ok) {
+        const data = await req.json();
+        storeData.appendChild(render(data.returner));
+       
+        
+        const dataSchedule = document.querySelectorAll(".schedule-data");
+        load.style.opacity = "0";
+        content.style.opacity = "1";
+        const apoitBtn = document.querySelectorAll(".confirm");
+        const deleter = document.querySelectorAll(".delete");
+        deleter.forEach((el, i) => {
+          el.addEventListener("click", async () => {
+            try {
+              const scheduleMe = dataSchedule[i];
+              const day = scheduleMe.getAttribute("data-dia");
+              const hour = scheduleMe.getAttribute("data-hour");
+              const store = scheduleMe.getAttribute("data-storename");
+              const funcionario = scheduleMe.getAttribute("data-functionary");
+              const emailC = scheduleMe.getAttribute("data-emailC")
+              const nameC = scheduleMe.getAttribute("data-nameC")
+              const toReq = await fetch("/backMyMoney/me", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  nameC: nameC,
+                  emailC: emailC,
+                  dia:day,
+                  hora: hour,
+                  loja: store,
+                  funcionario:funcionario,
+                }),
+              });
+              if (toReq.ok){
+                window.location.reload()
+              }
+            } catch (error) {
+              console.log('error')
+            }
+          });
+        });
+        apoitBtn.forEach((el, i) => {
+          el.addEventListener("click", async () => {
+            const scheduleMe = dataSchedule[i];
+            const dia = scheduleMe.getAttribute("data-dia");
+            const hora = scheduleMe.getAttribute("data-hour");
+            const loja = scheduleMe.getAttribute("data-storename");
+            const funcionario = scheduleMe.getAttribute("data-functionary");
+            const emailC = scheduleMe.getAttribute("data-emailC")
+              const nameC = scheduleMe.getAttribute("data-nameC")
+            try {
+              const req = await fetch("/pass/store", {
+                method: "DELETE",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  nameC: nameC,
+                  emailC: emailC,
+                  dia: dia,
+                  hora: hora,
+                  loja: loja,
+                  funcionario: funcionario,
+                }),
+              });
+              if (req.ok) {
+                window.location.reload();
+              }
+            } catch (error) {
+              console.error(error);
+            }
+          });
+        });
+        const weekDiv = document.querySelectorAll(".weekDiv");
+        let daysArray = [];
+        weekDiv.forEach((el, i) => {
+          el.addEventListener("click", async () => {
+            const date = el.getAttribute("data-dia");
+            if (el.classList.contains("todayClosed")) {
+              el.classList.remove("todayClosed");
+              const index = daysArray.indexOf(date);
+              const request = await fetch("/remove/closed-day", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  day: date,
+                }),
+              });
+              if (request.ok) {
+                if (index !== -1) daysArray.splice(index, 1);
+              }
+            } else {
+              el.classList.add("todayClosed");
+              const req = await fetch("/choice/closed-day", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  day: date,
+                }),
+              });
+              if (req.ok) {
+                daysArray.push(date);
+              }
+            }
+          });
+        });
+        const central_plus = document.querySelector(".central-plus");
+        if (central_plus){
+          central_plus.addEventListener("click", () => {
+          window.location.href = "/pay/plans";
+        });
+        }
+        // const cashImg = document.querySelector(".CASH img")
+        // cashImg.addEventListener("click", () => {
+        //   window.location.href = `/store-bank`
+        // })
+         const localBtn = document.querySelector(".localSchedule");
+        console.log(localBtn);
+        localBtn.addEventListener("click", () => {
+          const data_name = localBtn.getAttribute("data-name");
+          window.location.href = `/store/:${data_name}`;
+        });
+        
+        
+      }
+      
+    });
+  </script>
+</html>

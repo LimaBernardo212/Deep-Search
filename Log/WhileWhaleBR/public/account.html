@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+    <title>While Whale - Mais</title>
+  </head>
+  <body>
+    <header class="nbu">
+      <button class="nButton" id="back">
+        <img
+          src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF"
+          alt=""
+        />
+      </button>
+      <button class="burgerButton" id="burguer">
+        <img src="https://img.icons8.com/?size=100&id=83195&format=png&color=FFFFFF" alt="">
+      </button>
+    </header>
+    <section class="USER-POV">
+      <aside class="leftOptions">
+        <div class="optionsOpt">
+          <div class="OneOfOption selectedOption" id="user">
+            <img
+              src="https://img.icons8.com/?size=100&id=102918&format=png&color=FFFFFF"
+              alt=""
+            />
+            <span>Configurações do Usuário</span>
+          </div>
+          <div class="OneOfOption" id="stores">
+            <img
+              src="https://img.icons8.com/?size=100&id=86134&format=png&color=FFFFFF"
+              alt=""
+            />
+            <span>Lojas</span>
+          </div>
+          <div class="OneOfOption" id="privacy">
+            <!--Esse ID ta meio 🤨-->
+            <img
+              src="https://img.icons8.com/?size=100&id=103604&format=png&color=FFFFFF"
+              alt=""
+            />
+            <span>Privacidade e Segurança</span>
+          </div>
+          <div class="OneOfOption" id="conditions">
+            <img
+              src="https://img.icons8.com/?size=100&id=90003&format=png&color=FFFFFF"
+              alt=""
+            />
+            <span>Termos e Condições</span>
+          </div>
+          <div class="OneOfOption" id="payment">
+            <img
+              src="https://img.icons8.com/?size=100&id=86445&format=png&color=FFFFFF"
+              alt=""
+            />
+            <span>Política de Pagamento</span>
+          </div>
+          <div class="OneOfOption" id="refund">
+            <img
+              src="https://img.icons8.com/?size=100&id=92251&format=png&color=FFFFFF"
+              alt=""
+            />
+            <span>Política de Reembolso</span>
+          </div>
+        </div>
+      </aside>
+      <section class="moreContenter">
+        <div id="loading"></div>
+        <div class="contenterOfLogins">
+          <div class="loginData">
+            <h1>
+              <strong class="consoleWrite">//</strong>Bem-vindo ao seu
+              <strong class="GreenCard">perfil</strong>
+            </h1>
+            <p>
+              Acesse e gerencie as informações da sua conta, atualize seus
+              dados de cadastro e saia<strong class="pointer">.</strong>
+            </p>
+          </div>
+          <div class="loginInfos">
+            <strong class="jsonWrite">{</strong><br />
+            <div class="loginInfoRow">
+              <span>Nome:</span>
+              <div class="editer">
+                "<input type="text" name="new-name" id="new-name" />"
+              </div>
+              <strong class="jsonSeparate">,</strong>
+              <label for="new-name"
+                ><img
+                  src="https://img.icons8.com/?size=100&id=99821&format=png&color=FFFFFF"
+                  alt=""
+              /></label>
+            </div>
+            <div class="loginInfoRow">
+              <span>E-mail:</span>
+              <div class="editer">
+                "<input type="email" name="new-email" id="new-email" />"
+              </div>
+              <label for="new-email"
+                ><img
+                  src="https://img.icons8.com/?size=100&id=99821&format=png&color=FFFFFF"
+                  alt=""
+              /></label>
+            </div>
+
+            <br />
+            <strong class="jsonWrite">}</strong>
+          </div>
+          <div class="unionE">
+              <div class="sendBtn">Atualizar Dados</div><button class="requestBtn" id="LogOut" style="margin-left: 1vw;">Sair</button>
+          </div>
+        </div>
+        <div class="forgot-password-div">
+          <div class="txt">
+            <h1>
+              <strong class="consoleWrite">>></strong>Solicitação de
+              <strong class="GreenCard">Alteração</strong> de Senha
+            </h1>
+            <p>
+              Para alterar sua <strong class="GreenCard">senha</strong>, clique
+              no botão abaixo para iniciar o processo de verificação de segurança<strong
+                class="pointer"
+                >.</strong
+              >
+            </p>
+            <button class="requestBtn" id="passwordChange">
+              Alterar Senha
+            </button>
+          </div>
+        </div>
+        
+      </section>
+    </section>
+  </body>
+  <script>
+    window.addEventListener("load", async () => {
+      document.querySelector("#back").addEventListener("click", () => {
+        window.history.back();
+      });
+      const user = document.querySelector("#user");
+      const stores = document.querySelector("#stores");
+      const conditions = document.querySelector("#conditions");
+      const privacy = document.querySelector("#privacy"); //🤨
+      const pay = document.querySelector("#payment");
+      const burguer = document.querySelector("#burguer")
+      const leftOpt = document.querySelector(".leftOptions")
+      let clBClicked = false
+      burguer.addEventListener("click", () => {
+        if (!clBClicked){
+          leftOpt.style.left = "0%"
+          clBClicked = true
+        }else{
+          leftOpt.style.left = '-100%'
+          clBClicked = false
+        }
+      })
+      conditions.addEventListener("click", () => {
+        window.location.href = "/conditions";
+      });
+      pay.addEventListener("click", () => {
+        window.location.href = "/payment-policy";
+      });
+      privacy.addEventListener(
+        "click",
+        () => (window.location.href = "/privacy")
+      ); //🤨
+      stores.addEventListener(
+        "click",
+        () => (window.location.href = "/stores/home")
+      );
+      user.addEventListener("click", () => (window.location.href = "/more"));
+      const input_name = document.querySelector("#new-name");
+      const input_email = document.querySelector("#new-email");
+      const loading = document.querySelector("#loading");
+      const contenter = document.querySelector(".contenterOfLogins");
+      const refund = document.querySelector("#refund");
+      refund.addEventListener("click", () => {
+        window.location.href = "/refund-policy";
+      });
+      const ini = await fetch("/api/me", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!ini.ok){
+        window.location.href = `Login.html`
+      }
+      else{
+        const data = await ini.json()
+        if (data.storeName){
+          window.location.href = "/stores/home"
+        }
+      }
+      const req = await fetch("/api/me", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (req.ok) {
+        const data = await req.json();
+        const name = data.name;
+        const email = data.email;
+        input_name.value = name;
+        input_email.value = email;
+        loading.style.opacity = "0";
+        setTimeout(() => {
+          loading.style.display = "none";
+          contenter.style.opacity = "1";
+        }, 500);
+      } else {
+        window.location.href = "/error500.html";
+      }
+      const sendBtn = document.querySelector(".sendBtn");
+      sendBtn.addEventListener("click", async () => {
+        const new_name = input_name.value;
+        const new_email = input_email.value;
+        console.log(new_name, new_email);
+        const request = await fetch("/update/user", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            new_name: new_name,
+            new_email: new_email,
+          }),
+        });
+        if (request.ok) {
+          window.location.reload(true);
+          console.log("OKOKOKOKOKOKOKOKKOKOKOKOKOK!");
+        }
+      });
+      const requestBtn = document.querySelector("#passwordChange");
+      requestBtn.addEventListener("click", async () => {
+        const new_name = input_name.value;
+        const new_email = input_email.value;
+        const request = await fetch("/forgot-password", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            request_name: new_name,
+            request_email: new_email,
+          }),
+        });
+        if (request.ok) {
+          console.log("dei a bunda");
+
+          window.location.href = "/forgot.html";
+        }
+      });
+      const logOut = document.querySelector("#LogOut")
+      logOut.addEventListener("click", async () => {
+        window.location.href = `/api/logout`
+      })
+    });
+  </script>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="favicons/favicon-32x32.png" type="image/x-icon">
+    <link rel="stylesheet" href="style/style.css">
+    <title>Login - While Whale</title>
+    <link
+      rel="stylesheet"
+      href="./style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body style="background-color: #0d0d0d;">
+    <header class="nb">
+        <button class="nButton" id="back">
+            <img src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF" alt="">
+        </button>
+    </header>
+    
+    <section class="loginFormulary">
+        <div class="inputs">
+            <div class="formulary">
+                <form id="loginForm" method="POST" action="/api/login">
+                    <input type="text" name="name" id="name" placeholder="Nome" required>
+                    <input type="email" name="email" id="email" placeholder="E-mail" required>
+                    <input type="hidden" name="redirect" value="/home.html">
+                    <div class="eye">
+                        <input type="password" name="password" id="password" placeholder="Senha" required>
+                        <div class="eyeimg">
+                            <img src="https://img.icons8.com/?size=100&id=MiB2bvr7uGVu&format=png&color=FFFFFF" alt="" id="eyeOn">
+                            <img src="https://img.icons8.com/?size=100&id=4y6r43dyjbzw&format=png&color=FFFFFF" alt="" id="eyeOff">
+                        </div>
+                    </div>
+                    <button type="submit" class="SubmitButton">Continuar</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="or">
+            <div class="orLine"></div>
+            <p>ou</p>
+            <div class="orLine"></div>
+        </div>
+        
+        <div class="buttons">
+            <div class="unique">
+                <div id="buttonDiv"></div>
+                <button id="googleButton">
+                    <img src="https://img.icons8.com/?size=100&id=V5cGWnc9R4xj&format=png&color=000000" alt="">
+                    Continuar com Google
+                </button>
+            </div>
+            <div class="requirePassword">
+                <button id="emailButton">
+                    <img src="https://img.icons8.com/?size=100&id=MLi6qD7yodwo&format=png&color=000000" alt="">
+                    Esqueci minha senha
+                </button>
+                <div class="secretForm">
+                    <form action="/forgot-password" method="POST">
+                        <input type="email" name="request_email" id="request_email" placeholder="E-mail" required class="newEmail">
+                        
+                        <input type="text" name="request_name" id="request_name" placeholder="Nome" required class="newEmail">
+                          <button type="submit" class="SubmitButton">Continuar</button>
+                   
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Back Button
+        document.querySelector('#back').addEventListener('click', () => {
+            window.history.back();
+        });
+
+        // Eye Toggle
+        const onEye = document.querySelector('#eyeOn');
+        const offEye = document.querySelector('#eyeOff');
+        const password = document.querySelector('#password');
+
+        onEye.addEventListener('click', () => {
+            offEye.style.display = 'flex'
+            onEye.style.opacity = '0';
+            setTimeout(() => {
+                offEye.style.opacity = '1';
+            }, 150)
+            password.type = 'text';
+        });
+
+        offEye.addEventListener('click', () => {
+            offEye.style.opacity = '0';
+            onEye.style.opacity = '1';
+            setTimeout(() => {
+                offEye.style.display = 'none'
+            }, 750)
+            password.type = 'password';
+        });
+        //Button I forgot my password
+        const secretForm = document.querySelector('.secretForm');
+        const emailButton = document.querySelector('#emailButton');
+        emailButton.addEventListener('click', () => {
+            emailButton.style.transform = 'translateX(1.5vw)'
+            secretForm.style.display = 'flex';
+            setTimeout(() => {
+                secretForm.style.opacity = '1'
+            }, 150)
+        })
+        // Login Tradicional
+       
+        // Google Sign-In
+        function handleCredentialResponse(res) {
+            try {
+                const decodeFn = typeof jwt_decode !== 'undefined' ? jwt_decode : jwtDecode;
+                const data = decodeFn(res.credential);
+                
+                console.log('✅ Login Google bem-sucedido!');
+                console.log('Dados do usuário:', data);
+                
+                // Enviar para backend
+                fetch('/api/login/authGoogle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: data.email,
+                        name: data.name,
+                        sub: data.sub
+                    })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    console.log('✅ Backend respondeu:', result);
+                    
+                    if (result.msg === 'Sucesss' || result.msg === 'SUPER SUCESS') {
+                        console.log('SUCESS')
+                        window.location.href = '/home.html'
+                    } else {
+                        //alert('Erro: ' + (result.msg || 'Erro desconhecido'));
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Erro no backend:', error);
+                    alert('Erro ao comunicar com o servidor');
+                });
+            } catch (error) {
+                console.error('❌ Erro ao decodificar token:', error);
+                alert('Erro ao processar login do Google');
+            }
+        }
+        
+        // Inicializar Google Sign-In
+        window.onload = function () {
+            console.log('🚀 Inicializando Google Sign-In...');
+            
+            google.accounts.id.initialize({
+                client_id: "633112521248-muv37pdhnpbqdaeatden6mat5m04c3g6.apps.googleusercontent.com",
+                callback: handleCredentialResponse,
+                auto_select: false,
+                cancel_on_tap_outside: true
+            });
+            
+            google.accounts.id.renderButton(
+                document.getElementById("buttonDiv"),
+                { 
+                    type: "standard",
+                    shape: "pill",
+                    theme: "outline",
+                    text: "continue_with",
+                    size: "large",
+                    locale: "pt-BR",
+                    logo_alignment: "left"
+                }
+            );
+            
+            google.accounts.id.prompt();
+
+        };
+        //Observer
+        const name = document.querySelector('#name');
+        const Email = document.querySelector('#email')
+        const pass = document.querySelector('.eye');
+        const passw = document.querySelector('.eye input')
+        const SubmitButton = document.querySelector('.SubmitButton')
+        const googleButton = document.querySelector('.unique')
+        const obs = new IntersectionObserver((e) => {
+            e.forEach((el) => {
+                if (el.isIntersecting){
+                    setTimeout(() => {
+                        el.target.style.opacity = 1;
+                    }, 0);
+                    setTimeout(() => {
+                        email.style.opacity = 1
+                    }, 0);
+                    setTimeout(() => {
+                        passw.style.opacity = 1
+                        pass.style.opacity = 1
+                    }, 0);
+                    setTimeout(() => {
+                        SubmitButton.style.opacity = 1
+                    }, 0);
+                    setTimeout(() => {
+                        googleButton.style.opacity = 1
+                    }, 0);
+                    setTimeout(() => {
+                        emailButton.style.opacity = 1;
+                    }, 0);
+                }
+            })
+        })
+        obs.observe(name)
+    </script>
+</body>
+</html>

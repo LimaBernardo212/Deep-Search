@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>While Whale - Home</title>
+    <link
+      rel="shortcut icon"
+      href="favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+    <link rel="stylesheet" href="style/style.css" />
+    <link
+      rel="stylesheet"
+      href="style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
+  </head>
+  <body>
+    <header class="homenav">
+      <div class="consoleImg">
+        <img src="img/().png" alt="" />
+      </div>
+
+      <a href="/more">
+        <div class="account">
+          <div class="person" id="people">
+            <img
+              src="https://img.icons8.com/?size=100&id=85147&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+      </a>
+        <a href="/stores/home">
+          <div class="settings" id="sett">
+            <img
+              src="https://img.icons8.com/?size=100&id=85183&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+        </a>
+      </div>
+    </header>
+    <section class="userPOV">
+      <aside class="leftBar">
+        <div class="divAndYourLabel">
+          <div id="home" class="itenSelected itens" title="Home">
+            <img
+              src="https://img.icons8.com/?size=100&id=86527&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Home</p>
+        </div>
+
+        <div class="divAndYourLabel">
+          <div id="schedule" class="itens" title="Your Schedules">
+            <img
+              src="https://img.icons8.com/?size=100&id=116296&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Agendamentos</p>
+        </div>
+
+        <div class="divAndYourLabel  exclude">
+          <div id="treatments" class="itens" title="Your Treatments">
+            <img
+              src="https://img.icons8.com/?size=100&id=86312&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Tratamentos</p>
+        </div>
+
+        <div class="divAndYourLabel">
+          <div id="plansinapp" class="itens" title="Yours Plans in Stores">
+            <img
+              src="https://img.icons8.com/?size=100&id=86440&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Planos</p>
+        </div>
+
+        <div class="divAndYourLabel exclude">
+          <div id="projects" class="itens" title="Your Project">
+            <img
+              src="https://img.icons8.com/?size=100&id=85615&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Projetos</p>
+        </div>
+
+        
+
+        <div class="divAndYourLabel moreIten">
+  <div id="more" class="itens" title="more">
+    <img
+      src="https://img.icons8.com/?size=100&id=85501&format=png&color=FFFFFF"
+      alt=""
+    />
+  </div>
+  <div class="more-content">
+    <div class="API">
+      <div class="APIimg">
+        <img src="https://img.icons8.com/?size=100&id=85950&format=png&color=FFFFFF" alt="">
+      </div>
+      <div class="APIlabel">API</div>
+    </div>
+    <div class="API">
+      <div class="APIimg">
+        <img src="https://img.icons8.com/?size=100&id=86134&format=png&color=FFFFFF" alt="">
+      </div>
+      <div class="APIlabel">Stores</div>
+    </div>
+  </div>
+</div>
+      </aside>
+      <main class="infoContent">
+        <div id="loading"></div>
+        <div class="content">
+          <div class="searcher">
+            <form action="" method="POST" id="searchForm">
+              <input
+                type="text"
+                name="search"
+                id="search"
+                placeholder="Pesquisar:"
+              />
+              <input type="submit" style="display: none;">
+                
+              </button>
+            </form>
+          </div>
+          <div class="store-content"></div>
+        </div>
+      </main>
+    </section>
+  </body>
+  <script>
+    function render(el) {
+        const element = document.createElement("div");
+        element.classList.add("storeD");
+        element.innerHTML = el;
+        element.style.opacity = '0'
+        return element;
+      }
+    const content = document.querySelector(".content");
+    const loading = document.querySelector("#loading");
+    const storecontent = document.querySelector(".store-content");
+    
+    const schedule = document.querySelector("#schedule")
+    const more = document.querySelector(".moreIten");
+    const contenter = document.querySelector(".more-content");
+    const plans = document.querySelector("#plansinapp")
+    const form = document.querySelector("#searchForm")
+    const search = document.querySelector("#search")
+      let searchTimeOut = null
+      let currenRequest = null
+    search.addEventListener("input", async () => {
+       
+        
+        if (searchTimeOut){
+          clearTimeout(searchTimeOut)
+        }
+
+
+        if (currenRequest){
+          currenRequest.abort()
+        }
+      if (search.value.length > 0){
+        const storeD = document.querySelectorAll(".storeD")
+        storeD.forEach((el, i) => {
+          el.remove()
+        })
+        console.log(search.value.length)
+        
+        loading.style.opacity = '1'
+        searchTimeOut = setTimeout(async () => {
+          try {
+
+            const controller = new AbortController()
+           currenRequest = controller 
+            const inputer =  await fetch("/search/stores", {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          value: search.value
+        }),
+        signal: controller.signal
+      })
+      
+      if (inputer.ok){
+        const storeR =  document.querySelectorAll(".storeRow")
+        storeR.forEach((el, i) => {
+          el.style.opacity = '0'
+          setTimeout(() => {
+            el.style.display = 'none'
+          }, 1);
+        })
+        const sdata = await inputer.json()
+        const html = sdata.html
+        setTimeout(() => {
+          let renderizador = render(html)
+          let contentRenderizador = content.appendChild(renderizador)
+          setTimeout(() => {
+            contentRenderizador.style.opacity = '1'
+          }, 100);
+        }, 300);
+        loading.style.opacity = '0'
+        setTimeout(() => {
+          const fav = document.querySelectorAll("#moreinfos button")
+        
+        fav.forEach((el, i) => {
+          let favClicked = el.getAttribute("data-fav")
+          let storeName = el.getAttribute("data-storename")
+          el.addEventListener("click", async (e) => {
+            e.stopPropagation()
+            if (favClicked == 'false'){
+              const starOn = el.querySelector("#starOn")
+              starOn.style.opacity = '1'
+              console.log("fav clicked")
+              favClicked = true
+              const fav = await fetch("/fav-store", {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                  storeName: storeName
+                })
+              })
+              if (fav.ok){
+                window.location.reload()
+              }
+            }
+            if (favClicked == 'true'){
+              const starOn = el.querySelector("#starOn")
+              starOn.style.opacity = '0'
+              console.log("fav clicked")
+              favClicked = false
+              const fav = await fetch("/unfav-store", {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                  storeName: storeName
+                })
+              })
+              if (fav.ok){
+                window.location.reload()
+              }
+            }
+          })
+        })
+        }, 500);
+      }
+      currentRequest = null;
+          } catch (error) {
+            if (error.name === 'AbortError') {
+          console.log('Requisição cancelada');
+        } else {
+          console.error("Erro na busca:", error);
+        }
+        loading.style.opacity = '0';
+          }
+        }, 300);
+          
+      }else{
+        const storeD = document.querySelectorAll(".storeD")
+        storeD.forEach((el, i) => {
+          el.remove()
+        })
+        console.log(search.value.length)
+        const storeR =  document.querySelectorAll(".storeRow")
+        storeR.forEach((el, i) => {
+          el.style.display = 'block'
+          setTimeout(() => {
+            el.style.opacity = '1'
+          }, 500);
+        })
+        
+      }
+    })
+    form.addEventListener("submit",  (e) => {
+      e.preventDefault()
+    })
+    plans.addEventListener("click", () => {
+      window.location.href = `/my/plan`
+    })
+    more.addEventListener("click", () => {
+      console.log(more); // Deve mostrar o elemento
+console.log(contenter);
+      window.location.href = "/more"
+    })
+    schedule.addEventListener('click', () => {
+      console.log('Sensacional d+ serio muito top')
+      window.location.href = '/schedule/home';
+    })
+    function createStores(el) {
+      const element = document.createElement("div");
+      element.classList.add("storeRow");
+      element.innerHTML = el;
+      return element;
+    }
+    window.addEventListener("load", async () => {
+
+      const ini = await fetch("/api/me", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!ini.ok){
+        window.location.href = `Login.html`
+      }
+      else{
+        const data = await ini.json()
+        if (data.storeName){
+          window.location.href = "/stores/home"
+        }
+      }
+      const req = await fetch("/return/data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          also: "Also",
+        }),
+      });
+      if (req.ok) {
+        const data = await req.json();
+        const objects = data.return;
+        const storeNames = data.storeName;
+        loading.style.opacity = 0;
+        
+        setTimeout(() => {
+          loading.style.display = "none";
+          content.style.display = "flex";
+          setTimeout(() => {
+            content.style.opacity = 1;
+          }, 250);
+          objects.forEach((el, i) => {
+            storecontent.appendChild(createStores(el));
+          });
+          
+          const stored = document.querySelectorAll(".store");
+        stored.forEach((el, i) => {
+            el.addEventListener("click", async () => {
+                try {
+                    const request = await fetch('/store/page', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        storeName: storeNames[i]
+                    })
+                });
+                if (request.ok){
+                    const response = await request.json();
+                    console.log('Success:', response);
+                    const redirect = response.redirect;
+                    window.location.href = redirect;
+                } else {
+                    console.log('Algo deu errado', request.status);
+                }
+                } catch (error) {
+                   console.log('Error:', error); 
+                }
+            });
+        })
+        const fav = document.querySelectorAll("#moreinfos button")
+        
+        fav.forEach((el, i) => {
+          let favClicked = el.getAttribute("data-fav")
+          el.addEventListener("click", async (e) => {
+            e.stopPropagation()
+            if (favClicked == 'false'){
+              const starOn = el.querySelector("#starOn")
+              starOn.style.opacity = '1'
+              console.log("fav clicked")
+              favClicked = true
+              const fav = await fetch("/fav-store", {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                  storeName: storeNames[i]
+                })
+              })
+              if (fav.ok){
+                window.location.reload()
+              }
+            }
+            if (favClicked == 'true'){
+              const starOn = el.querySelector("#starOn")
+              starOn.style.opacity = '0'
+              console.log("fav clicked")
+              favClicked = false
+              const fav = await fetch("/unfav-store", {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                  storeName: storeNames[i]
+                })
+              })
+              if (fav.ok){
+                window.location.reload()
+              }
+            }
+          })
+        })
+        }, 750);
+        
+      } else {
+        console.log("Algo deu errado", req.status);
+      }
+      
+    });
+  </script>
+</html>

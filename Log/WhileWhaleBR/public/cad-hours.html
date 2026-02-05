@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>While Whale - Cadastro de Horários</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body style="background-image: linear-gradient(to bottom, #042326, #0d0d0d);">
+    <header class="nb">
+      <!-- <button class="nButton" id="back">
+        <img
+          src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF"
+          alt=""
+        />
+      </button> -->
+    </header>
+    <section class="cad-hours-section">
+      <div>
+        <h1 id="ob">
+          <strong class="consoleWrite">#</strong>Horários Disponíveis<strong
+            class="pointer"
+            >.</strong
+          >
+        </h1>
+        <p class="pcf">
+          Configure os dias e horários de funcionamento do seu
+          <strong class="GreenCard">estabelecimento</strong>.
+        </p>
+      </div>
+      <form action="/horarioCad" method="post">
+        <div class="hours-calendar">
+          <div class="hours">
+            <input type="text" name="hour" id="hour" placeholder="HH:MM" />
+          </div>
+          <div class="hours-add">
+            <img
+              src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+        </div>
+        <div class="selectedIndicatorC">
+          <button type="submit">Cadastrar Horários<strong class="consoleWrite">>></strong></button>
+        </div>
+      </form>
+    </section>
+  </body>
+  <script>
+    // document.querySelector("#back").addEventListener("click", async () => {
+    //   window.location.href = `/store/home`;
+    // });
+
+    const add = document.querySelector(".hours-add");
+    const added = document.querySelector(".hours");
+
+    function createHour() {
+      const row = document.createElement("div");
+      row.classList.add("hour-row");
+      row.innerHTML = `<input type="text" name="hour" id="hour" placeholder="HH:MM">`;
+      return row;
+    }
+
+    add.addEventListener("click", () => {
+      added.appendChild(createHour());
+    });
+  </script>
+</html>

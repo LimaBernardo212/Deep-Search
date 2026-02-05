@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>While Whale - Cadastro de Loja</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
+  </head>
+
+  <body>
+    <header class="nb">
+      <!-- <button class="nButton" id="back">
+        <img
+          src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF"
+          alt=""
+        />
+      </button> -->
+    </header>
+    <section class="cad-storeContent">
+      
+      <form id="storeForm" enctype="multipart/form-data" method="post" action="/CadNewStore">
+        <div class="formularyOrder">
+          <div>
+            <h1 id="ob"><strong class="consoleWrite">//</strong>Cadastre uma <strong class="GreenCard">loja</strong></h1>
+            <p>Cadastre uma loja para ter acesso a todos os recursos disponíveis para o seu negócio.</p>
+          </div>
+        </div>
+        <div class="formularyOrder">
+          <div class="query">
+            <div class="break">
+              <input
+                type="text"
+                name="storeName"
+                id="storeName"
+                placeholder="Nome da loja:"
+                required
+                class="normal"
+              />
+              <input
+                type="text"
+                name="address"
+                id="address"
+                placeholder="Endereço completo"
+                required
+                class="normal"
+              />
+              <input
+                type="text"
+                name="cnpj"
+                id="cnpj"
+                placeholder="CNPJ"
+                required
+                class="normal"
+              />
+            </div>
+
+            <div class="break">
+              <input
+                type="email"
+                name="storeEmail"
+                id="storeEmail"
+                placeholder="E-mail da loja"
+                required
+                class="normal"
+              />
+              <input
+                type="text"
+                name="phone"
+                id="phone"
+                placeholder="Número de telefone"
+                required
+                class="normal"
+              />
+              <div class="pinDiv">
+                <input type="text" name="pin" id="pin" placeholder="PIN: (9999)" class="normal">
+                <img src="https://img.icons8.com/?size=100&id=85505&format=png&color=FFFFFF" alt="" title="Gerar aleatoriamente">
+              </div>
+              <input
+                type="text"
+                name="closedDays"
+                id="closedDays"
+                placeholder="Dias fechados"
+                class="ghost"
+              />
+              
+              <input
+                type="text"
+                name="openHours"
+                id="openHours"
+                placeholder="Horário de abertura (HH:MM)"
+                class="op-cl"
+              />
+              <input
+                type="text"
+                name="closedHours"
+                id="closedHours"
+                placeholder="Horário de fechamento (HH:MM)"
+                class="op-cl"
+              />
+            </div>
+          </div>
+          <div class="txtAreaDiv">
+            <textarea
+              name="description"
+              id="description"
+              placeholder="Breve descrição da sua loja e dos serviços oferecidos... (máx. 300 caracteres)"
+              maxlength="300"
+            ></textarea>
+            <span class="Caracters">Caracteres: <strong class="GreenCard">0</strong><strong class="consoleWrite">/</strong><strong class="GreenCard">300</strong></span>
+          </div>
+        </div>
+        <div class="mid">
+          <div class="imager">
+            <span>Arraste <strong class="GreenCard">ou</strong> Selecione</span>
+            <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt="">
+            <input
+              type="file"
+              name="storeImage"
+              id="storeImage"
+              accept="image/*"
+            />
+          </div>
+          <div class="selectDay">
+            <h1 class="label"><strong class="consoleWrite">//</strong>Dias Fechados</h1>
+            <div class="daysForSelect">
+              <div class="dayOfWeek" id="sunday" data-day="Sunday">Domingo <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek" data-day="Monday">Segunda-feira <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek" data-day="Tuesday">Terça-feira <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek" data-day="Wednesday">Quarta-feira <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek" data-day="Thursday">Quinta-feira <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek" data-day="Friday">Sexta-feira <input type="checkbox" name="" id=""></div>
+              <div class="dayOfWeek" data-day="Saturday">Sábado <input type="checkbox" name="" id=""></div>
+            </div>
+          </div>
+
+          <div class="openingAt">
+            <h1 class="label" style="margin-left: 7vw;">
+              Abre <strong class="GreenCard">às</strong><strong class="pointer">.</strong>
+            </h1>
+            <div class="openHours" id="opening">
+              <div class="ourhours open" data-hour="00:00">00:00</div><br>
+              <div class="ourhours open" data-hour="01:00">01:00</div><br>
+              <div class="ourhours open" data-hour="02:00">02:00</div><br>
+              <div class="ourhours open" data-hour="03:00">03:00</div><br>
+              <div class="ourhours open" data-hour="04:00">04:00</div><br>
+              <div class="ourhours open" data-hour="05:00">05:00</div><br>
+              <div class="ourhours open" data-hour="06:00">06:00</div><br>
+              <div class="ourhours open" data-hour="07:00">07:00</div><br>
+              <div class="ourhours open" data-hour="08:00">08:00</div><br>
+              <div class="ourhours open" data-hour="09:00">09:00</div><br>
+              <div class="ourhours open" data-hour="10:00">10:00</div><br>
+              <div class="ourhours open" data-hour="11:00">11:00</div><br>
+              <div class="ourhours open" data-hour="12:00">12:00</div><br>
+              <div class="ourhours open" data-hour="13:00">13:00</div><br>
+              <div class="ourhours open" data-hour="14:00">14:00</div><br>
+              <div class="ourhours open" data-hour="15:00">15:00</div><br>
+              <div class="ourhours open" data-hour="16:00">16:00</div><br>
+              <div class="ourhours open" data-hour="17:00">17:00</div><br>
+              <div class="ourhours open" data-hour="18:00">18:00</div><br>
+              <div class="ourhours open" data-hour="19:00">19:00</div><br>
+              <div class="ourhours open" data-hour="20:00">20:00</div><br>
+              <div class="ourhours open" data-hour="21:00">21:00</div><br>
+              <div class="ourhours open" data-hour="22:00">22:00</div><br>
+              <div class="ourhours open" data-hour="23:00">23:00</div><br>
+            </div>
+          </div>
+
+          <div class="openingAt">
+            <h1 class="label" style="margin-left: 7vw;">
+              Fecha <strong class="GreenCard">às</strong><strong class="pointer">.</strong>
+            </h1>
+            <div class="openHours" id="closed">
+              <div class="ourhours close" data-hour="00:00">00:00</div><br>
+              <div class="ourhours close" data-hour="01:00">01:00</div><br>
+              <div class="ourhours close" data-hour="02:00">02:00</div><br>
+              <div class="ourhours close" data-hour="03:00">03:00</div><br>
+              <div class="ourhours close" data-hour="04:00">04:00</div><br>
+              <div class="ourhours close" data-hour="05:00">05:00</div><br>
+              <div class="ourhours close" data-hour="06:00">06:00</div><br>
+              <div class="ourhours close" data-hour="07:00">07:00</div><br>
+              <div class="ourhours close" data-hour="08:00">08:00</div><br>
+              <div class="ourhours close" data-hour="09:00">09:00</div><br>
+              <div class="ourhours close" data-hour="10:00">10:00</div><br>
+              <div class="ourhours close" data-hour="11:00">11:00</div><br>
+              <div class="ourhours close" data-hour="12:00">12:00</div><br>
+              <div class="ourhours close" data-hour="13:00">13:00</div><br>
+              <div class="ourhours close" data-hour="14:00">14:00</div><br>
+              <div class="ourhours close" data-hour="15:00">15:00</div><br>
+              <div class="ourhours close" data-hour="16:00">16:00</div><br>
+              <div class="ourhours close" data-hour="17:00">17:00</div><br>
+              <div class="ourhours close" data-hour="18:00">18:00</div><br>
+              <div class="ourhours close" data-hour="19:00">19:00</div><br>
+              <div class="ourhours close" data-hour="20:00">20:00</div><br>
+              <div class="ourhours close" data-hour="21:00">21:00</div><br>
+              <div class="ourhours close" data-hour="22:00">22:00</div><br>
+              <div class="ourhours close" data-hour="23:00">23:00</div><br>
+            </div>
+          </div>
+
+          <div class="selectedIndicatorC">
+            <button type="submit">Cadastrar Loja<strong class="consoleWrite">>></strong></button>
+          </div>
+        </div>
+      </form>
+    </section>
+  </body>
+  <script>
+    // Script mantido praticamente igual, apenas alguns textos de console ajustados se necessário
+    const form = document.getElementById("storeForm");
+    const pin = document.querySelector('.pinDiv input');
+    const piner = document.querySelector('.pinDiv img');
+    const pinVal = Math.floor(Math.random() * (99999 - 1000 + 1)) + 1000;
+    pin.value = pinVal;
+    let rotater = 0;
+
+    piner.addEventListener("click", () => {
+      rotater += 360;
+      piner.style.transform = `rotate(${rotater}deg)`
+      let newPin = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+      pin.value = newPin;
+    })
+
+    const imager = document.querySelector(".imager")
+    const fileContent = document.querySelector("#storeImage")
+    const fileInput = document.querySelector("#storeImage");
+    let selectedFile = null
+    const txtArea = document.querySelector('textarea')
+    const span = document.querySelector('.Caracters')
+
+    txtArea.addEventListener("input", () => {
+      let n = txtArea.value.length;
+      span.innerHTML = `Caracteres: <strong class="GreenCard">${n}</strong><strong class="consoleWrite">/</strong><strong class="GreenCard">300</strong>`
+    })
+
+    imager.addEventListener("dragover", (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+    })
+
+    imager.addEventListener('drop',(e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      const files = e.dataTransfer.files;
+      if (files.length > 0){
+        handleFiles(files[0])
+      }
+    });
+
+    fileInput.addEventListener("change", (e) => {
+      if (e.target.files.length > 0){
+        handleFiles(e.target.files[0])
+      }
+    })
+    
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files
+      if (files.length > 0 ){
+        handleFiles(files[0])
+      }
+    }
+
+    function handleFiles(files){
+      selectedFile = files
+      console.log(selectedFile)
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        imager.innerHTML = `<span>${selectedFile.name}</span>
+            <img src="${e.target.result}" alt="">
+            <input
+              type="file"
+              name="storeImage"
+              id="storeImage"
+              accept="image/*"
+            />`
+        imager.style.backgroundColor = "#262526"
+        const newInput = imager.querySelector("#storeImage")
+        const dataTransfer = new DataTransfer()
+        dataTransfer.items.add(selectedFile)
+        newInput.files = dataTransfer.files
+      }
+      reader.readAsDataURL(files)
+    }
+
+    const op = document.querySelectorAll('.open');
+    let arrayOp = [];
+    const inputOp = document.querySelector("#openHours")
+    op.forEach((el, i) => {
+      el.addEventListener("click", () => {
+        op.forEach(op => op.classList.remove("hourSelect"))
+        arrayOp.splice(0)
+        const data_hour = el.getAttribute("data-hour");
+
+        el.classList.add("hourSelect");
+        arrayOp.push(data_hour)
+        let ipOp = arrayOp.join(',')
+        inputOp.value = ipOp
+        console.log(data_hour, inputOp.value)
+      })
+    })
+
+    const oc = document.querySelectorAll('.close');
+    let arrayOc = [];
+    const inputOc = document.querySelector("#closedHours")
+    oc.forEach((el, i) => {
+      el.addEventListener("click", () => {
+        oc.forEach(oc => oc.classList.remove("hourSelect"))
+        arrayOc.splice(0)
+        const data_hour = el.getAttribute("data-hour");
+
+        el.classList.add("hourSelect");
+        arrayOc.push(data_hour)
+        let ipOc = arrayOc.join(',')
+        inputOc.value = ipOc
+        console.log(data_hour, inputOc.value)
+      })
+    })
+
+    const dayOfWeek = document.querySelectorAll(".dayOfWeek")
+    let week = [];
+    const ghost = document.querySelector("#closedDays")
+    dayOfWeek.forEach((el, i) => {
+      el.addEventListener("click", () => {
+        el.classList.toggle("daySel");
+        const dataDia = dayOfWeek[i].getAttribute("data-day")
+        if (week.includes(dataDia)) {
+          const index = week.indexOf(dataDia);
+          if (index !== -1) week.splice(index, 1);
+        } else {
+          week.push(dataDia);
+        }
+        console.log(week)
+        let w = week.join(',')
+        ghost.value = w
+        console.log(ghost.value)
+      });
+    });
+  </script>
+</html>

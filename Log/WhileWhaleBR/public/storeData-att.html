@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>While Whale - Edição de Dados da Loja</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <header class="nb">
+      <button class="nButton" id="back">
+        <img
+          src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF"
+          alt=""
+        />
+      </button>
+    </header>
+    <section class="cad-storeContent">
+      <div id="loading"></div>
+      <section class="renderization"></section>
+    </section>
+  </body>
+  <script>
+    function render(el) {
+      const element = document.createElement("div");
+      element.innerHTML = el;
+      return element;
+    }
+
+    window.addEventListener("load", async () => {
+      document.querySelector("#back").addEventListener("click", () => {
+        window.history.back();
+      });
+
+      const loading = document.querySelector("#loading");
+      const container = document.querySelector(".storeRend");
+      const renderization = document.querySelector(".renderization");
+      const form = document.querySelector("#mainForm");
+      const submitBtn = document.querySelector("#submitBtn");
+
+      const ini = await fetch("/updater/storeDatas", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (ini.ok) {
+        const data = await ini.json();
+
+        if (loading) loading.style.opacity = "0";
+        if (container) container.style.opacity = "1";
+        if (renderization) renderization.style.opacity = "1";
+
+        const rendered = render(data.html);
+        renderization.appendChild(rendered);
+
+        const imager = document.querySelector(".imager");
+        const fileContent = document.querySelector("#storeImage");
+        const fileInput = document.querySelector("#storeImage");
+        let selectedFile = null;
+
+        const txtArea = document.querySelector("textarea");
+        const span = document.querySelector(".Caracters");
+
+        txtArea.addEventListener("input", () => {
+          let n = txtArea.value.length;
+          span.innerHTML = `Caracteres: <strong class="GreenCard">${n}</strong><strong class="consoleWrite">/</strong><strong class="GreenCard">300</strong>`;
+        });
+
+        imager.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        });
+
+        imager.addEventListener("drop", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            handleFiles(files[0]);
+          }
+        });
+
+        fileInput.addEventListener("change", (e) => {
+          if (e.target.files.length > 0) {
+            handleFiles(e.target.files[0]);
+          }
+        });
+
+        function handleDrop(e) {
+          const dt = e.dataTransfer;
+          const files = dt.files;
+          if (files.length > 0) {
+            handleFiles(files[0]);
+          }
+        }
+
+        function handleFiles(files) {
+          selectedFile = files;
+          console.log(selectedFile);
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            imager.innerHTML = `<span>${selectedFile.name}</span>
+            <img src="${e.target.result}" alt="">
+            <input
+              type="file"
+              name="storeImage"
+              id="storeImage"
+              accept="image/*"
+            />`;
+            imager.style.backgroundColor = "#262526";
+            const newInput = imager.querySelector("#storeImage");
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(selectedFile);
+            newInput.files = dataTransfer.files;
+          };
+          reader.readAsDataURL(files);
+        }
+
+        const op = document.querySelectorAll(".open");
+        let arrayOp = [];
+        const inputOp = document.querySelector("#openHours");
+
+        op.forEach((el, i) => {
+          el.addEventListener("click", () => {
+            op.forEach((op) => op.classList.remove("hourSelect"));
+            arrayOp.splice(0);
+            const data_hour = el.getAttribute("data-hour");
+
+            el.classList.add("hourSelect");
+            arrayOp.push(data_hour);
+            let ipOp = arrayOp.join(",");
+            inputOp.value = ipOp;
+            console.log(data_hour, inputOp.value);
+          });
+        });
+
+        const oc = document.querySelectorAll(".close");
+        let arrayOc = [];
+        const inputOc = document.querySelector("#closedHours");
+
+        oc.forEach((el, i) => {
+          el.addEventListener("click", () => {
+            oc.forEach((oc) => oc.classList.remove("hourSelect"));
+            arrayOc.splice(0);
+            const data_hour = el.getAttribute("data-hour");
+
+            el.classList.add("hourSelect");
+            arrayOc.push(data_hour);
+            let ipOc = arrayOc.join(",");
+            inputOc.value = ipOc;
+            console.log(data_hour, inputOc.value);
+          });
+        });
+
+        const dayOfWeek = document.querySelectorAll(".dayOfWeek");
+        const ghost = document.querySelector("#closedDays");
+        let week = [];
+
+        // Carregar dias já selecionados (iniciais)
+        dayOfWeek.forEach((el) => {
+          if (el.classList.contains("daySel")) {
+            const day = el.getAttribute("data-day");
+            week.push(day);
+          }
+        });
+
+        // Atualizar o input hidden com os valores iniciais
+        ghost.value = week.join(",");
+        console.log("Dias iniciais carregados:", week);
+
+        // Event listener para toggle dos dias
+        dayOfWeek.forEach((el) => {
+          el.addEventListener("click", () => {
+            const dataDia = el.getAttribute("data-day");
+
+            // Toggle visual
+            el.classList.toggle("daySel");
+
+            // Sincronizar array com o estado visual
+            if (el.classList.contains("daySel")) {
+              if (!week.includes(dataDia)) {
+                week.push(dataDia);
+              }
+            } else {
+              const index = week.indexOf(dataDia);
+              if (index !== -1) {
+                week.splice(index, 1);
+              }
+            }
+
+            // Atualizar input hidden
+            ghost.value = week.join(",");
+            console.log("Dias selecionados:", week);
+          });
+        });
+      }
+    });
+  </script>
+</html>

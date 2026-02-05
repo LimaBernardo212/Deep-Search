@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>While Whale - Agendamentos</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <header class="homenav">
+      <div class="consoleImg">
+        <img src="/img/().png" alt="" />
+      </div>
+
+      <a href="/stores/prefs">
+        <div class="account" >
+          <div class="person exclude" id="people">
+            <img
+              src="https://img.icons8.com/?size=100&id=85183&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+      </a>
+        <a href="/stripeDashBoard">
+          <div class="settings" id="sett">
+            <img
+              src="https://img.icons8.com/?size=100&id=85150&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+        </a>
+        <a href="/stores/del"  style="margin-left: 1vw;">
+        <div class="person" class="burguerButton"><img src="https://img.icons8.com/?size=100&id=105512&format=png&color=FFFFFF" alt=""></div>
+      </a>
+      </div>
+    </header>
+
+    <section class="userPOV">
+      <aside class="leftBar">
+        <div class="divAndYourLabel">
+          <div id="store" class="itens" title="store">
+            <img
+              src="https://img.icons8.com/?size=100&id=92137&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Home</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="analitics" class="itens" title="Your Schedules">
+            <img
+              src="https://img.icons8.com/?size=100&id=98067&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Analytics</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div
+            id="clientArea"
+            class="itenSelected itens"
+            title="Your Treatments"
+          >
+            <img
+              src="https://img.icons8.com/?size=100&id=88302&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Agendamentos</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="plansinapp" class="itens" title="Yours Plans in Stores">
+            <img
+              src="https://img.icons8.com/?size=100&id=86440&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Planos</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="services" class="itens" title="Your Project">
+            <img
+              src="https://img.icons8.com/?size=100&id=86844&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Pref.</p>
+        </div>
+        <div class="divAndYourLabel exclude">
+          <div id="delete" class="itens" title="Your Project">
+            <img
+              src="https://img.icons8.com/?size=100&id=105512&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Obsolencia</p>
+        </div>
+      </aside>
+
+      <main class="infoContent">
+        <div id="loading"></div>
+
+        <div class="content">
+          <div class="operators">
+            <div id="today" class="operatorsBottom operatorselect">Hoje</div>
+            <div id="week" class="operatorsBottom">
+              Proxímos <strong class="GreenCard"> 7 </strong> dias
+            </div>
+            <div id="month" class="operatorsBottom">
+              Proxímos <strong class="GreenCard"> 30 </strong> dias
+            </div>
+          </div>
+          <div class="store-content" id="todayDiv"></div>
+        </div>
+      </main>
+    </section>
+  </body>
+  <script>
+    function render(el) {
+      const element = document.createElement("div");
+      element.classList.add("scheduleData");
+      element.innerHTML = el;
+      return element;
+    }
+    window.addEventListener("load", async () => {
+      const load = document.querySelector("#loading");
+      const content = document.querySelector(".content");
+      const container = document.querySelector("#todayDiv");
+      
+      const week = document.querySelector("#week");
+      const month = document.querySelector("#month");
+      const today = document.querySelector("#today");
+      const plans = document.querySelector("#plansinapp");
+      const client = document.querySelector("#store");
+      client.addEventListener("click", () => {
+        window.location.href = "/stores/home";
+      });
+      plans.addEventListener("click", () => {
+        window.location.href = "/store-plans";
+      });
+      const analitics = document.querySelector("#analitics");
+      analitics.addEventListener("click", () => {
+        window.location.href = "/stores/analitics";
+      });
+      const prefs = document.querySelector("#services")
+      prefs.addEventListener("click", () => {
+        window.location.href = '/stores/prefs'
+      })
+       const obsoleto = document.querySelector("#delete")
+      obsoleto.addEventListener("click", () => {
+        window.location.href = '/stores/del'
+      })
+      let exist1 = false;
+      let exist2 = false;
+      let exist3 = false;
+      try {
+        const ini = await fetch("/api/me", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!ini.ok){
+        window.location.href = `/login-redirect?redirect='/stores/home'`
+      }
+      
+        const req = await fetch("/today-schedules", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (req.ok) {
+          const data = await req.json();
+          const html = data.returner;
+          load.style.opacity = "0";
+          setTimeout(() => {
+            content.style.display = "flex";
+          }, 200);
+          content.style.opacity = "1";
+
+          container.appendChild(render(html));
+          exist1 = true;
+        }else{
+        window.location.href = `/stores/home`
+      }
+        const newContainer = document.querySelector("#weekDiv");
+        const opacitor1 = document.querySelector("#opacitor1");
+
+        today.addEventListener("click", async () => {
+            month.classList.remove("operatorselect");
+          today.classList.add("operatorselect");
+          week.classList.remove("operatorselect");
+          if (exist2) {
+            const opacitor2 = document.querySelector("#opacitor2")
+            opacitor2.style.opacity = "0";
+            setTimeout(() => {
+                opacitor2.style.display = 'none'
+            }, 500);
+          }
+          if (exist3){
+            const opacitor3 = document.querySelector("#opacitor3")
+            opacitor3.style.opacity = "0";
+            setTimeout(() => {
+                opacitor3.style.display = 'none'
+            }, 500);
+          }
+          if (exist1){
+            opacitor1.style.display = 'flex'
+            setTimeout(() => {
+                opacitor1.style.opacity = '1'
+            }, 500);
+          }
+        });
+        week.addEventListener("click", async () => {
+            if (exist1){
+                opacitor1.style.opacity = "0";
+          setTimeout(() => {
+            opacitor1.style.display = "none";
+          }, 500);
+            }
+            if (exist3){
+                opacitor3.style.opacity = "0";
+          setTimeout(() => {
+            opacitor3.style.display = "none";
+          }, 500);
+            }
+          if (!exist2){
+            
+          month.classList.remove("operatorselect");
+          today.classList.remove("operatorselect");
+          week.classList.add("operatorselect");
+          load.style.opacity = "1";
+
+          const weekReq = await fetch("/week-schedules", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          if (weekReq.ok) {
+            const dataR = await weekReq.json();
+            const htmlR = dataR.returner;
+            load.style.opacity = "0";
+            container.style.opacity = "1";
+            exist2 = true
+            container.appendChild(render(htmlR));
+          }
+          }else{
+            month.classList.remove("operatorselect");
+          today.classList.remove("operatorselect");
+          week.classList.add("operatorselect");
+            const opacitor2 = document.querySelector("#opacitor2")
+            opacitor2.style.display = 'flex'
+            setTimeout(() => {
+                opacitor2.style.opacity = '1'
+            }, 200);
+          }
+        });
+        month.addEventListener("click", async () => {
+            if (exist1){
+                opacitor1.style.opacity = "0";
+          setTimeout(() => {
+            opacitor1.style.display = "none";
+          }, 500);
+            }
+            if (exist2){
+                opacitor2.style.opacity = "0";
+          setTimeout(() => {
+            opacitor2.style.display = "none";
+          }, 500);
+            }
+          if (!exist3){
+            
+          month.classList.add("operatorselect");
+          today.classList.remove("operatorselect");
+          week.classList.remove("operatorselect");
+          load.style.opacity = "1";
+
+          const weekReq = await fetch("/month-schedules", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          if (weekReq.ok) {
+            const dataR = await weekReq.json();
+            const htmlR = dataR.returner;
+            load.style.opacity = "0";
+            container.style.opacity = "1";
+            exist3 = true
+            container.appendChild(render(htmlR));
+          }
+          }else{
+            month.classList.add("operatorselect");
+          today.classList.remove("operatorselect");
+          week.classList.remove("operatorselect");
+            const opacitor3 = document.querySelector("#opacitor3")
+            opacitor3.style.display = 'flex'
+            setTimeout(() => {
+                opacitor3.style.opacity = '1'
+            }, 200);
+          }
+        })
+        const dataSchedule = document.querySelectorAll(".schedule-data");
+        const apoitBtn = document.querySelectorAll(".confirm");
+        const deleter = document.querySelectorAll(".delete");
+        deleter.forEach((el, i) => {
+          el.addEventListener("click", async () => {
+            try {
+              const scheduleMe = dataSchedule[i];
+              const day = scheduleMe.getAttribute("data-dia");
+              const hour = scheduleMe.getAttribute("data-hour");
+              const store = scheduleMe.getAttribute("data-storename");
+              const funcionario = scheduleMe.getAttribute("data-functionary");
+              const emailC = scheduleMe.getAttribute("data-emailC")
+              const nameC = scheduleMe.getAttribute("data-nameC")
+              const toReq = await fetch("/backMyMoney/me", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  nameC: nameC,
+                  emailC: emailC,
+                  dia:day,
+                  hora: hour,
+                  loja: store,
+                  funcionario:funcionario,
+                }),
+              });
+              if (toReq.ok){
+                window.location.reload()
+              }
+            } catch (error) {
+              console.log('error')
+            }
+          });
+        });
+        apoitBtn.forEach((el, i) => {
+          el.addEventListener("click", async () => {
+            const scheduleMe = dataSchedule[i];
+            const dia = scheduleMe.getAttribute("data-dia");
+            const hora = scheduleMe.getAttribute("data-hour");
+            const loja = scheduleMe.getAttribute("data-storename");
+            const funcionario = scheduleMe.getAttribute("data-functionary");
+            const emailC = scheduleMe.getAttribute("data-emailC")
+              const nameC = scheduleMe.getAttribute("data-nameC")
+            try {
+              const req = await fetch("/pass/store", {
+                method: "DELETE",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  nameC: nameC,
+                  emailC: emailC,
+                  dia: dia,
+                  hora: hora,
+                  loja: loja,
+                  funcionario: funcionario,
+                }),
+              });
+              if (req.ok) {
+                window.location.reload();
+              }
+            } catch (error) {
+              console.error(error);
+            }
+          });
+        });
+      } catch (error) {
+        console.log("ERORORRORORORO");
+      }
+    });
+  </script>
+</html>

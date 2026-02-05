@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>While Whale - Edição de Planos</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <header class="nbu">
+      <button class="nButton" id="back">
+        <img
+          src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF"
+          alt=""
+        />
+      </button>
+    </header>
+    
+    <main class="services-container">
+      <div id="loading"></div>
+      <section class="renderization">
+        <div class="services-tesxt">
+          <h1 id="ob">
+            <strong class="consoleWrite">@</strong>
+            Editar
+            <span class="GreenCard">Planos</span>
+          </h1>
+          <p>
+            Gerencie e configure seus planos de assinatura<strong class="pointer">.</strong>
+          </p>
+        </div>
+
+        <form action="/plan/updater" method="post" style="margin-top: 2vh;">
+          <section id="contenterFormer" style="min-height: 60vh;"></section>
+          <div class="centralNB">
+            <div id="adder">
+              <img
+                src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
+                alt=""
+              />
+            </div>
+          </div>
+        </form>
+
+        <div class="selectedIndicatorC">
+          <button type="submit">Editar <strong class="consoleWrite">>></strong></button>
+        </div>
+      </section>
+    </main>
+    
+  </body>
+  <script>
+    function createHour() {
+      const row = document.createElement("div");
+      row.classList.add("hour-row");
+      row.innerHTML = `<div id="contentForm">
+              <div class="unionE">
+                <input
+                  type="text"
+                  name="name_product"
+                  id="name_product"
+                  placeholder="Nome do plano"
+                />
+                <input
+                  type="text"
+                  name="price_product"
+                  id="price_product"
+                  placeholder="Preço do plano (R$)"
+                />
+              </div>
+              <textarea
+                name="description"
+                id="description"
+                placeholder="Descrição do plano"
+                style="margin-left: 0;"
+              ></textarea>
+            </div>`;
+      return row;
+    }
+
+    function render(el) {
+      const element = document.createElement("div");
+      element.innerHTML = el;
+      return element.children;
+    }
+
+    function removeHour(el) {
+      const rows = el.querySelectorAll(".hour-row");
+      if (rows.length > 0) {
+        el.removeChild(rows[rows.length - 1]); // remove o último .hour-row
+      }
+    }
+
+    window.addEventListener("load", async () => {
+      document.querySelector("#back").addEventListener("click", () => {
+        window.history.back();
+      });
+
+      const ini = await fetch("/updater/plans", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (ini.ok) {
+        const renderization = document.querySelector(".renderization");
+        const adder = document.querySelector("#adder");
+        const container = document.querySelector("#contenterFormer");
+        const selectedIndicatorBtn = document.querySelector(".selectedIndicatorC");
+        const data = await ini.json();
+        const loading = document.querySelector("#loading");
+
+        loading.style.opacity = "0";
+        container.style.opacity = "1";
+        renderization.style.opacity = "1";
+
+        const html = data.html;
+        const rendered = render(html);
+        const childrenArray = Array.from(rendered);
+
+        for (let child of childrenArray) {
+          container.appendChild(child);
+        }
+
+        const add = document.querySelector("#adder");
+        add.addEventListener("click", () => {
+          container.appendChild(createHour());
+        });
+
+        const form = document.querySelector("form");
+        selectedIndicatorBtn.addEventListener("click", () => {
+          form.submit();
+        });
+      }
+    });
+  </script>
+</html>

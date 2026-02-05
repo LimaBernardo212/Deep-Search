@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Horarios</h1>
+    <form action="/horarioCad" method="post">
+        <input type="text" name="storeName" id="storeName">
+        <div class="hours-containers">
+            <div class="hour-row"><input type="text" name="hour" id="hour" placeholder="Hour"></div>
+        </div>
+        <div class="actions">
+                <button>Adicionar novo horario</button>
+                <input type="submit" value="Cadastrar">
+                <input type="text" id="hideHour" name="hideHour" style="display: none;">
+            </div>
+    </form>
+</body>
+<script>
+    const container = document.querySelector('.hours-containers');
+    const addButton = document.querySelector('.actions button');
+    const hide = document.getElementById('hideHour');
+    
+    let orderHour = 1;
+
+    function createHour(){
+        const row = document.createElement('div');
+        row.classList.add('hour-row');
+        row.innerHTML = `<div class="hour-row"><input type="text" name="hour" id="hour" placeholder="Hour"></div>`;
+        return row;
+    }
+    addButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        container.appendChild(createHour());
+    })
+
+</script>
+</html>

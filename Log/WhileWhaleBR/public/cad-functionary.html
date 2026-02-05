@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>While Whale - Cadastro de Equipe</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body style="background-image: linear-gradient(to bottom, #042326, #0d0d0d);">
+    <header class="nbu">
+      <!-- <button class="nButton" id="back">
+        <img
+          src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF"
+          alt=""
+        />
+      </button> -->
+    </header>
+
+    <section class="services-container padder-container">
+      <div>
+        <h1 id="ob">
+          <strong class="consoleWrite">$</strong>Equipe
+          <strong class="GreenCard">de Trabalho</strong>
+        </h1>
+        <p class="pcf">
+          Configure sua equipe para começar a utilizar a
+          <strong class="GreenCard">plataforma</strong
+          ><strong class="pointer">.</strong>
+        </p>
+      </div>
+
+      <form
+        action="/cadFunctionary"
+        class="cadFunctonaryForm"
+        method="post"
+        enctype="multipart/form-data"
+      >
+        <div class="spawner">
+          <div class="functionary-base">
+            <div class="imager coolImager">
+              <span>Arraste <strong class="GreenCard">ou</strong> Selecione</span>
+              <img
+                src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
+                alt=""
+              />
+              <input type="file" name="image[]" id="image" />
+            </div>
+            <div class="inputer">
+              <input
+                type="text"
+                name="functionaryName[]"
+                id="functionaryName"
+                placeholder="Nome do membro:"
+              />
+              <input
+                type="email"
+                name="functionaryEmail[]"
+                id="functionaryEmail"
+                placeholder="E-mail do membro:"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="imager-add imager stressTest">
+          <img
+            src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF"
+            alt=""
+          />
+        </div>
+      </form>
+
+      <div class="selectedIndicatorC">
+        <button type="submit">
+          Cadastrar Equipe<strong class="consoleWrite">>></strong>
+        </button>
+      </div>
+    </section>
+  </body>
+
+  <script>
+    // document.querySelector("#back").addEventListener("click", async () => {
+    //     window.location.href = `/store/home`;
+    // });
+
+    const addBtn = document.querySelector(".imager-add");
+    const spawn = document.querySelector(".spawner");
+
+    function createElement() {
+      const row = document.createElement("div");
+      row.classList.add("hour-row");
+      row.innerHTML = `<div class="functionary-base">
+                    <div class="imager coolImager">
+                        <span>Arraste <strong class="GreenCard">ou</strong> Selecione</span>
+                        <img src="https://img.icons8.com/?size=100&id=95779&format=png&color=FFFFFF" alt="">
+                        <input type="file" name="image[]" id="image" style="opacity: 0;" />
+                    </div>
+                    <div class="inputer">
+                        <input type="text" name="functionaryName[]" id="functionaryName" placeholder="Nome do membro:">
+                        <input type="email" name="functionaryEmail[]" id="functionaryEmail" placeholder="E-mail do membro:">
+                    </div>
+                </div>`;
+
+      const imager = row.querySelector(".imager");
+      setupListeners(imager);
+      return row;
+    }
+
+    function setupListeners(el) {
+      const serviceInput = document.querySelectorAll(".imager");
+      const fileContent = el.querySelector(`#image`);
+      const fileInput = el.querySelector("input[type='file']");
+      let selectedFile = null;
+
+      el.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+
+      el.addEventListener("drop", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          handleFiles(files[0]);
+        }
+      });
+
+      fileInput.addEventListener("change", (e) => {
+        if (e.target.files.length > 0) {
+          handleFiles(e.target.files[0]);
+        }
+      });
+
+      function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length > 0) {
+          handleFiles(files[0]);
+        }
+      }
+
+      function handleFiles(files) {
+        selectedFile = files;
+        console.log(selectedFile);
+        const reader = new FileReader();
+        const img = el.querySelector(".imager");
+
+        reader.onload = (e) => {
+          el.innerHTML = `
+                        <span>Arquivo selecionado</span>
+                        <img src="${e.target.result}" alt="">
+                        <input type="file" name="image[]" id="image" style="opacity: 0;" />
+                    `;
+          const newInput = el.querySelector("input[type='file']");
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(selectedFile);
+          newInput.files = dataTransfer.files;
+
+          setupListeners(el);
+        };
+        reader.readAsDataURL(files);
+      }
+    }
+
+    const imager = document.querySelector(".imager");
+    setupListeners(imager);
+
+    addBtn.addEventListener("click", () => {
+      spawn.appendChild(createElement());
+    });
+
+    const form = document.querySelector("form");
+    const selectedIndicatorA = document.querySelector(".selectedIndicatorC");
+
+    selectedIndicatorA.addEventListener("click", () => {
+      form.submit();
+    });
+  </script>
+</html>

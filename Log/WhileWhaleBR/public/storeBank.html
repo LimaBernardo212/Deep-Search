@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log: Bank</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+
+  <body>
+    <header class="homenav">
+      <div class="consoleImg">
+        <img src="/img/().png" alt="" />
+      </div>
+
+      <div class="account">
+        <div class="person" id="people">
+          <img
+            src="https://img.icons8.com/?size=100&id=85147&format=png&color=FFFFFF"
+            alt=""
+          />
+        </div>
+        <div class="settings" id="sett">
+          <img
+            src="https://img.icons8.com/?size=100&id=83214&format=png&color=FFFFFF"
+            alt=""
+          />
+        </div>
+      </div>
+    </header>
+
+    <section class="userPOV">
+      <aside class="leftBar">
+        <div class="divAndYourLabel">
+          <div id="store" class="itens" title="store">
+            <img
+              src="https://img.icons8.com/?size=100&id=92137&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Home</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="analitics" class="itens" title="Your Schedules">
+            <img
+              src="https://img.icons8.com/?size=100&id=98067&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Analytics</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="clientArea" class="itens" title="Your Treatments">
+            <img
+              src="https://img.icons8.com/?size=100&id=88302&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Schedule</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="plansinapp" class="itens" title="Yours Plans in Stores">
+            <img
+              src="https://img.icons8.com/?size=100&id=86440&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Plans</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="services" class="itens" title="Your Project">
+            <img
+              src="https://img.icons8.com/?size=100&id=86844&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Pref.</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="bank" class="itenSelected itens" title="Your Project">
+            <img
+              src="https://img.icons8.com/?size=100&id=86131&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Bank</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="documents" class="itens" title="Documents">
+            <img
+              src="https://img.icons8.com/?size=100&id=84161&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Manual</p>
+        </div>
+      </aside>
+
+      <main class="infoContent">
+        <div id="loading"></div>
+
+        <div class="content">
+          <div class="store-content"></div>
+        </div>
+      </main>
+    </section>
+  </body>
+  <script>
+    function render(el) {
+      const element = document.createElement("div");
+      element.classList.add("scheduleData");
+      element.innerHTML = el;
+      return element;
+    }
+    window.addEventListener("load", async () => {
+      const load = document.querySelector("#loading");
+      const content = document.querySelector(".content");
+      const container = document.querySelector(".store-content");
+      const plans = document.querySelector("#plansinapp");
+      const client = document.querySelector("#clientArea");
+      client.addEventListener("click", () => {
+        window.location.href = "/client/schedules";
+      });
+      plans.addEventListener("click", () => {
+        window.location.href = "/store-plans";
+      });
+      const home = document.querySelector("#store");
+      home.addEventListener("click", () => {
+        window.location.href = "/stores/home";
+      });
+      const prefs = document.querySelector("#services");
+      prefs.addEventListener("click", () => {
+        window.location.href = "/stores/prefs";
+      });
+      const bank = document.querySelector("#analitics");
+      bank.addEventListener("click", () => {
+        window.location.href = "/stores/analitics";
+      });
+      const ini = await fetch("/exist-bank-datas", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (ini.ok) {
+        const data = await ini.json();
+        const rendera = data.rendera;
+        load.style.opacity = "0";
+
+        content.style.display = "flex";
+        content.style.opacity = "1";
+        container.appendChild(render(rendera));
+        setTimeout(() => {
+            const central_plus = document.querySelector(".central-plus");
+        console.log(central_plus);
+        if (central_plus) {
+          central_plus.addEventListener("click", () => {
+            window.location.href = "/bank/datas";
+          });
+        }
+        }, 50);
+        const cash = document.querySelector(".analyticsInfo")
+        cash.addEventListener("click", async () => {
+          const reward = await fetch("/stores/money", {
+            method: 'GET',
+            headers: {"Content-Type": "application/json"}
+          })
+          if (reward.ok){
+          window.location.reload()
+        }
+        })
+        
+      }
+    });
+  </script>
+</html>

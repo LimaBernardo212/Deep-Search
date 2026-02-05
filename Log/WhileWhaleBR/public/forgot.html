@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style/style.css">
+    <link rel="shortcut icon" href="favicons/favicon-32x32.png" type="image/x-icon">
+    <link
+      rel="stylesheet"
+      href="./style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
+    <title>While Whale - Código de Verificação</title>
+</head>
+<body style="background-color: #042326;">
+    <header class="nb">
+        <button class="nButton" id="back">
+            <img src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF" alt="">
+        </button>
+        
+    </header>
+    <div id="nbtoforgot"></div>
+    <section class="forgotPassword">
+        <div class="breakLine">
+            <h1>Digite o <strong class="GreenCard">código</strong><strong class="pointer">|</strong></h1>
+            <p><strong class="consoleWrite">>_</strong>Enviamos um código de verificação para seu e-mail. Digite-o aqui.</p>
+            <form action="/sending-password" method="post">
+                <input type="text" id="first" name="first" class="codeDiv" maxlength="1">
+                <input type="text" id="second" name="second" class="codeDiv" maxlength="1">
+                <input type="text" id="third" name="third" class="codeDiv" maxlength="1">
+                <input type="text" id="fourth" name="fourth" class="codeDiv" maxlength="1">
+                <input type="text" id="fifth" name="fifth" class="codeDiv" maxlength="1">
+                <input type="text" id="sixth" name="sixth" class="codeDiv" maxlength="1">
+                <input type="submit" value="Enviar" style="opacity: 0;">
+            </form>
+        </div>
+    </section>
+</body>
+<script>
+    document.querySelector('#back').addEventListener('click', () => {
+            window.history.back();
+        });
+</script>
+</html>

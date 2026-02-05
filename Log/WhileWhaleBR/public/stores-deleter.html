@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>While Whale -  Obsolescencia</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <header class="homenav">
+      <div class="consoleImg">
+        <img src="/img/().png" alt="" />
+      </div>
+
+      <a href="/stores/home">
+        <div class="account" >
+          <div class="person" id="people">
+            <img
+              src="https://img.icons8.com/?size=100&id=85183&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+      </a>
+        <a href="/stripeDashBoard">
+          <div class="settings" id="sett">
+            <img
+              src="https://img.icons8.com/?size=100&id=85150&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+        </a>
+        <a href="/stores/del"  style="margin-left: 1vw;">
+        <div class="person  exclude" class="burguerButton"><img src="https://img.icons8.com/?size=100&id=105512&format=png&color=FFFFFF" alt=""></div>
+      </a>
+      </div>
+    </header>
+
+    <section class="userPOV">
+      <aside class="leftBar">
+        <div class="divAndYourLabel  exclude">
+          <div id="store" class="itens" title="store">
+            <img
+              src="https://img.icons8.com/?size=100&id=92137&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Home</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="analitics" class="itens" title="Your Schedules">
+            <img
+              src="https://img.icons8.com/?size=100&id=98067&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Analytics</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="clientArea" class="itens" title="Your Treatments">
+            <img
+              src="https://img.icons8.com/?size=100&id=88302&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Agendamentos</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="plansinapp" class="itens" title="Yours Plans in Stores">
+            <img
+              src="https://img.icons8.com/?size=100&id=86440&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Planos</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div id="services" class="itens" title="Your Project">
+            <img
+              src="https://img.icons8.com/?size=100&id=86844&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Pref.</p>
+        </div>
+        <div class="divAndYourLabel">
+          <div
+            id="delete"
+            class="itenSelectedObsolence itens"
+            title="Your Project"
+          >
+            <img
+              src="https://img.icons8.com/?size=100&id=105512&format=png&color=FFFFFF"
+              alt=""
+            />
+          </div>
+          <p>Obsolencia</p>
+        </div>
+      </aside>
+
+      <main class="infoContent">
+        <div id="loading"></div>
+        <div class="content">
+          <div class="store-content"></div>
+        </div>
+      </main>
+    </section>
+  </body>
+  <script>
+    function render(el) {
+      const element = document.createElement("div");
+      element.classList.add("scheduleData");
+      element.innerHTML = el;
+      return element;
+    }
+    window.addEventListener("load", async () => {
+      const load = document.querySelector("#loading");
+      const content = document.querySelector(".content");
+      const plans = document.querySelector("#plansinapp");
+      const client = document.querySelector("#clientArea");
+      client.addEventListener("click", () => {
+        window.location.href = "/client/schedules";
+      });
+      plans.addEventListener("click", () => {
+        window.location.href = "/store-plans";
+      });
+      const analitics = document.querySelector("#analitics");
+      analitics.addEventListener("click", () => {
+        window.location.href = "/stores/analitics";
+      });
+      const prefs = document.querySelector("#services");
+      prefs.addEventListener("click", () => {
+        window.location.href = "/stores/prefs";
+      });
+      const obsoleto = document.querySelector("#store");
+      obsoleto.addEventListener("click", () => {
+        window.location.href = "/stores/home";
+      });
+      const storeData = document.querySelector(".store-content");
+      const ini = await fetch("/obsolence/rend", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (ini.ok) {
+        const data = await ini.json();
+        storeData.appendChild(render(data.returner));
+        load.style.opacity = "0";
+        content.style.opacity = "1";
+        const starter = document.querySelector(".obsolenceDiv-call");
+        if (starter) {
+          starter.addEventListener("click", async () => {
+            const starterFetch = await fetch("/starter/obsolence", {
+              method: "GET",
+              headers: { "Content-Type": "application/json" },
+            });
+            if (starterFetch.ok) {
+              window.location.reload();
+            }
+          });
+        }
+      }
+    });
+  </script>
+</html>
