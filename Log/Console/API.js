@@ -7163,17 +7163,36 @@ app.post("/search/stores", tokenVerify, async (req, res) => {
   const { name, email } = req.user;
   const { value } = req.body;
   try {
-    console.log(name, email, value);
+    console.log(name, email);
     const inputer = value.toString().replaceAll(" ", "/");
     const store = await StoreCad.find({
       storeName: { $regex: inputer, $options: "i" },
     }).lean();
-
-    if (!store) {
-      return res.status(404).json({ message: "Loja não encontrada" });
-    }
     let arr = [];
-    for (let i = 0; i < store.length; i++) {
+    if (store.length === 0) {
+      console.log(value)
+      return res.status(200).json({html:`<div class="notAllowed">
+  <div class="call-action">
+    <h1 class="call-h1">
+      No <strong class="GreenCard">stores</strong> found<strong class="pointer">.</strong>
+    </h1>
+    <p class="call-p">No stores matched your search. Try adjusting your filters or search terms.</p>
+  </div>
+
+  <div class="central-plus">
+    <div class="label-plus">
+      <p>
+        Try a different <strong class="GreenCard">search</strong>
+      </p>
+    </div>
+    <div class="img-plusI" >
+      <img src="https://img.icons8.com/?size=100&id=84081&format=png&color=FFFFFF" style="tranform:rotate(0deg);">
+    </div>
+  </div>
+</div>`})
+      
+    }else{
+      for (let i = 0; i < store.length; i++) {
       const verifyFav = await favorite.findOne({
         name: name,
         email: email,
@@ -7281,10 +7300,14 @@ app.post("/search/stores", tokenVerify, async (req, res) => {
         arr.push(htmlStructure);
       }
     }
-
     return res.status(200).json({
       html: arr.join(""),
     });
+    }
+    
+    
+
+    
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: error.message });
