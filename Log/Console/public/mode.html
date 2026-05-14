@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>While Whale - Choice your store tipe</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/favicons/favicon-32x32.png"
+      type="image/x-icon"
+    />
+    <link
+      rel="stylesheet"
+      href="/style/mobile.css"
+      media="screen and (orientation: portrait)"
+    />
+  </head>
+  <body>
+    <header class="nb">
+      <!-- <button class="nButton" id="back">
+        <img
+          src="https://img.icons8.com/?size=100&id=99996&format=png&color=FFFFFF"
+          alt=""
+        />
+      </button> -->
+    </header>
+    <section class="cad-hours-section">
+      <div class="instructions">
+        <h1 id="ob">
+          <strong class="consoleWrite">$$</strong>Select your business type to
+          get <strong class="GreenCard">started</strong
+          ><strong class="pointer">.</strong>
+        </h1>
+        <p>Choose the option that best describes how your business operates:</p>
+      </div>
+      <div class="modes-container">
+        <div class="mode-store mode-model">
+          <h1><strong class="GreenCard">Sales</strong> Mode</h1>
+          <span
+            ><strong class="jsonWrite">{</strong><br />
+            <p class="json-jumper">
+              Sell products online and manage your store's orders
+            </p>
+            <strong class="jsonWrite">}</strong>
+          </span>
+          <button id="sales-button-act">Activate Sales Mode</button>
+        </div>
+        <div class="mode-service mode-model">
+          <h1><strong class="GreenCard">Salon</strong> Mode</h1>
+          <span
+            ><strong class="jsonWrite">{</strong><br />
+            <p class="json-jumper">
+              Schedule and manage client appointments with ease.
+            </p>
+            <strong class="jsonWrite">}</strong>
+          </span>
+          <button id="salon-button-act">Activate Salon Mode</button>
+        </div>
+        <div class="mode-project mode-model">
+          <h1><strong class="GreenCard">Projects</strong> Mode</h1>
+          <span
+            ><strong class="jsonWrite">{</strong><br />
+            <p class="json-jumper">
+              Organize and track your projects and deliverables.
+            </p>
+            <strong class="jsonWrite">}</strong>
+          </span>
+          <button id="project-button-act">Activate Projects Mode</button>
+        </div>
+      </div>
+    </section>
+  </body>
+  <script>
+    let sales = document.querySelector("#sales-button-act");
+    let salon = document.querySelector("#salon-button-act")
+    let project = document.querySelector('#project-button-act')
+    sales.addEventListener("click", () => {
+        window.location.href = "/register/store-mode:sales"
+    })
+    salon.addEventListener("click", () => {
+        window.location.href = "/register/store-mode:salon"
+    })
+    project.addEventListener("click", () => {
+        window.location.href = "/register/store-mode:project"
+    })
+  </script>
+</html>

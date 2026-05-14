@@ -981,6 +981,7 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
       cnpj: cnpj,
       phone: phone,
       storeEmail: storeEmail,
+      type: "Actually None",
       storeImagePath: imageInfo?.path ?? null,
       storeImageMeta: imageInfo ?? null,
     });
@@ -1012,7 +1013,7 @@ app.post("/CadNewStore", tokenVerify, upload.any(), async (req, res) => {
     console.log("✅ Loja cadastrada:", newStore._id);
     console.log("📁 Imagem salva em:", imageInfo?.path || "sem imagem");
 
-    return res.redirect("/services/register");
+    return res.redirect("/choice/mode");
   } catch (error) {
     console.error("❌ Erro ao cadastrar loja:", error);
 
@@ -7179,15 +7180,7 @@ app.post("/search/stores", tokenVerify, async (req, res) => {
     <p class="call-p">No stores matched your search. Try adjusting your filters or search terms.</p>
   </div>
 
-  <div class="central-plus">
-    <div class="label-plus">
-      <p>
-        Try a different <strong class="GreenCard">search</strong>
-      </p>
-    </div>
-    <div class="img-plusI" >
-      <img src="https://img.icons8.com/?size=100&id=84081&format=png&color=FFFFFF" style="tranform:rotate(0deg);">
-    </div>
+  
   </div>
 </div>`})
       
@@ -7728,6 +7721,33 @@ app.get("/register/whilewhale-datas", async (req, res) => {
       break;
   }
   return res.status(200).redirect("/pay/plans")
+})
+app.get("/choice/mode", tokenVerify ,async (req, res) => {
+  return res.status(200).sendFile(path.join(__dirname, "public", "mode.html"))
+})
+app.get("/register/store-mode:type", tokenVerify, async (req, res) => {
+  const {name, email} = req.user
+  const type = req.params.type;
+  try {
+    const realType = type.replaceAll(":","")
+  console.log(realType)
+  const typechanger = await StoreCad.findOneAndUpdate({
+    name: name,
+    email: email
+  }, {
+    type: realType
+  });
+  if (!typechanger){
+    return res.status(404).json({
+      error: "No typechanger"
+    })
+  }
+  return res.status(200).redirect('/services/register')
+  } catch (error) {
+    return res.status(500).json({
+      error: error
+    })
+  }
 })
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
